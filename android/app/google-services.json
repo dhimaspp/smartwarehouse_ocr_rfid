@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "79378163420",
+    "project_id": "smartwarehouse-ocr-rfid",
+    "storage_bucket": "smartwarehouse-ocr-rfid.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:79378163420:android:5a73ba0aa836599ad87619",
+        "android_client_info": {
+          "package_name": "com.example.smartwarehouse_ocr_rfid"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "79378163420-seq75hqippv6g9ksscq3ei4pdi2l2s0o.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDcXiqfppr-nXyDW4Kvx0pOGliepOBDW8U"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "79378163420-seq75hqippv6g9ksscq3ei4pdi2l2s0o.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

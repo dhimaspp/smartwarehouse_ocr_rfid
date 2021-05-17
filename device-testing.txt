@@ -1,0 +1,2 @@
+phone: Redmi Note 9 2.099k, back camera 48MP AI quad kamera, MTK Helio G85 with NPU
+tablet: Huawei MatePad 10.4 3.665k, front camera 8 MP 1080p@30fps, Kirin 810 with NPU
