@@ -16,7 +16,7 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       title: 'Smart Warehouse',
       theme: themePP,
-      home: AssignRFID(),
+      home: LoginScreen(),
     );
   }
 }
