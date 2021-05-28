@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:smartwarehouse_ocr_rfid/bloc/bloc_po.dart';
 import 'package:smartwarehouse_ocr_rfid/model/po_model.dart';
 import 'package:smartwarehouse_ocr_rfid/theme/theme.dart';
 import 'package:flutter_blue/flutter_blue.dart';
+import 'package:flutter_slidable/flutter_slidable.dart';
+import 'package:smartwarehouse_ocr_rfid/theme/my_flutter_app_icons.dart';
 
 class AssignRFID extends StatefulWidget {
   @override
@@ -10,11 +11,11 @@ class AssignRFID extends StatefulWidget {
 }
 
 class AssignRFIDState extends State<AssignRFID> {
-  @override
-  void initState() {
-    super.initState();
-    blocPO..getPOrx();
-  }
+  // @override
+  // void initState() {
+  //   super.initState();
+  //   blocPO..getPOrx();
+  // }
 
   @override
   Widget build(BuildContext context) {
@@ -59,23 +60,23 @@ class AssignRFIDState extends State<AssignRFID> {
                                 Icons.bluetooth,
                                 color: Colors.white,
                               ),
-                              StreamBuilder<List<ScanResult>>(
-                                  stream: FlutterBlue.instance.scanResults,
-                                  initialData: [],
-                                  builder: (c, snapshot) => Column(
-                                        children: snapshot.data!
-                                            .map((e) => Column(children: [
-                                                  Text(e.advertisementData
-                                                              .localName ==
-                                                          ""
-                                                      ? "Tidak Diketahui"
-                                                      : e.advertisementData
-                                                          .localName),
-                                                  // Text(e.device.name),
-                                                  // Text(e.device.id.toString())
-                                                ]))
-                                            .toList(),
-                                      ))
+                              // StreamBuilder<List<ScanResult>>(
+                              //     stream: FlutterBlue.instance.scanResults,
+                              //     initialData: [],
+                              //     builder: (c, snapshot) => Column(
+                              //           children: snapshot.data!
+                              //               .map((e) => Column(children: [
+                              //                     Text(e.advertisementData
+                              //                                 .localName ==
+                              //                             ""
+                              //                         ? "Tidak Diketahui"
+                              //                         : e.advertisementData
+                              //                             .localName),
+                              //                     // Text(e.device.name),
+                              //                     // Text(e.device.id.toString())
+                              //                   ]))
+                              //               .toList(),
+                              //         ))
                               // Text(
                               //   "No Device Available",
                               //   style: textInputDecoration.labelStyle!.copyWith(
@@ -155,18 +156,32 @@ class AssignRFIDState extends State<AssignRFID> {
             ),
             Divider(
               height: 10,
-              thickness: 4,
+              thickness: 1,
             ),
-            ListTile(
-              title: Text("POA12345"),
-              subtitle: Text("Paku"),
-              trailing: Column(
-                children: [Text("Qty"), Text("60")],
+            Slidable(
+              key: const ValueKey(0),
+              endActionPane: ActionPane(
+                  motion: BehindMotion(),
+                  extentRatio: 0.3,
+                  children: [
+                    SlidableAction(
+                        label: 'Assign',
+                        backgroundColor: kTextColor,
+                        icon: CustomIcon.tag_1,
+                        flex: 99,
+                        onPressed: (context) {})
+                  ]),
+              child: ListTile(
+                title: Text("POA12345"),
+                subtitle: Text("Paku"),
+                trailing: Column(
+                  children: [Text("Qty"), Text("60")],
+                ),
               ),
             ),
             Divider(
               height: 10,
-              thickness: 4,
+              thickness: 1,
             ),
             ListTile(
               title: Text("POA987654"),
@@ -177,7 +192,7 @@ class AssignRFIDState extends State<AssignRFID> {
             ),
             Divider(
               height: 10,
-              thickness: 4,
+              thickness: 1,
             ),
             ListTile(
               title: Text("POA456123"),
@@ -185,6 +200,10 @@ class AssignRFIDState extends State<AssignRFID> {
               trailing: Column(
                 children: [Text("Qty"), Text("60")],
               ),
+            ),
+            Divider(
+              height: 10,
+              thickness: 1,
             ),
             // RefreshIndicator(
             //     onRefresh: () async {},

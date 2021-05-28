@@ -3,14 +3,10 @@ import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
-import 'package:shared_preferences/shared_preferences.dart';
-import 'package:smartwarehouse_ocr_rfid/api_repository/auth_repository/user_api.dart';
 import 'package:smartwarehouse_ocr_rfid/main.dart';
-import 'package:smartwarehouse_ocr_rfid/screens/login_screen/login.dart';
-import 'package:smartwarehouse_ocr_rfid/screens/ocr_screen/ocr_screen.dart';
-import 'package:smartwarehouse_ocr_rfid/screens/ocr_screen/po_session.dart';
+import 'package:smartwarehouse_ocr_rfid/screens/home_screen/assign_rfid_screen/assign_rfid.dart';
+import 'package:smartwarehouse_ocr_rfid/screens/home_screen/ocr_screen/po_session.dart';
 import 'package:smartwarehouse_ocr_rfid/theme/theme.dart';
-import 'package:flutter_svg/flutter_svg.dart';
 
 class HomeScreen extends StatefulWidget {
   @override
@@ -262,9 +258,10 @@ class _HomeScreenState extends State<HomeScreen> {
                                 width: 125,
                                 child: ElevatedButton(
                                   onPressed: () {
-                                    // Navigator.of(context).push(
-                                    //     MaterialPageRoute(
-                                    //         builder: (context) => OCRscreen()));
+                                    Navigator.of(context).push(
+                                        MaterialPageRoute(
+                                            builder: (context) =>
+                                                AssignRFID()));
                                   },
                                   style: ElevatedButton.styleFrom(
                                       primary: kTextColor,

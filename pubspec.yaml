@@ -24,15 +24,19 @@ dependencies:
   flutter:
     sdk: flutter
   camera: ^0.8.1
+  crop_your_image: ^0.5.3
   cupertino_icons: ^1.0.2
   dio: ^4.0.0
   firebase_core: ^1.1.0
   flutter_blue: ^0.8.0
   flutter_native_splash: ^1.1.8+4
+  flutter_slidable: ^1.0.0-dev.2
   flutter_spinkit: ^5.0.0
   flutter_svg: ^0.22.0
   google_ml_kit: ^0.5.0
   http: ^0.13.1
+  image: ^3.0.2
+  image_cropper: ^1.4.0
   image_picker: ^0.7.4
   rxdart: ^0.26.0
   shared_preferences: ^2.0.5
@@ -65,6 +69,7 @@ flutter:
     - assets/images/OCR-Icon.png
     - assets/images/RFID-Icon.png
     - assets/images/header-login.png
+    - assets/images/sticker_tag.png
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/assets-and-images/#resolution-aware.
   # For details regarding adding assets from package dependencies, see
@@ -83,6 +88,9 @@ flutter:
           weight: 200
         - asset: assets/fonts/Anodina-Regular.otf
           weight: 400
+    - family: CustomIcon
+      fonts:
+        - asset: assets/fonts/MyFlutterApp.ttf
     # - family: Roboto
     #   fonts:
     #     - asset: assets/fonts/Roboto-Bold.otf
