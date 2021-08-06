@@ -1,9 +1,9 @@
 import 'package:flutter/services.dart' show rootBundle;
 
 class PO {
-  String? poNo;
-  String? barang;
-  int? qty;
+  String poNo;
+  String barang;
+  int qty;
 
   PO({this.poNo, this.barang, this.qty});
 

@@ -13,8 +13,8 @@ class LoginScreen extends StatefulWidget {
 }
 
 class _LoginScreenState extends State<LoginScreen> {
-  final _scaffoldKey = GlobalKey<ScaffoldState>();
-  final _formKey = GlobalKey<FormState>();
+  final scaffoldKey = GlobalKey<ScaffoldState>();
+  final formKey = GlobalKey<FormState>();
   final _textController = TextEditingController();
   bool loading = false;
   String username = '';
@@ -38,7 +38,7 @@ class _LoginScreenState extends State<LoginScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      key: _scaffoldKey,
+      key: scaffoldKey,
       backgroundColor: Colors.white,
       body: Container(
         height: MediaQuery.of(context).size.height,
@@ -72,7 +72,7 @@ class _LoginScreenState extends State<LoginScreen> {
               child: formLogin(),
             )
           ],
-          clipBehavior: Clip.hardEdge,
+          // clipBehavior: Clip.hardEdge,
           // overflow: Overflow.visible,
         ),
       ),
@@ -93,7 +93,7 @@ class _LoginScreenState extends State<LoginScreen> {
         padding: const EdgeInsets.symmetric(vertical: 12),
         child: Text(
           "OCR & RFID Login",
-          style: textInputDecoration.labelStyle!.copyWith(
+          style: textInputDecoration.labelStyle.copyWith(
             fontWeight: FontWeight.w800,
             fontSize: 16,
           ),
@@ -107,7 +107,7 @@ class _LoginScreenState extends State<LoginScreen> {
     return Column(
       children: <Widget>[
         Form(
-          key: _formKey,
+          key: formKey,
           child: Container(
             width: MediaQuery.of(context).size.width / 1.2,
             alignment: Alignment.center,
@@ -115,11 +115,12 @@ class _LoginScreenState extends State<LoginScreen> {
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: <Widget>[
                   TextFormField(
-                    controller: _textController,
+                    // controller: _textController,
+                    cursorColor: kFillColor,
                     decoration: textInputDecoration.copyWith(
-                        hintStyle: textInputDecoration.labelStyle!
+                        labelText: "Username",
+                        labelStyle: textInputDecoration.labelStyle
                             .copyWith(color: Colors.black54, fontSize: 16),
-                        hintText: "Username",
                         suffixIcon: Icon(
                           Icons.person,
                           color: Colors.black38,
@@ -133,11 +134,11 @@ class _LoginScreenState extends State<LoginScreen> {
                         enabledBorder: OutlineInputBorder(
                             borderSide:
                                 BorderSide(color: Colors.black38, width: 1.3))),
-                    style: textInputDecoration.labelStyle!
+                    style: textInputDecoration.labelStyle
                         .copyWith(fontWeight: FontWeight.w500),
                     textAlignVertical: TextAlignVertical.center,
                     validator: (val) {
-                      if (val!.isEmpty) {
+                      if (val.isEmpty) {
                         return 'Masukan Username';
                       }
                       if (val.length < 8) {
@@ -153,11 +154,12 @@ class _LoginScreenState extends State<LoginScreen> {
                     height: 20,
                   ),
                   TextFormField(
-                    controller: _textController,
+                    // controller: _textController,
+                    cursorColor: kFillColor,
                     decoration: textInputDecoration.copyWith(
-                        hintStyle: textInputDecoration.labelStyle!
+                        labelStyle: textInputDecoration.labelStyle
                             .copyWith(color: Colors.black54, fontSize: 16),
-                        hintText: "Password",
+                        labelText: "Password",
                         suffixIcon: IconButton(
                           icon: Icon(
                             _obscure
@@ -177,23 +179,23 @@ class _LoginScreenState extends State<LoginScreen> {
                         enabledBorder: OutlineInputBorder(
                             borderSide:
                                 BorderSide(color: Colors.black38, width: 1.3))),
-                    style: textInputDecoration.labelStyle!
+                    style: textInputDecoration.labelStyle
                         .copyWith(fontWeight: FontWeight.w500),
                     textAlignVertical: TextAlignVertical.center,
-                    validator: (val) {
-                      String pattern =
-                          r'^(?=.*?[A-Z])(?=.*?[a-z])(?=.*?[0-9])(?=.*?[!@#\$&*~]).{8,}$';
-                      RegExp regExp = new RegExp(pattern);
-                      if (val!.isEmpty) {
-                        return 'Masukan Password';
-                      }
-                      if (!regExp.hasMatch(val)) {
-                        return 'Password harus terdiri dari 8 karakter dan \n kombinasi angka dan huruf';
-                      }
-                      return null;
-                    },
-                    onChanged: (val) {
-                      setState(() => password = val);
+                    // validator: (val) {
+                    //   // String pattern =
+                    //   //     r'^(?=.*?[A-Z])(?=.*?[a-z])(?=.*?[0-9])(?=.*?[!@#\$&*~]).{8,}$';
+                    //   // RegExp regExp = new RegExp(pattern);
+                    //   // if (val.isEmpty) {
+                    //   //   return 'Masukan Password';
+                    //   // }
+                    //   // if (!regExp.hasMatch(val)) {
+                    //   //   return 'Password harus terdiri dari 8 karakter dan \n kombinasi angka dan huruf';
+                    //   // }
+                    //   // return null;
+                    // },
+                    onChanged: (password) {
+                      setState(() => this.password = password);
                     },
                     obscureText: _obscure,
                   ),
@@ -210,17 +212,31 @@ class _LoginScreenState extends State<LoginScreen> {
                       ),
                       child: Text(
                         "LOGIN",
-                        style: textInputDecoration.labelStyle!.copyWith(
+                        style: textInputDecoration.labelStyle.copyWith(
                             color: Colors.white,
                             fontSize: 16,
                             fontWeight: FontWeight.w800),
                       ),
                       onPressed: () {
-                        Navigator.of(context).push(MaterialPageRoute(
-                            builder: (context) => HomeScreen()));
-                        // if (_formKey.currentState!.validate()) {
-                        //   _login();
-                        // }
+                        // Navigator.of(context).push(PageRouteBuilder(
+                        //     pageBuilder:
+                        //         (context, animation, anotherAnimation) =>
+                        //             HomeScreen(),
+                        //     transitionDuration: Duration(milliseconds: 350),
+                        //     transitionsBuilder:
+                        //         (context, animation, anotherAnimation, child) {
+                        //       // animation = SlideTransition(position: Tween(begin: Off));
+                        //       return SlideTransition(
+                        //         position: Tween(
+                        //                 begin: Offset(1.0, 0.0),
+                        //                 end: Offset(0.0, 0.0))
+                        //             .animate(animation),
+                        //         child: child,
+                        //       );
+                        //     }));
+                        if (formKey.currentState.validate()) {
+                          _login();
+                        }
                       },
                     ),
                   )
@@ -252,15 +268,20 @@ class _LoginScreenState extends State<LoginScreen> {
       'password': password,
     };
 
-    var res = await UserAuth().authData(data, '/login');
+    var res = await UserAuth().authData(data);
     var body = json.decode(res.body);
 
-    if (body['success']) {
+    if (body['message'] == "Login success!") {
       SharedPreferences localData = await SharedPreferences.getInstance();
-      localData.setString('token', json.encode(body['token']));
+      // localData.setString('message', 'Login success!');
+      localData.setString('access_token', json.encode(body['access_token']));
       localData.setString('username', json.encode(body['username']));
-      Navigator.push(
-          context, new MaterialPageRoute(builder: (context) => HomeScreen()));
+      print('$body');
+
+      setState(() {
+        Navigator.push(
+            context, new MaterialPageRoute(builder: (context) => HomeScreen()));
+      });
     } else {
       _showMsg(body['message']);
     }

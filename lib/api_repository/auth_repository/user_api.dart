@@ -4,24 +4,25 @@ import 'package:dio/dio.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class UserAuth {
-  final String endPoint = "";
+  final String endPoint =
+      "https://smartwarehouse.widyarobotics.com/v1/auth/login";
   var token;
-  Dio? dio;
+  Dio dio;
 
   _getToken() async {
     SharedPreferences localData = await SharedPreferences.getInstance();
-    token = json.decode(localData.getString('token')!)['token'];
+    token = json.decode(localData.getString('access_token'));
   }
 
-  authData(data, apiParameter) async {
-    var fullEndpoint = endPoint + apiParameter;
+  authData(data) async {
+    var fullEndpoint = endPoint;
 
     return await http.post(Uri.parse(fullEndpoint),
         body: jsonEncode(data), headers: _setHeaders());
   }
 
-  getData(apiParameter) async {
-    var fullEndpoint = endPoint + apiParameter;
+  getData() async {
+    var fullEndpoint = endPoint;
     await _getToken();
     return await http.get(Uri.parse(fullEndpoint), headers: _setHeaders());
   }
@@ -29,12 +30,12 @@ class UserAuth {
   getData2(apiParameter) async {
     var fullEndpoint = endPoint + apiParameter;
     await _getToken();
-    return await dio!.get(fullEndpoint);
+    return await dio.get(fullEndpoint);
   }
 
   _setHeaders() => {
         'Content-type': 'application/json',
-        'Accept': 'application/json',
-        'Authorization': 'Bearer $token'
+        // 'Accept': '*/*',
+        // 'Authorization': 'Bearer $token'
       };
 }

@@ -23,10 +23,11 @@ final themePP = ThemeData(
       bodyText2: TextStyle(fontFamily: 'Anodina', fontWeight: FontWeight.w300),
       caption: TextStyle(fontFamily: 'Anodina', fontWeight: FontWeight.w200)),
   primaryColorDark: const Color(0xFF0097A7),
+  visualDensity: VisualDensity.adaptivePlatformDensity,
   primaryColorLight: const Color(0xFF00c5b3),
   primaryColor: const Color(0xFF000000),
   accentColor: const Color(0xFF009688),
-  scaffoldBackgroundColor: const Color(0xFFE0F2F1),
+  scaffoldBackgroundColor: Colors.white,
   inputDecorationTheme: InputDecorationTheme(
     border: OutlineInputBorder(
       borderRadius: BorderRadius.circular(8),

@@ -15,7 +15,7 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       title: 'Smart Warehouse',
       theme: themePP,
-      home: LoginScreen(),
+      home: AuthCheck(),
     );
   }
 }
@@ -35,7 +35,7 @@ class AuthCheckState extends State<AuthCheck> {
 
   void _checkIfLogin() async {
     SharedPreferences localData = await SharedPreferences.getInstance();
-    var token = localData.getString('token');
+    var token = localData.getString('access_token');
     if (token != null) {
       setState(() {
         isAuth = true;

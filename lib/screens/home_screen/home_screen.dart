@@ -2,10 +2,18 @@ import 'dart:convert';
 import 'dart:io';
 
 import 'package:flutter/material.dart';
+import 'package:flutter_bluetooth_serial/flutter_bluetooth_serial.dart';
+import 'package:flutter_redux/flutter_redux.dart';
+import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:redux/redux.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:smartwarehouse_ocr_rfid/api_repository/auth_repository/user_api.dart';
 import 'package:smartwarehouse_ocr_rfid/main.dart';
 import 'package:smartwarehouse_ocr_rfid/screens/home_screen/assign_rfid_screen/assign_rfid.dart';
+import 'package:smartwarehouse_ocr_rfid/screens/home_screen/bt_pairing/select_bounded_device.dart';
 import 'package:smartwarehouse_ocr_rfid/screens/home_screen/ocr_screen/po_session.dart';
+import 'package:smartwarehouse_ocr_rfid/screens/login_screen/login.dart';
 import 'package:smartwarehouse_ocr_rfid/theme/theme.dart';
 
 class HomeScreen extends StatefulWidget {
@@ -14,37 +22,43 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> {
-  String? name;
+  String name;
+  bool loading = false;
 
-  // @override
-  // void initState() {
-  //   _loadDataUser();
-  //   super.initState();
-  // }
+  @override
+  void initState() {
+    super.initState();
+    _loadDataUser();
+  }
 
-  // _loadDataUser() async {
-  //   SharedPreferences localData = await SharedPreferences.getInstance();
-  //   var username = jsonDecode(localData.getString('username'));
+  _loadDataUser() async {
+    SharedPreferences localData = await SharedPreferences.getInstance();
+    var username = jsonDecode(localData.getString('username'));
 
-  //   if (username != null) {
-  //     setState(() {
-  //       name = username['name'];
-  //     });
-  //   }
-  // }
+    if (username != null) {
+      setState(() {
+        name = username;
+      });
+    }
+  }
 
-  File? _image;
-  bool? anyImage;
+  File _image;
+  bool anyImage;
 
   _imageFromCamera() async {
-    PickedFile? pick = await ImagePicker()
+    PickedFile pick = await ImagePicker()
         .getImage(source: ImageSource.camera, imageQuality: 50);
     File pickeds;
     if (pick == null) {
       return Container();
     } else {
+      setState(() {
+        loading = true;
+      });
+
       pickeds = File(pick.path);
       _image = pickeds;
+      setState(() => loading = false);
     }
     return Navigator.of(context)
         .push(MaterialPageRoute(builder: (context) => POScanSession(_image)));
@@ -63,28 +77,29 @@ class _HomeScreenState extends State<HomeScreen> {
         child:
             Stack(alignment: AlignmentDirectional.topCenter, children: <Widget>[
           Container(
-            height: 140,
+            height: 120,
             decoration: BoxDecoration(
                 color: kFillColor,
                 borderRadius:
-                    BorderRadius.vertical(bottom: Radius.circular(20))),
+                    BorderRadius.vertical(bottom: Radius.circular(18))),
           ),
           Positioned(
             top: 60,
             left: 15,
             child: Column(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                mainAxisAlignment: MainAxisAlignment.start,
                 children: <Widget>[
                   Text(
-                    'Hello,',
-                    style: textInputDecoration.labelStyle!.copyWith(
+                    'Hello!',
+                    textAlign: TextAlign.left,
+                    style: textInputDecoration.labelStyle.copyWith(
                         fontWeight: FontWeight.w400,
                         fontSize: 16,
                         color: Colors.white),
                   ),
                   Text(
                     '$name',
-                    style: textInputDecoration.labelStyle!.copyWith(
+                    style: textInputDecoration.labelStyle.copyWith(
                         fontWeight: FontWeight.w800,
                         fontSize: 24,
                         color: Colors.white),
@@ -100,13 +115,13 @@ class _HomeScreenState extends State<HomeScreen> {
                   height: 30,
                 ),
                 onPressed: () {
-                  Navigator.of(context)
-                      .push(MaterialPageRoute(builder: (context) => MyApp()));
-                  // logout();
+                  // Navigator.of(context)
+                  //     .push(MaterialPageRoute(builder: (context) => MyApp()));
+                  logout();
                 }),
           ),
           Positioned(
-            top: 60,
+            top: 50,
             child: Container(
               height: MediaQuery.of(context).size.height / 1.1,
               width: MediaQuery.of(context).size.width,
@@ -114,6 +129,7 @@ class _HomeScreenState extends State<HomeScreen> {
                   crossAxisAlignment: CrossAxisAlignment.center,
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: <Widget>[
+                    loading ? _loading() : SizedBox(height: 50),
                     Container(
                       alignment: Alignment.center,
                       height: 200,
@@ -149,7 +165,7 @@ class _HomeScreenState extends State<HomeScreen> {
                           SizedBox(),
                           Text(
                             "Scanning PO With OCR",
-                            style: textInputDecoration.labelStyle!
+                            style: textInputDecoration.labelStyle
                                 .copyWith(color: Colors.white, fontSize: 16),
                           ),
                           Row(
@@ -160,8 +176,28 @@ class _HomeScreenState extends State<HomeScreen> {
                                 height: 51,
                                 width: 125,
                                 child: ElevatedButton(
-                                  onPressed: () {
-                                    _imageFromCamera();
+                                  onPressed: () async {
+                                    {
+                                      setState(() {
+                                        loading = true;
+                                      });
+                                      final PickedFile pick =
+                                          await ImagePicker().getImage(
+                                              source: ImageSource.camera,
+                                              imageQuality: 50);
+                                      File pickeds;
+                                      if (pick == null) {
+                                        return Container();
+                                      } else {
+                                        pickeds = File(pick.path);
+                                        _image = pickeds;
+                                        setState(() => loading = false);
+                                      }
+                                      return Navigator.of(context).push(
+                                          MaterialPageRoute(
+                                              builder: (context) =>
+                                                  POScanSession(_image)));
+                                    }
                                   },
                                   style: ElevatedButton.styleFrom(
                                       primary: kTextColor,
@@ -174,7 +210,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                             TextSpan(
                                                 text: 'Start',
                                                 style: textInputDecoration
-                                                    .labelStyle!
+                                                    .labelStyle
                                                     .copyWith(
                                                         color: Colors.white,
                                                         fontWeight:
@@ -246,7 +282,7 @@ class _HomeScreenState extends State<HomeScreen> {
                           SizedBox(),
                           Text(
                             "PO Registration (RFID Tag)",
-                            style: textInputDecoration.labelStyle!
+                            style: textInputDecoration.labelStyle
                                 .copyWith(color: Colors.white, fontSize: 16),
                           ),
                           Row(
@@ -257,11 +293,32 @@ class _HomeScreenState extends State<HomeScreen> {
                                 height: 51,
                                 width: 125,
                                 child: ElevatedButton(
-                                  onPressed: () {
+                                  onPressed: () async {
                                     Navigator.of(context).push(
-                                        MaterialPageRoute(
-                                            builder: (context) =>
-                                                AssignRFID()));
+                                        MaterialPageRoute(builder: (context) {
+                                      return AssignRFID();
+                                    }));
+                                    // final BluetoothDevice selectedDevice =
+                                    //     await Navigator.of(context).push(
+                                    //         MaterialPageRoute(
+                                    //             builder: (context) {
+                                    //   return SelectBondedDevicePage(
+                                    //     checkAvailability: false,
+                                    //   );
+                                    // }));
+                                    // if (selectedDevice != null) {
+                                    //   print('Connect to Device :' +
+                                    //       selectedDevice.address);
+                                    //   Navigator.of(context).push(
+                                    //       MaterialPageRoute(builder: (context) {
+                                    //     return AssignRFID(selectedDevice);
+                                    //   }));
+                                    // } else {
+                                    //   print('no device selected');
+                                    // }
+                                    // Navigator.of(context).push(
+                                    //     MaterialPageRoute(
+                                    //         builder: (context) => BTScreen()));
                                   },
                                   style: ElevatedButton.styleFrom(
                                       primary: kTextColor,
@@ -274,7 +331,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                             TextSpan(
                                                 text: 'Open   ',
                                                 style: textInputDecoration
-                                                    .labelStyle!
+                                                    .labelStyle
                                                     .copyWith(
                                                         color: Colors.white,
                                                         fontWeight:
@@ -314,6 +371,33 @@ class _HomeScreenState extends State<HomeScreen> {
         ]),
       ),
     );
+  }
+
+  void logout() async {
+    // var res = await UserAuth().getData();
+    // var body = json.decode(res.body);
+    // if (body['success']) {
+    SharedPreferences localStorage = await SharedPreferences.getInstance();
+    localStorage.remove('username');
+    localStorage.remove('access_token');
+    Navigator.push(
+        context, MaterialPageRoute(builder: (context) => LoginScreen()));
+    // }
+  }
+
+  Widget _loading() {
+    return Text("Waiting");
+    // new Stack(
+    //   children: [
+    //     new Opacity(
+    //       opacity: 0.3,
+    //       child: ModalBarrier(dismissible: false, color: Colors.grey),
+    //     ),
+    //     new Center(
+    //       child: new CircularProgressIndicator(),
+    //     ),
+    //   ],
+    // );
   }
 
   // Widget imageCroping() {

@@ -6,7 +6,7 @@ import 'package:crop_your_image/crop_your_image.dart';
 import 'package:smartwarehouse_ocr_rfid/theme/theme.dart';
 
 class POScanSession extends StatefulWidget {
-  final File? _image;
+  final File _image;
   const POScanSession(this._image);
   @override
   _POScanSessionState createState() => _POScanSessionState();
@@ -28,7 +28,7 @@ class _POScanSessionState extends State<POScanSession> {
   var _isSumbnail = false;
   var _isCropping = false;
   var _isCircleUi = false;
-  Uint8List? _croppedData;
+  Uint8List _croppedData;
 
   @override
   void initState() {
@@ -41,7 +41,7 @@ class _POScanSessionState extends State<POScanSession> {
       _loadingImage = true;
     });
 
-    _imageDataList.add(await _load(widget._image!.path));
+    _imageDataList.add(await _load(widget._image.path));
 
     setState(() {
       _loadingImage = false;
@@ -51,7 +51,7 @@ class _POScanSessionState extends State<POScanSession> {
   Future<Uint8List> _load(String assetName) async {
     Uri myUri = Uri.parse(assetName);
     File imgFile = new File.fromUri(myUri);
-    Uint8List? bytes;
+    Uint8List bytes;
     await imgFile.readAsBytes().then((value) {
       bytes = Uint8List.fromList(value);
       print("Reading byte is completed");
@@ -60,13 +60,13 @@ class _POScanSessionState extends State<POScanSession> {
       onError.toString();
     });
     // final assetData = await widget._image!.path;
-    return bytes!;
+    return bytes;
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.white,
+      backgroundColor: Colors.white12,
       body: Container(
         width: double.infinity,
         height: double.infinity,
@@ -74,11 +74,8 @@ class _POScanSessionState extends State<POScanSession> {
           child: Visibility(
             child: Column(children: [
               Container(
-                height: 130,
-                decoration: BoxDecoration(
-                    color: Colors.white,
-                    borderRadius:
-                        BorderRadius.vertical(bottom: Radius.circular(20))),
+                height: MediaQuery.of(context).size.aspectRatio,
+                color: Colors.white24,
               ),
               Expanded(
                 child: Visibility(
@@ -87,6 +84,7 @@ class _POScanSessionState extends State<POScanSession> {
                     children: [
                       if (_imageDataList.isNotEmpty)
                         Crop(
+                          baseColor: Colors.white24,
                           image: _imageDataList[_currentImage],
                           onCropped: (croppedData) {
                             setState(() {
@@ -95,7 +93,7 @@ class _POScanSessionState extends State<POScanSession> {
                             });
                           },
                           withCircleUi: _isCircleUi,
-                          initialSize: 0.5,
+                          initialSize: 0.8,
                           maskColor: _isSumbnail ? Colors.white : null,
                           cornerDotBuilder: (size, index) => _isSumbnail
                               ? const SizedBox.shrink()
@@ -108,10 +106,18 @@ class _POScanSessionState extends State<POScanSession> {
                             onTapDown: (_) =>
                                 setState(() => _isSumbnail = true),
                             onTapUp: (_) => setState(() => _isSumbnail = false),
-                            child: CircleAvatar(
-                              backgroundColor: _isSumbnail
-                                  ? kFillColor.withOpacity(0.5)
-                                  : kFillColor,
+                            child: Container(
+                              height: 32,
+                              width: 32,
+                              decoration: BoxDecoration(
+                                borderRadius: BorderRadius.circular(5),
+                                color: _isSumbnail
+                                    ? kFillColor
+                                    : Colors.white.withOpacity(0.2),
+                              ),
+                              // color: _isSumbnail
+                              //     ? kFillColor.withOpacity(0.5)
+                              //     : kFillColor,
                               child: Center(
                                 child: Icon(
                                   Icons.crop_free_rounded,
@@ -125,7 +131,7 @@ class _POScanSessionState extends State<POScanSession> {
                   replacement: Center(
                     child: _croppedData == null
                         ? SizedBox.shrink()
-                        : Image.memory(_croppedData!),
+                        : Image.memory(_croppedData),
                   ),
                 ),
               ),
@@ -138,20 +144,45 @@ class _POScanSessionState extends State<POScanSession> {
                         height: 16,
                       ),
                       Container(
-                        width: double.infinity,
-                        child: ElevatedButton(
-                          style: ElevatedButton.styleFrom(primary: kFillColor),
-                          onPressed: () {
-                            setState(() {
-                              _isCropping = true;
-                            });
-                            _cropController.crop();
-                          },
-                          child: Padding(
-                              padding: const EdgeInsets.symmetric(vertical: 16),
-                              child: Text('Crop')),
-                        ),
-                      ),
+                          width: double.infinity,
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              TextButton(
+                                  onPressed: () {
+                                    Navigator.of(context).pop();
+                                  },
+                                  child: Text(
+                                    'Cancel',
+                                    style: textInputDecoration.labelStyle
+                                        .copyWith(
+                                            fontWeight: FontWeight.w700,
+                                            color: Colors.white),
+                                  )),
+                              TextButton(
+                                  onPressed: () {},
+                                  child: Text(
+                                    'Send',
+                                    style: textInputDecoration.labelStyle
+                                        .copyWith(
+                                            fontWeight: FontWeight.w700,
+                                            color: Colors.white),
+                                  )),
+                            ],
+                          )
+                          // ElevatedButton(
+                          //   style: ElevatedButton.styleFrom(primary: kFillColor),
+                          //   onPressed: () {
+                          //     setState(() {
+                          //       _isCropping = true;
+                          //     });
+                          //     _cropController.crop();
+                          //   },
+                          //   child: Padding(
+                          //       padding: const EdgeInsets.symmetric(vertical: 16),
+                          //       child: Text('Crop')),
+                          // ),
+                          ),
                       SizedBox(
                         height: 50,
                       )
