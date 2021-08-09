@@ -275,7 +275,7 @@ class _LoginScreenState extends State<LoginScreen> {
       SharedPreferences localData = await SharedPreferences.getInstance();
       // localData.setString('message', 'Login success!');
       localData.setString('access_token', json.encode(body['access_token']));
-      localData.setString('username', json.encode(body['username']));
+      localData.setString('data', json.encode(body['data']));
       print('$body');
 
       setState(() {

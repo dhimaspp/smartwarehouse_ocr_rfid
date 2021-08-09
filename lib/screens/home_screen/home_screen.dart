@@ -12,6 +12,7 @@ import 'package:smartwarehouse_ocr_rfid/api_repository/auth_repository/user_api.
 import 'package:smartwarehouse_ocr_rfid/main.dart';
 import 'package:smartwarehouse_ocr_rfid/screens/home_screen/assign_rfid_screen/assign_rfid.dart';
 import 'package:smartwarehouse_ocr_rfid/screens/home_screen/bt_pairing/select_bounded_device.dart';
+import 'package:smartwarehouse_ocr_rfid/screens/home_screen/ocr_screen/images_page.dart';
 import 'package:smartwarehouse_ocr_rfid/screens/home_screen/ocr_screen/po_session.dart';
 import 'package:smartwarehouse_ocr_rfid/screens/login_screen/login.dart';
 import 'package:smartwarehouse_ocr_rfid/theme/theme.dart';
@@ -22,7 +23,7 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> {
-  String name;
+  String name = '';
   bool loading = false;
 
   @override
@@ -33,6 +34,8 @@ class _HomeScreenState extends State<HomeScreen> {
 
   _loadDataUser() async {
     SharedPreferences localData = await SharedPreferences.getInstance();
+    var data = jsonDecode(localData.getString('data'));
+    localData.setString('username', json.encode(data['username']));
     var username = jsonDecode(localData.getString('username'));
 
     if (username != null) {
@@ -60,8 +63,8 @@ class _HomeScreenState extends State<HomeScreen> {
       _image = pickeds;
       setState(() => loading = false);
     }
-    return Navigator.of(context)
-        .push(MaterialPageRoute(builder: (context) => POScanSession(_image)));
+    // return Navigator.of(context)
+    //     .push(MaterialPageRoute(builder: (context) => POScanSession(_image)));
     // File? picked = File(pick.path);
     // _image = pickeds;
     // return Navigator.of(context)
@@ -177,27 +180,30 @@ class _HomeScreenState extends State<HomeScreen> {
                                 width: 125,
                                 child: ElevatedButton(
                                   onPressed: () async {
-                                    {
-                                      setState(() {
-                                        loading = true;
-                                      });
-                                      final PickedFile pick =
-                                          await ImagePicker().getImage(
-                                              source: ImageSource.camera,
-                                              imageQuality: 50);
-                                      File pickeds;
-                                      if (pick == null) {
-                                        return Container();
-                                      } else {
-                                        pickeds = File(pick.path);
-                                        _image = pickeds;
-                                        setState(() => loading = false);
-                                      }
-                                      return Navigator.of(context).push(
-                                          MaterialPageRoute(
-                                              builder: (context) =>
-                                                  POScanSession(_image)));
-                                    }
+                                    Navigator.of(context).push(
+                                        MaterialPageRoute(
+                                            builder: (context) =>
+                                                ImagesPages()));
+
+                                    // setState(() {
+                                    //   loading = true;
+                                    // });
+                                    //   final PickedFile pick =
+                                    //       await ImagePicker().getImage(
+                                    //           source: ImageSource.camera,
+                                    //           imageQuality: 50);
+                                    //   File pickeds;
+                                    //   if (pick == null) {
+                                    //     return Container();
+                                    //   } else {
+                                    //     pickeds = File(pick.path);
+                                    //     _image = pickeds;
+                                    //   }
+                                    //   setState(() => loading = false);
+                                    //   return Navigator.of(context).push(
+                                    //       MaterialPageRoute(
+                                    //           builder: (context) =>
+                                    //               POScanSession(_image)));
                                   },
                                   style: ElevatedButton.styleFrom(
                                       primary: kTextColor,

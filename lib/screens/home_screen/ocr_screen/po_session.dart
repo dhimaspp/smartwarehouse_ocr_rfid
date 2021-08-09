@@ -3,18 +3,24 @@ import 'dart:typed_data';
 
 import 'package:flutter/material.dart';
 import 'package:crop_your_image/crop_your_image.dart';
+import 'package:flutter_spinkit/flutter_spinkit.dart';
+import 'package:smartwarehouse_ocr_rfid/bloc/list_images_bloc.dart';
+import 'package:smartwarehouse_ocr_rfid/screens/home_screen/ocr_screen/images_page.dart';
 import 'package:smartwarehouse_ocr_rfid/theme/theme.dart';
+import 'package:path_provider/path_provider.dart';
 
 class POScanSession extends StatefulWidget {
-  final File _image;
-  const POScanSession(this._image);
+  final File image;
+  const POScanSession({this.image, Key key}) : super(key: key);
   @override
-  _POScanSessionState createState() => _POScanSessionState();
+  POScanSessionState createState() => POScanSessionState();
 }
 
-class _POScanSessionState extends State<POScanSession> {
+class POScanSessionState extends State<POScanSession> {
   final _cropController = CropController();
   final _imageDataList = <Uint8List>[];
+  List<String> assets = <String>[];
+  DateTime now = DateTime.now();
 
   var _loadingImage = false;
   var _currentImage = 0;
@@ -41,8 +47,9 @@ class _POScanSessionState extends State<POScanSession> {
       _loadingImage = true;
     });
 
-    _imageDataList.add(await _load(widget._image.path));
+    _imageDataList.add(await _load(widget.image.path));
 
+    // _cropController.image = _imageDataList[0];
     setState(() {
       _loadingImage = false;
     });
@@ -84,11 +91,14 @@ class _POScanSessionState extends State<POScanSession> {
                     children: [
                       if (_imageDataList.isNotEmpty)
                         Crop(
+                          controller: _cropController,
                           baseColor: Colors.white24,
-                          image: _imageDataList[_currentImage],
+                          image: _imageDataList[0],
                           onCropped: (croppedData) {
                             setState(() {
                               _croppedData = croppedData;
+                              print(
+                                  'Print cropped image 1 ${_croppedData.toString()}');
                               _isCropping = false;
                             });
                           },
@@ -135,60 +145,106 @@ class _POScanSessionState extends State<POScanSession> {
                   ),
                 ),
               ),
-              if (_croppedData == null)
-                Padding(
-                  padding: const EdgeInsets.all(16),
-                  child: Column(
-                    children: [
-                      SizedBox(
-                        height: 16,
-                      ),
-                      Container(
-                          width: double.infinity,
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
-                              TextButton(
-                                  onPressed: () {
-                                    Navigator.of(context).pop();
-                                  },
-                                  child: Text(
-                                    'Cancel',
-                                    style: textInputDecoration.labelStyle
-                                        .copyWith(
-                                            fontWeight: FontWeight.w700,
-                                            color: Colors.white),
-                                  )),
-                              TextButton(
-                                  onPressed: () {},
-                                  child: Text(
-                                    'Send',
-                                    style: textInputDecoration.labelStyle
-                                        .copyWith(
-                                            fontWeight: FontWeight.w700,
-                                            color: Colors.white),
-                                  )),
-                            ],
-                          )
-                          // ElevatedButton(
-                          //   style: ElevatedButton.styleFrom(primary: kFillColor),
-                          //   onPressed: () {
-                          //     setState(() {
-                          //       _isCropping = true;
-                          //     });
-                          //     _cropController.crop();
-                          //   },
-                          //   child: Padding(
-                          //       padding: const EdgeInsets.symmetric(vertical: 16),
-                          //       child: Text('Crop')),
-                          // ),
+              _croppedData == null
+                  ? Padding(
+                      padding: const EdgeInsets.all(16),
+                      child: Column(
+                        children: [
+                          SizedBox(
+                            height: 16,
                           ),
-                      SizedBox(
-                        height: 50,
-                      )
-                    ],
-                  ),
-                )
+                          Container(
+                              width: double.infinity,
+                              child: Row(
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceBetween,
+                                children: [
+                                  TextButton(
+                                      onPressed: () {
+                                        Navigator.of(context).pop();
+                                      },
+                                      child: Text(
+                                        'Cancel',
+                                        style: textInputDecoration.labelStyle
+                                            .copyWith(
+                                                fontWeight: FontWeight.w700,
+                                                color: Colors.white),
+                                      )),
+                                  // _isCropping == true
+                                  //     ? Center(
+                                  //         child: SpinKitThreeBounce(
+                                  //         color: Colors.white,
+                                  //         size: 80,
+                                  //       ))
+                                  //     : Container(),
+                                  TextButton(
+                                      onPressed: () async {
+                                        setState(() {
+                                          _isCropping = true;
+                                        });
+                                        _cropController.crop();
+                                        // print(
+                                        //     'Print cropped image ${_imageDataList[_currentImage].toString()}');
+                                        Future.delayed(
+                                            const Duration(seconds: 7),
+                                            () async {
+                                          print('delay -----');
+                                          print(
+                                              'Print cropped image 2 ${_croppedData.toString()}');
+                                          Directory tempDir =
+                                              await getApplicationDocumentsDirectory();
+                                          final String tempPath = tempDir.path;
+                                          Future<File> image =
+                                              File('$tempPath/PO{$now}.png')
+                                                  .writeAsBytes(_croppedData);
+                                          File thisImage = await image;
+                                          imagePathBloc
+                                            ..addImagePath(thisImage.path);
+
+                                          // final myImagePathTemp =
+                                          //     tempPath + thisImage.path;
+                                          // File saveImage = File(myImagePathTemp);
+
+                                          print(
+                                              'image path ${thisImage.path} ++++++++++');
+                                          return Navigator.of(context).push(
+                                              MaterialPageRoute(
+                                                  builder: (context) =>
+                                                      ImagesPages()));
+                                        });
+                                        setState(() {
+                                          _isCropping = false;
+                                        });
+                                      },
+                                      child: Text(
+                                        'Next',
+                                        style: textInputDecoration.labelStyle
+                                            .copyWith(
+                                                fontWeight: FontWeight.w700,
+                                                color: Colors.white),
+                                      )),
+                                ],
+                              )
+                              // ElevatedButton(
+                              //   style: ElevatedButton.styleFrom(primary: kFillColor),
+                              //   onPressed: () {l56
+                              //     setState(() {
+                              //       _isCropping = true;
+                              //     });
+                              //     _cropController.crop();
+                              //   },
+                              //   child: Padding(
+                              //       padding: const EdgeInsets.symmetric(vertical: 16),
+                              //       child: Text('Crop')),
+                              // ),
+                              ),
+                          SizedBox(
+                            height: 50,
+                          )
+                        ],
+                      ),
+                    )
+                  : Container()
             ]),
             replacement: CircularProgressIndicator(
               color: kFillColor,
