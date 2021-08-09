@@ -142,7 +142,7 @@ class _ImagesPagesState extends State<ImagesPages> {
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
                             Text(
-                                'There is no image PO\nClick here to add photo PO',
+                                'There is no image PO\nClick here to take picture PO',
                                 textAlign: TextAlign.center,
                                 style: textInputDecoration.labelStyle.copyWith(
                                     fontWeight: FontWeight.w800,
