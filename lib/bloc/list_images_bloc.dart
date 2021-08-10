@@ -9,6 +9,7 @@ class ImagesPath {
 
   addImagePath(String imagePath) async {
     SharedPreferences sharedLocal = await SharedPreferences.getInstance();
+    prefList.clear();
     prefList.add(imagePath);
     sharedLocal.setStringList('ListImagePath', prefList);
   }

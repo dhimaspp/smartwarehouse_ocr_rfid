@@ -35,6 +35,7 @@ class _HomeScreenState extends State<HomeScreen> {
   _loadDataUser() async {
     SharedPreferences localData = await SharedPreferences.getInstance();
     var data = jsonDecode(localData.getString('data'));
+    localData.remove('ListImagePath');
     localData.setString('username', json.encode(data['username']));
     var username = jsonDecode(localData.getString('username'));
 

@@ -41,10 +41,20 @@ class _ImagesPagesState extends State<ImagesPages> {
     SharedPreferences sharedLocal = await SharedPreferences.getInstance();
 
     var listPref = sharedLocal.getStringList('ListImagePath');
+    var listPrefFix = sharedLocal.getStringList('ListImagePathFix');
+    assets = listPrefFix;
     setState(() {
       print('print image path $listPref');
       if (listPref != null) {
-        assets = listPref;
+        var listIndex = listPref[0];
+        for (var i = 0; i < assets.length; i++) {
+          if (listIndex == assets[i]) {
+          } else {
+            assets.add(listIndex);
+            break;
+          }
+        }
+        sharedLocal.setStringList('ListImagePathFix', assets);
         // ListTempImage().imagePath.add(widget.imagePath);
         // return assets;
         // ListTempImage().imagePath;
@@ -93,7 +103,7 @@ class _ImagesPagesState extends State<ImagesPages> {
                               color: Colors.white,
                             )),
                         Text(
-                          '  PO Images Preview',
+                          'PO Images Preview',
                           style: textInputDecoration.labelStyle.copyWith(
                               fontWeight: FontWeight.w800,
                               fontSize: 18,
@@ -360,7 +370,7 @@ class _ImagesPagesState extends State<ImagesPages> {
                                 assets.removeAt(index);
 
                                 sharedData
-                                    .setStringList('ListImagePath', assets)
+                                    .setStringList('ListImagePathFix', assets)
                                     .whenComplete(
                                         () => Navigator.of(context).pop());
                                 _loadingImage = false;
