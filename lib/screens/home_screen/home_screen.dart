@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'dart:io';
 
+import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bluetooth_serial/flutter_bluetooth_serial.dart';
 import 'package:flutter_redux/flutter_redux.dart';
@@ -16,6 +17,8 @@ import 'package:smartwarehouse_ocr_rfid/screens/home_screen/ocr_screen/images_pa
 import 'package:smartwarehouse_ocr_rfid/screens/home_screen/ocr_screen/po_session.dart';
 import 'package:smartwarehouse_ocr_rfid/screens/login_screen/login.dart';
 import 'package:smartwarehouse_ocr_rfid/theme/theme.dart';
+
+import 'bt_pairing/bt_wrapper.dart';
 
 class HomeScreen extends StatefulWidget {
   @override
@@ -35,7 +38,7 @@ class _HomeScreenState extends State<HomeScreen> {
   _loadDataUser() async {
     SharedPreferences localData = await SharedPreferences.getInstance();
     var data = jsonDecode(localData.getString('data'));
-    localData.remove('ListImagePath');
+
     localData.setString('username', json.encode(data['username']));
     var username = jsonDecode(localData.getString('username'));
 
@@ -301,28 +304,28 @@ class _HomeScreenState extends State<HomeScreen> {
                                 width: 125,
                                 child: ElevatedButton(
                                   onPressed: () async {
-                                    Navigator.of(context).push(
-                                        MaterialPageRoute(builder: (context) {
-                                      return AssignRFID();
-                                    }));
-                                    // final BluetoothDevice selectedDevice =
-                                    //     await Navigator.of(context).push(
-                                    //         MaterialPageRoute(
-                                    //             builder: (context) {
-                                    //   return SelectBondedDevicePage(
-                                    //     checkAvailability: false,
-                                    //   );
+                                    // Navigator.of(context).push(
+                                    //     MaterialPageRoute(builder: (context) {
+                                    //   return AssignRFID();
                                     // }));
-                                    // if (selectedDevice != null) {
-                                    //   print('Connect to Device :' +
-                                    //       selectedDevice.address);
-                                    //   Navigator.of(context).push(
-                                    //       MaterialPageRoute(builder: (context) {
-                                    //     return AssignRFID(selectedDevice);
-                                    //   }));
-                                    // } else {
-                                    //   print('no device selected');
-                                    // }
+                                    final BluetoothDevice selectedDevice =
+                                        await Navigator.of(context).push(
+                                            MaterialPageRoute(
+                                                builder: (context) {
+                                      return SelectBondedDevicePage(
+                                        checkAvailability: false,
+                                      );
+                                    }));
+                                    if (selectedDevice != null) {
+                                      print('Connect to Device :' +
+                                          selectedDevice.address);
+                                      Navigator.of(context).push(
+                                          MaterialPageRoute(builder: (context) {
+                                        return AssignRFID(selectedDevice);
+                                      }));
+                                    } else {
+                                      print('no device selected');
+                                    }
                                     // Navigator.of(context).push(
                                     //     MaterialPageRoute(
                                     //         builder: (context) => BTScreen()));

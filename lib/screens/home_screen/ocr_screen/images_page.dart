@@ -1,11 +1,15 @@
 import 'dart:io';
 
+import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:modal_bottom_sheet/modal_bottom_sheet.dart';
+import 'package:path/path.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:slider_button/slider_button.dart';
 import 'package:smartwarehouse_ocr_rfid/bloc/list_images_bloc.dart';
+import 'package:smartwarehouse_ocr_rfid/bloc/upload_bloc.dart';
 import 'package:smartwarehouse_ocr_rfid/screens/home_screen/home_screen.dart';
 import 'package:smartwarehouse_ocr_rfid/screens/home_screen/ocr_screen/po_session.dart';
 import 'package:smartwarehouse_ocr_rfid/theme/theme.dart';
@@ -19,10 +23,11 @@ class ImagesPages extends StatefulWidget {
 }
 
 class _ImagesPagesState extends State<ImagesPages> {
-  final GlobalKey<POScanSessionState> _key = GlobalKey();
   List<Widget> imagesAsset = <Widget>[];
   List<String> assets = <String>[];
-  bool _loadingImage, _isLoading;
+  List<MultipartFile> listMultiPartFile = [];
+  bool _loadingImage, finishAdding, _onLongPressed;
+  int indexPressed = 0;
 
   @override
   void initState() {
@@ -42,7 +47,14 @@ class _ImagesPagesState extends State<ImagesPages> {
 
     var listPref = sharedLocal.getStringList('ListImagePath');
     var listPrefFix = sharedLocal.getStringList('ListImagePathFix');
-    assets = listPrefFix;
+    if (listPrefFix.isEmpty) {
+      assets = listPref;
+      print('assets = listPref');
+    } else {
+      assets = listPrefFix;
+      print('assets = listPrefix');
+    }
+    // assets = listPrefFix;
     setState(() {
       print('print image path $listPref');
       if (listPref != null) {
@@ -54,6 +66,7 @@ class _ImagesPagesState extends State<ImagesPages> {
             break;
           }
         }
+        sharedLocal.remove('ListImagePath');
         sharedLocal.setStringList('ListImagePathFix', assets);
         // ListTempImage().imagePath.add(widget.imagePath);
         // return assets;
@@ -126,24 +139,30 @@ class _ImagesPagesState extends State<ImagesPages> {
                       setState(() {
                         _loadingImage = true;
                       });
-                      final PickedFile pick = await ImagePicker().getImage(
-                          source: ImageSource.camera, imageQuality: 50);
+                      final PickedFile pick = await ImagePicker()
+                          .getImage(
+                              source: ImageSource.camera, imageQuality: 50)
+                          .whenComplete(() {
+                        setState(() {
+                          _loadingImage = false;
+                        });
+                      });
                       File pickeds;
                       if (pick == null) {
                         return Container();
                       } else {
                         pickeds = File(pick.path);
+                        Navigator.of(context)
+                            .push(MaterialPageRoute(builder: (context) {
+                          return POScanSession(
+                            image: pickeds,
+                          );
+                        }));
                       }
-                      Navigator.of(context)
-                          .push(MaterialPageRoute(builder: (context) {
-                        return POScanSession(
-                          image: pickeds,
-                        );
-                      }));
 
-                      setState(() {
-                        _loadingImage = false;
-                      });
+                      // setState(() {
+                      //   _loadingImage = false;
+                      // });
                     },
                     child: Container(
                       alignment: Alignment.center,
@@ -207,7 +226,8 @@ class _ImagesPagesState extends State<ImagesPages> {
                                   top: -8,
                                   child: GestureDetector(
                                     onTap: () {
-                                      _showDeleteModalBottomSheet(index);
+                                      _showDeleteModalBottomSheet(
+                                          index, context);
                                     },
                                     child: Container(
                                       decoration: BoxDecoration(
@@ -273,36 +293,78 @@ class _ImagesPagesState extends State<ImagesPages> {
             ),
       bottomSheet: assets.length == 0
           ? null
-          : Container(
-              height: 55,
-              margin: EdgeInsets.all(15),
-              width: MediaQuery.of(context).size.width,
-              child: ElevatedButton(
-                  style: ElevatedButton.styleFrom(primary: kMaincolor),
-                  onPressed: () async {
-                    setState(() {
-                      _isLoading = true;
-                    });
-                    // await context.read<AddProductCubit>().addProduct(idProduct);
-                    // setState(() {
-                    //   _isLoading = false;
-                    //   Get.to(() => MainPage(
-                    //         initialPage: 1,
-                    //       ));
-                    // });
-                  },
-                  child: Text(
-                    'Procces to OCR',
-                    style: textInputDecoration.labelStyle.copyWith(
-                        fontWeight: FontWeight.w800,
-                        fontSize: 18,
-                        color: Colors.white),
-                  )),
-            ),
+          : finishAdding == true
+              ? UploadWidget(listMultiPartFile)
+              : Container(
+                  height: 55,
+                  margin: EdgeInsets.all(15),
+                  width: MediaQuery.of(context).size.width,
+                  child: ElevatedButton(
+                      style: ElevatedButton.styleFrom(primary: kMaincolor),
+                      onLongPress: () {
+                        setState(() {
+                          if (indexPressed == 0) {
+                            indexPressed = 1;
+                            print('index press = $indexPressed');
+                            _onLongPressed = true;
+                          } else if (indexPressed == 1) {
+                            indexPressed = 0;
+                            print('index press = $indexPressed');
+                            _onLongPressed = false;
+                          }
+                        });
+                      },
+                      onPressed: () async {
+                        if (_onLongPressed == true) {
+                          SharedPreferences sharedLocal =
+                              await SharedPreferences.getInstance();
+                          var listData =
+                              sharedLocal.getStringList('ListImagePathFix');
+
+                          String baseName;
+                          for (var i = 0; i < listData.length; i++) {
+                            baseName = basename(listData[i]);
+                            listMultiPartFile.add(await MultipartFile.fromFile(
+                                listData[i],
+                                filename: baseName));
+                          }
+                          setState(() {
+                            finishAdding = true;
+                          });
+
+                          // UploadWidget(listMultiPartFile);
+                        }
+                        // setState(() {
+                        //   _isLoading = true;
+                        // });
+                        // await context.read<AddProductCubit>().addProduct(idProduct);
+                        // setState(() {
+                        //   _isLoading = false;
+                        //   Get.to(() => MainPage(
+                        //         initialPage: 1,
+                        //       ));
+                        // });
+                      },
+                      child: _onLongPressed == true
+                          ? Text(
+                              'Procces to OCR',
+                              style: textInputDecoration.labelStyle.copyWith(
+                                  fontWeight: FontWeight.w800,
+                                  fontSize: 18,
+                                  color: Colors.white),
+                            )
+                          : Text(
+                              'Long Press to Set Ready',
+                              style: textInputDecoration.labelStyle.copyWith(
+                                  fontWeight: FontWeight.w800,
+                                  fontSize: 18,
+                                  color: Colors.white),
+                            )),
+                ),
     );
   }
 
-  _showDeleteModalBottomSheet(int index) {
+  _showDeleteModalBottomSheet(int index, BuildContext context) {
     return showBarModalBottomSheet(
         context: context,
         builder: (context) => Container(
