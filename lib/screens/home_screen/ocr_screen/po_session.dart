@@ -3,6 +3,7 @@ import 'dart:typed_data';
 
 import 'package:flutter/material.dart';
 import 'package:crop_your_image/crop_your_image.dart';
+import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:smartwarehouse_ocr_rfid/bloc/list_images_bloc.dart';
 import 'package:smartwarehouse_ocr_rfid/screens/home_screen/ocr_screen/images_page.dart';
@@ -73,7 +74,7 @@ class POScanSessionState extends State<POScanSession> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.white12,
+      backgroundColor: Colors.black87,
       body: Container(
         width: double.infinity,
         height: double.infinity,
@@ -179,9 +180,8 @@ class POScanSessionState extends State<POScanSession> {
                                   //     : Container(),
                                   TextButton(
                                       onPressed: () async {
-                                        setState(() {
-                                          _isCropping = true;
-                                        });
+                                        EasyLoading.show(
+                                            status: 'Cropping Image');
                                         _cropController.crop();
                                         // print(
                                         //     'Print cropped image ${_imageDataList[_currentImage].toString()}');
@@ -194,9 +194,9 @@ class POScanSessionState extends State<POScanSession> {
                                           Directory tempDir =
                                               await getApplicationDocumentsDirectory();
                                           final String tempPath = tempDir.path;
-                                          Future<File> image =
-                                              File('$tempPath/PO{$now}.png')
-                                                  .writeAsBytes(_croppedData);
+                                          Future<File> image = File(
+                                                  '$tempPath/PO${now.millisecond}.jpg')
+                                              .writeAsBytes(_croppedData);
                                           File thisImage = await image;
                                           imagePathBloc
                                             ..addImagePath(thisImage.path);
@@ -204,6 +204,8 @@ class POScanSessionState extends State<POScanSession> {
                                           // final myImagePathTemp =
                                           //     tempPath + thisImage.path;
                                           // File saveImage = File(myImagePathTemp);
+                                          EasyLoading.showSuccess(
+                                              'Success Cropping Image');
 
                                           print(
                                               'image path ${thisImage.path} ++++++++++');

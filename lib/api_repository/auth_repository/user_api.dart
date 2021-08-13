@@ -4,8 +4,7 @@ import 'package:dio/dio.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class UserAuth {
-  final String endPoint =
-      "https://smartwarehouse.widyarobotics.com/v1/auth/login";
+  final String endPoint = "http://100.68.1.2:7030/v1/auth/login";
   var token;
   Dio dio;
 

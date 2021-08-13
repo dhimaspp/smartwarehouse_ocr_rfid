@@ -1,7 +1,12 @@
+import 'dart:convert';
 import 'dart:io';
+import 'dart:typed_data';
 
 import 'package:dio/dio.dart';
+import 'package:http_parser/http_parser.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:modal_bottom_sheet/modal_bottom_sheet.dart';
@@ -10,6 +15,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:slider_button/slider_button.dart';
 import 'package:smartwarehouse_ocr_rfid/bloc/list_images_bloc.dart';
 import 'package:smartwarehouse_ocr_rfid/bloc/upload_bloc.dart';
+import 'package:smartwarehouse_ocr_rfid/model/upload_response.dart';
 import 'package:smartwarehouse_ocr_rfid/screens/home_screen/home_screen.dart';
 import 'package:smartwarehouse_ocr_rfid/screens/home_screen/ocr_screen/po_session.dart';
 import 'package:smartwarehouse_ocr_rfid/theme/theme.dart';
@@ -28,6 +34,8 @@ class _ImagesPagesState extends State<ImagesPages> {
   List<MultipartFile> listMultiPartFile = [];
   bool _loadingImage, finishAdding, _onLongPressed;
   int indexPressed = 0;
+  final Dio _dio = Dio();
+  String token;
 
   @override
   void initState() {
@@ -47,6 +55,8 @@ class _ImagesPagesState extends State<ImagesPages> {
 
     var listPref = sharedLocal.getStringList('ListImagePath');
     var listPrefFix = sharedLocal.getStringList('ListImagePathFix');
+    token = jsonDecode(sharedLocal.getString('access_token'));
+
     if (listPrefFix.isEmpty) {
       assets = listPref;
       print('assets = listPref');
@@ -61,6 +71,7 @@ class _ImagesPagesState extends State<ImagesPages> {
         var listIndex = listPref[0];
         for (var i = 0; i < assets.length; i++) {
           if (listIndex == assets[i]) {
+            print('print image path $listIndex');
           } else {
             assets.add(listIndex);
             break;
@@ -78,6 +89,13 @@ class _ImagesPagesState extends State<ImagesPages> {
   }
 
   @override
+  void dispose() {
+    // TODO: implement dispose
+    super.dispose();
+    EasyLoading.dismiss();
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.white,
@@ -85,6 +103,7 @@ class _ImagesPagesState extends State<ImagesPages> {
         SizedBox(
           height: 110,
           child: Stack(
+              overflow: Overflow.visible,
               alignment: AlignmentDirectional.topCenter,
               children: <Widget>[
                 Container(
@@ -126,136 +145,127 @@ class _ImagesPagesState extends State<ImagesPages> {
                 ),
               ]),
         ),
-        _loadingImage == true
-            ? Center(
-                // heightFactor: MediaQuery.of(context).size.height,
-                child: SpinKitRipple(
-                color: kMaincolor,
-                size: 80,
-              ))
-            : assets.length == 0
-                ? GestureDetector(
-                    onTap: () async {
-                      setState(() {
-                        _loadingImage = true;
-                      });
-                      final PickedFile pick = await ImagePicker()
-                          .getImage(
-                              source: ImageSource.camera, imageQuality: 50)
-                          .whenComplete(() {
-                        setState(() {
-                          _loadingImage = false;
-                        });
-                      });
-                      File pickeds;
-                      if (pick == null) {
-                        return Container();
-                      } else {
-                        pickeds = File(pick.path);
-                        Navigator.of(context)
-                            .push(MaterialPageRoute(builder: (context) {
-                          return POScanSession(
-                            image: pickeds,
-                          );
-                        }));
-                      }
+        assets.length == 0
+            ? GestureDetector(
+                onTap: () async {
+                  EasyLoading.show(
+                      dismissOnTap: true,
+                      indicator: Center(
+                          // heightFactor: MediaQuery.of(context).size.height,
+                          child: SpinKitRipple(
+                        color: kMaincolor,
+                        size: 80,
+                      )));
+                  final PickedFile pick = await ImagePicker()
+                      .getImage(source: ImageSource.camera, imageQuality: 50);
+                  File pickeds;
+                  if (pick == null) {
+                    return Container();
+                  } else {
+                    pickeds = File(pick.path);
+                    Navigator.of(context)
+                        .push(MaterialPageRoute(builder: (context) {
+                      return POScanSession(
+                        image: pickeds,
+                      );
+                    }));
+                  }
+                  EasyLoading.dismiss();
 
-                      // setState(() {
-                      //   _loadingImage = false;
-                      // });
-                    },
-                    child: Container(
-                      alignment: Alignment.center,
-                      height: MediaQuery.of(context).size.height / 1.5,
-                      child: Column(
-                          mainAxisAlignment: MainAxisAlignment.center,
+                  // setState(() {
+                  //   _loadingImage = false;
+                  // });
+                },
+                child: Container(
+                  alignment: Alignment.center,
+                  height: MediaQuery.of(context).size.height / 1.5,
+                  child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Text(
+                            'There is no image PO\nClick here to take picture PO',
+                            textAlign: TextAlign.center,
+                            style: textInputDecoration.labelStyle.copyWith(
+                                fontWeight: FontWeight.w800,
+                                fontSize: 18,
+                                color: Colors.black)),
+                        Container(
+                          // alignment: Alignment.center,
+                          child: Icon(
+                            Icons.add_a_photo_rounded,
+                            size: 80,
+                            color: Colors.black38,
+                          ),
+                        )
+                      ]),
+                ),
+              )
+            : Expanded(
+                child: GridView.builder(
+                    gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                        crossAxisCount: 2, childAspectRatio: 0.85),
+                    itemCount: assets.length,
+                    itemBuilder: (context, index) {
+                      return Padding(
+                        padding: EdgeInsets.only(left: 8, right: 8, bottom: 12),
+                        child: Stack(
+                          overflow: Overflow.visible,
                           children: [
-                            Text(
-                                'There is no image PO\nClick here to take picture PO',
-                                textAlign: TextAlign.center,
-                                style: textInputDecoration.labelStyle.copyWith(
-                                    fontWeight: FontWeight.w800,
-                                    fontSize: 18,
-                                    color: Colors.black)),
                             Container(
-                              // alignment: Alignment.center,
-                              child: Icon(
-                                Icons.add_a_photo_rounded,
-                                size: 80,
-                                color: Colors.black38,
-                              ),
-                            )
-                          ]),
-                    ),
-                  )
-                : Expanded(
-                    child: GridView.builder(
-                        gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                            crossAxisCount: 2, childAspectRatio: 0.85),
-                        itemCount: assets.length,
-                        itemBuilder: (context, index) {
-                          return Padding(
-                            padding:
-                                EdgeInsets.only(left: 8, right: 8, bottom: 12),
-                            child: Stack(
-                              overflow: Overflow.visible,
-                              children: [
-                                Container(
-                                    height: MediaQuery.of(context).size.height,
-                                    decoration: BoxDecoration(
-                                      color: Colors.white,
-                                      border: Border.all(
-                                          color: Colors.black12, width: 2),
-                                      borderRadius: BorderRadius.all(
-                                          Radius.circular(5.0)),
+                                height: MediaQuery.of(context).size.height,
+                                decoration: BoxDecoration(
+                                  color: Colors.white,
+                                  border: Border.all(
+                                      color: Colors.black12, width: 2),
+                                  borderRadius:
+                                      BorderRadius.all(Radius.circular(5.0)),
+                                  boxShadow: [
+                                    BoxShadow(
+                                      color: Colors.grey[100],
+                                      blurRadius: 10.0,
+                                      spreadRadius: 5.0,
+                                      offset: Offset(
+                                        3.0,
+                                        1.0,
+                                      ),
+                                    )
+                                  ],
+                                ),
+                                child: Image.file(File(assets[index]))),
+                            Positioned(
+                              right: -2,
+                              top: -8,
+                              child: GestureDetector(
+                                onTap: () {
+                                  _showDeleteModalBottomSheet(index, context);
+                                },
+                                child: Container(
+                                  decoration: BoxDecoration(
                                       boxShadow: [
                                         BoxShadow(
-                                          color: Colors.grey[100],
-                                          blurRadius: 10.0,
-                                          spreadRadius: 5.0,
-                                          offset: Offset(
-                                            3.0,
-                                            1.0,
-                                          ),
+                                          color: Colors.black26,
+                                          blurRadius: 2.0,
+                                          // spreadRadius: 1.0,
+                                          // offset: Offset(
+                                          //   // 1.0,
+                                          //   // 1.0,
+                                          // ),
                                         )
                                       ],
-                                    ),
-                                    child: Image.file(File(assets[index]))),
-                                Positioned(
-                                  right: -2,
-                                  top: -8,
-                                  child: GestureDetector(
-                                    onTap: () {
-                                      _showDeleteModalBottomSheet(
-                                          index, context);
-                                    },
-                                    child: Container(
-                                      decoration: BoxDecoration(
-                                          boxShadow: [
-                                            BoxShadow(
-                                              color: Colors.black26,
-                                              blurRadius: 2.0,
-                                              // spreadRadius: 1.0,
-                                              // offset: Offset(
-                                              //   // 1.0,
-                                              //   // 1.0,
-                                              // ),
-                                            )
-                                          ],
-                                          shape: BoxShape.circle,
-                                          color: Colors.red[600]),
-                                      child: Icon(
-                                        Icons.delete_forever_rounded,
-                                        color: Colors.white,
-                                      ),
-                                    ),
+                                      shape: BoxShape.circle,
+                                      color: Colors.red[600]),
+                                  child: Icon(
+                                    Icons.delete_forever_rounded,
+                                    color: Colors.white,
                                   ),
-                                )
-                              ],
-                            ),
-                          );
-                        }),
-                  )
+                                ),
+                              ),
+                            )
+                          ],
+                        ),
+                      );
+                    }),
+              ),
       ]),
       // floatingActionButtonLocation: FloatingActionButtonLocation.endDocked.getOffset(ScaffoldGeometry(12, )),
       floatingActionButton: assets.length == 0
@@ -293,74 +303,165 @@ class _ImagesPagesState extends State<ImagesPages> {
             ),
       bottomSheet: assets.length == 0
           ? null
-          : finishAdding == true
-              ? UploadWidget(listMultiPartFile)
-              : Container(
-                  height: 55,
-                  margin: EdgeInsets.all(15),
-                  width: MediaQuery.of(context).size.width,
-                  child: ElevatedButton(
-                      style: ElevatedButton.styleFrom(primary: kMaincolor),
-                      onLongPress: () {
-                        setState(() {
-                          if (indexPressed == 0) {
-                            indexPressed = 1;
-                            print('index press = $indexPressed');
-                            _onLongPressed = true;
-                          } else if (indexPressed == 1) {
-                            indexPressed = 0;
-                            print('index press = $indexPressed');
-                            _onLongPressed = false;
-                          }
-                        });
-                      },
-                      onPressed: () async {
-                        if (_onLongPressed == true) {
-                          SharedPreferences sharedLocal =
-                              await SharedPreferences.getInstance();
-                          var listData =
-                              sharedLocal.getStringList('ListImagePathFix');
+          : Container(
+              height: 55,
+              margin: EdgeInsets.all(15),
+              width: MediaQuery.of(context).size.width,
+              child: ElevatedButton(
+                  style: ElevatedButton.styleFrom(primary: kMaincolor),
+                  onLongPress: () {
+                    setState(() {
+                      if (indexPressed == 0) {
+                        indexPressed = 1;
+                        print('index press = $indexPressed');
+                        _onLongPressed = true;
+                      } else if (indexPressed == 1) {
+                        indexPressed = 0;
+                        print('index press = $indexPressed');
+                        _onLongPressed = false;
+                      }
+                    });
+                  },
+                  onPressed: () async {
+                    if (_onLongPressed == true) {
+                      EasyLoading.show(
+                          status: 'getting ready to upload',
+                          dismissOnTap: true,
+                          indicator: Center(
+                              // heightFactor: MediaQuery.of(context).size.height,
+                              child: SpinKitRipple(
+                            color: Colors.white,
+                            // size: 80,
+                          )));
+                      SharedPreferences sharedLocal =
+                          await SharedPreferences.getInstance();
+                      var listData =
+                          sharedLocal.getStringList('ListImagePathFix');
 
-                          String baseName;
-                          for (var i = 0; i < listData.length; i++) {
-                            baseName = basename(listData[i]);
-                            listMultiPartFile.add(await MultipartFile.fromFile(
-                                listData[i],
-                                filename: baseName));
-                          }
-                          setState(() {
-                            finishAdding = true;
-                          });
+                      String baseName;
+                      for (var i = 0; i < listData.length; i++) {
+                        print('adding image : $basename');
+                        print('listData index: ${listData[i]}');
+                        Uri myUri = Uri.parse(listData[i]);
+                        File imageFile = new File.fromUri(myUri);
+                        var bytesUri = await imageFile.readAsBytes();
+                        // ByteData bytes =  listData[i].;
+                        List<int> imageData = bytesUri;
+                        // var buffer = bytes.buffer;
+                        // var m = base64.encode(Uint8List.view(buffer));
 
-                          // UploadWidget(listMultiPartFile);
-                        }
-                        // setState(() {
-                        //   _isLoading = true;
-                        // });
-                        // await context.read<AddProductCubit>().addProduct(idProduct);
-                        // setState(() {
-                        //   _isLoading = false;
-                        //   Get.to(() => MainPage(
-                        //         initialPage: 1,
-                        //       ));
-                        // });
-                      },
-                      child: _onLongPressed == true
-                          ? Text(
-                              'Procces to OCR',
-                              style: textInputDecoration.labelStyle.copyWith(
-                                  fontWeight: FontWeight.w800,
-                                  fontSize: 18,
-                                  color: Colors.white),
-                            )
-                          : Text(
-                              'Long Press to Set Ready',
-                              style: textInputDecoration.labelStyle.copyWith(
-                                  fontWeight: FontWeight.w800,
-                                  fontSize: 18,
-                                  color: Colors.white),
-                            )),
-                ),
+                        MultipartFile multipartFileBytes =
+                            MultipartFile.fromBytes(
+                          imageData,
+                          filename: basename(listData[i]),
+                          contentType: MediaType('image', 'jpg'),
+                        );
+                        // MultipartFile multipartFile =
+                        //     await MultipartFile.fromFile(listData[i],
+                        //         filename: basename(listData[i]));
+                        listMultiPartFile.add(multipartFileBytes);
+                      }
+
+                      var formdata =
+                          FormData.fromMap({"image": listMultiPartFile});
+                      var postRegister =
+                          "http://100.68.1.2:7030/v1/purchase-orders";
+
+                      try {
+                        // Response<ResponseBody> rs;
+                        print(
+                            'list data form: ${formdata.files.map((e) => e.value.filename.toString())}');
+                        var response = await _dio.post(
+                          postRegister,
+                          data: formdata,
+                          options: Options(
+                            headers: {
+                              'Authorization': 'Bearer $token',
+                              'Connection': 'keep-alive',
+                            },
+                            contentType:
+                                'multipart/form-data; boundary=<calculated when request is sent>',
+                            method: 'post',
+                            responseType: ResponseType.json,
+                          ),
+                          onSendProgress: (received, total) {
+                            if (total != -1) {
+                              double progress = (received / total);
+                              String progressString;
+                              setState(() {
+                                progressString = (received / total * 100)
+                                        .toStringAsFixed(0) +
+                                    '%';
+                              });
+
+                              print('progress : $progress');
+                              EasyLoading.showProgress(progress,
+                                      status:
+                                          'Uploading images to OCR\n$progressString')
+                                  .whenComplete(() => EasyLoading.show(
+                                      status: 'Processing OCR to Text',
+                                      dismissOnTap: true,
+                                      indicator: Center(
+                                          // heightFactor: MediaQuery.of(context).size.height,
+                                          child: SpinKitRipple(
+                                        color: Colors.white,
+                                        // size: 80,
+                                      ))));
+                              print(
+                                  (received / total * 100).toStringAsFixed(0) +
+                                      '%');
+                            }
+                          },
+
+                          // responseType: ResponseType.stream),
+                        );
+                        // rs = response.data;
+                        // print('-------------------${rs.data!.stream}');
+                        print('response upload : $response');
+                        UploadPOResponse.fromJson(response.data);
+                        EasyLoading.showSuccess('Success Processing Images!',
+                            duration: Duration(seconds: 6));
+                        sharedLocal.remove('ListImagePathFix');
+
+                        return Navigator.of(context).push(MaterialPageRoute(
+                            builder: (context) => HomeScreen()));
+                      } catch (error, stacktrace) {
+                        EasyLoading.showError('Error: $error',
+                            duration: Duration(seconds: 6), dismissOnTap: true);
+                        print(
+                            "Exception occured:$error stacktrrace:$stacktrace");
+                        return error.toString();
+                      }
+
+                      // UploadWidget(listMultiPartFile);
+                    }
+                    // setState(() {
+                    //   _isLoading = true;
+                    // });
+                    // await context.read<AddProductCubit>().addProduct(idProduct);
+                    // setState(() {
+                    //   _isLoading = false;
+                    //   Get.to(() => MainPage(
+                    //         initialPage: 1,
+                    //       ));
+                    // });
+                  },
+                  child: _onLongPressed == true
+                      ? Text(
+                          'Procces to OCR',
+                          style: textInputDecoration.labelStyle.copyWith(
+                              fontWeight: FontWeight.w800,
+                              fontSize: 18,
+                              color: Colors.white),
+                        )
+                      : Text(
+                          'Long Press to Set Ready',
+                          style: textInputDecoration.labelStyle.copyWith(
+                              fontWeight: FontWeight.w800,
+                              fontSize: 18,
+                              color: Colors.white),
+                        )),
+            ),
     );
   }
 

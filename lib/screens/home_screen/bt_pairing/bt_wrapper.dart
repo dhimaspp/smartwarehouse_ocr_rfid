@@ -48,7 +48,7 @@ class _BleOffState extends State<BleOff> {
             onTap: () {
               turnOn();
             },
-            child: Text('Tap here to Turn on Bluetooh',
+            child: Text('Tap here to enable Bluetooh',
                 style: textInputDecoration.labelStyle.copyWith(
                     fontWeight: FontWeight.w800,
                     fontSize: 22,
