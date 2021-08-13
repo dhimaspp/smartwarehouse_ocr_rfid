@@ -1,6 +1,7 @@
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
+import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:smartwarehouse_ocr_rfid/api_repository/auth_repository/user_api.dart';
@@ -243,7 +244,6 @@ class _LoginScreenState extends State<LoginScreen> {
                 ]),
           ),
         ),
-        loading ? _loading() : SizedBox(height: 50),
         Text(
           error,
           style: TextStyle(color: Colors.red, fontSize: 14.0),
@@ -252,17 +252,19 @@ class _LoginScreenState extends State<LoginScreen> {
     );
   }
 
-  Widget _loading() {
-    return SpinKitPulse(
-      color: kSecondaryColor,
-      size: 50,
-    );
-  }
+  // Widget _loading() {
+  //   return Center(child: EasyLoading.show(),);
+  // }
 
   void _login() async {
-    setState(() {
-      loading = true;
-    });
+    EasyLoading.show(
+        status: 'Loading login',
+        dismissOnTap: false,
+        indicator: Center(
+            child: SpinKitRipple(
+          color: kMaincolor,
+          size: 80,
+        )));
     var data = {
       'username': username,
       'password': password,
@@ -283,10 +285,9 @@ class _LoginScreenState extends State<LoginScreen> {
             context, new MaterialPageRoute(builder: (context) => HomeScreen()));
       });
     } else {
+      EasyLoading.dismiss();
       _showMsg(body['message']);
     }
-    setState(() {
-      loading = false;
-    });
+    EasyLoading.dismiss();
   }
 }

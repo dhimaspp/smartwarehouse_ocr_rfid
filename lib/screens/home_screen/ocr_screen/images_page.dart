@@ -32,7 +32,8 @@ class _ImagesPagesState extends State<ImagesPages> {
   List<Widget> imagesAsset = <Widget>[];
   List<String> assets = <String>[];
   List<MultipartFile> listMultiPartFile = [];
-  bool _loadingImage, finishAdding, _onLongPressed;
+  bool finishAdding, _onLongPressed;
+  bool _isEmpty = true;
   int indexPressed = 0;
   final Dio _dio = Dio();
   String token;
@@ -51,41 +52,76 @@ class _ImagesPagesState extends State<ImagesPages> {
   // }
 
   _getAssetsImage() async {
+    setState(() {
+      _isEmpty = true;
+    });
     SharedPreferences sharedLocal = await SharedPreferences.getInstance();
 
     var listPref = sharedLocal.getStringList('ListImagePath');
+
     var listPrefFix = sharedLocal.getStringList('ListImagePathFix');
     token = jsonDecode(sharedLocal.getString('access_token'));
+    print('listPref = $listPref');
+    print('listPrefFix = $listPrefFix');
 
-    if (listPrefFix.isEmpty) {
-      assets = listPref;
+    if (listPrefFix.isEmpty && listPref != null) {
+      setState(() {
+        assets = listPref;
+        _isEmpty = false;
+        sharedLocal.setStringList('ListImagePathFix', assets);
+      });
       print('assets = listPref');
-    } else {
-      assets = listPrefFix;
-      print('assets = listPrefix');
-    }
-    // assets = listPrefFix;
-    setState(() {
-      print('print image path $listPref');
-      if (listPref != null) {
-        var listIndex = listPref[0];
-        for (var i = 0; i < assets.length; i++) {
-          if (listIndex == assets[i]) {
-            print('print image path $listIndex');
-          } else {
-            assets.add(listIndex);
-            break;
+    } else if (listPrefFix.isNotEmpty) {
+      setState(() {
+        _isEmpty = false;
+        assets = listPrefFix;
+        if (listPref != null) {
+          var listIndex = listPref[0];
+          for (var i = 0; i < assets.length; i++) {
+            if (listIndex == assets[i]) {
+              print('print image path $listIndex');
+            } else {
+              assets.add(listIndex);
+              print('print success adding image');
+              sharedLocal.remove('ListImagePath');
+              sharedLocal.setStringList('ListImagePathFix', assets);
+              break;
+            }
+
+            // ListTempImage().imagePath.add(widget.imagePath);
+            // return assets;
+            // ListTempImage().imagePath;
           }
         }
-        sharedLocal.remove('ListImagePath');
-        sharedLocal.setStringList('ListImagePathFix', assets);
-        // ListTempImage().imagePath.add(widget.imagePath);
-        // return assets;
-        // ListTempImage().imagePath;
-      } else {
-        return;
-      }
-    });
+      });
+
+      print('assets = listPrefix');
+    } else if (listPrefFix == null && listPref == null) {
+      setState(() {
+        _isEmpty = true;
+      });
+    }
+    // assets = listPrefFix;
+
+    // print('print image path $listPref');
+
+    // if (listPref.first != null) {
+    //   var listIndex = listPref[0];
+    //   for (var i = 0; i < assets.length; i++) {
+    //     if (listIndex == assets[i]) {
+    //       print('print image path $listIndex');
+    //     } else {
+    //       assets.add(listIndex);
+    //       break;
+    //     }
+
+    //     sharedLocal.remove('ListImagePath');
+    //     sharedLocal.setStringList('ListImagePathFix', assets);
+    //     // ListTempImage().imagePath.add(widget.imagePath);
+    //     // return assets;
+    //     // ListTempImage().imagePath;
+    //   }
+    // }
   }
 
   @override
@@ -145,7 +181,7 @@ class _ImagesPagesState extends State<ImagesPages> {
                 ),
               ]),
         ),
-        assets.length == 0
+        _isEmpty == true
             ? GestureDetector(
                 onTap: () async {
                   EasyLoading.show(
@@ -268,15 +304,20 @@ class _ImagesPagesState extends State<ImagesPages> {
               ),
       ]),
       // floatingActionButtonLocation: FloatingActionButtonLocation.endDocked.getOffset(ScaffoldGeometry(12, )),
-      floatingActionButton: assets.length == 0
+      floatingActionButton: _isEmpty == true
           ? null
           : Padding(
               padding: const EdgeInsets.only(bottom: 46.0),
               child: FloatingActionButton(
                 onPressed: () async {
-                  setState(() {
-                    _loadingImage = true;
-                  });
+                  EasyLoading.show(
+                      dismissOnTap: true,
+                      indicator: Center(
+                          // heightFactor: MediaQuery.of(context).size.height,
+                          child: SpinKitRipple(
+                        color: kMaincolor,
+                        size: 80,
+                      )));
                   final PickedFile pick = await ImagePicker()
                       .getImage(source: ImageSource.camera, imageQuality: 50);
                   File pickeds;
@@ -285,13 +326,14 @@ class _ImagesPagesState extends State<ImagesPages> {
                   } else {
                     pickeds = File(pick.path);
                   }
+
                   Navigator.of(context)
                       .push(MaterialPageRoute(builder: (context) {
                     return POScanSession(
                       image: pickeds,
                     );
                   }));
-
+                  EasyLoading.dismiss();
                   // setState(() {
                   //   assets.add(pickeds.path);
                   //   _loadingImage = false;
@@ -301,7 +343,7 @@ class _ImagesPagesState extends State<ImagesPages> {
                 backgroundColor: kMaincolor,
               ),
             ),
-      bottomSheet: assets.length == 0
+      bottomSheet: _isEmpty == true
           ? null
           : Container(
               height: 55,
@@ -422,6 +464,9 @@ class _ImagesPagesState extends State<ImagesPages> {
                         EasyLoading.showSuccess('Success Processing Images!',
                             duration: Duration(seconds: 6));
                         sharedLocal.remove('ListImagePathFix');
+                        setState(() {
+                          _isEmpty = true;
+                        });
 
                         return Navigator.of(context).push(MaterialPageRoute(
                             builder: (context) => HomeScreen()));
@@ -529,14 +574,19 @@ class _ImagesPagesState extends State<ImagesPages> {
                               SharedPreferences sharedData =
                                   await SharedPreferences.getInstance();
                               setState(() {
-                                _loadingImage = true;
                                 assets.removeAt(index);
 
                                 sharedData
                                     .setStringList('ListImagePathFix', assets)
                                     .whenComplete(
                                         () => Navigator.of(context).pop());
-                                _loadingImage = false;
+                                var localDataFix = sharedData
+                                    .getStringList('ListImagePathFix');
+                                if (localDataFix.isEmpty) {
+                                  setState(() {
+                                    _isEmpty = true;
+                                  });
+                                }
                               });
                             },
                             child:

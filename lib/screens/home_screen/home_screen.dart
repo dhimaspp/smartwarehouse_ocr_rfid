@@ -4,9 +4,11 @@ import 'dart:io';
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bluetooth_serial/flutter_bluetooth_serial.dart';
+import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:flutter_redux/flutter_redux.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:jwt_decoder/jwt_decoder.dart';
 import 'package:redux/redux.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:smartwarehouse_ocr_rfid/api_repository/auth_repository/user_api.dart';
@@ -28,6 +30,7 @@ class HomeScreen extends StatefulWidget {
 class _HomeScreenState extends State<HomeScreen> {
   String name = '';
   bool loading = false;
+  String token;
 
   @override
   void initState() {
@@ -38,8 +41,19 @@ class _HomeScreenState extends State<HomeScreen> {
   _loadDataUser() async {
     SharedPreferences localData = await SharedPreferences.getInstance();
     var data = jsonDecode(localData.getString('data'));
+    localData.remove('ListImagePath');
 
     localData.setString('username', json.encode(data['username']));
+    token = jsonDecode(localData.getString('access_token'));
+    DateTime expirationDate = JwtDecoder.getExpirationDate(token);
+    bool hasExpired = JwtDecoder.isExpired(token);
+    if (hasExpired == true) {
+      EasyLoading.showError('Your session login has Expired');
+      return Navigator.of(context)
+          .push(MaterialPageRoute(builder: (_) => LoginScreen()));
+    }
+    print('Token Expired Date: $expirationDate');
+
     var username = jsonDecode(localData.getString('username'));
 
     if (username != null) {
