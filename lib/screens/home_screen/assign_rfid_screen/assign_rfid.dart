@@ -3,12 +3,15 @@ import 'dart:typed_data';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bluetooth_serial/flutter_bluetooth_serial.dart';
+import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
-import 'package:google_ml_kit/google_ml_kit.dart';
-import 'package:input_with_keyboard_control/input_with_keyboard_control.dart';
+import 'package:smartwarehouse_ocr_rfid/bloc/bloc_po.dart';
+import 'package:smartwarehouse_ocr_rfid/bloc/bloc_search_po.dart';
 import 'package:smartwarehouse_ocr_rfid/model/po_model.dart';
+import 'package:smartwarehouse_ocr_rfid/screens/home_screen/bt_pairing/bt_wrapper.dart';
+import 'package:smartwarehouse_ocr_rfid/screens/home_screen/home_screen.dart';
 import 'package:smartwarehouse_ocr_rfid/theme/theme.dart';
-// import 'package:flutter_blue/flutter_blue.dart';
+import 'package:flutter_blue/flutter_blue.dart' as fb;
 import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:smartwarehouse_ocr_rfid/theme/my_flutter_app_icons.dart';
 import 'package:modal_bottom_sheet/modal_bottom_sheet.dart';
@@ -28,11 +31,10 @@ class _Message {
 }
 
 class AssignRFIDState extends State<AssignRFID> {
-  final _formKey = GlobalKey<FormState>();
-  final _textController = TextEditingController();
-
   // String uid = "";
   final ScrollController listScrollController = new ScrollController();
+  TextEditingController searchController = TextEditingController();
+
   List<_Message> messages = <_Message>[];
   static final clientID = 0;
   String _messageBuffer = '';
@@ -42,13 +44,24 @@ class AssignRFIDState extends State<AssignRFID> {
 
   bool isDisconnecting = false;
   bool isError = false;
+  bool isSearching = false;
+  String searchPO;
 
   @override
   void initState() {
     super.initState();
+    searchController.addListener(_onChangeInputText);
     BluetoothConnection.toAddress(widget.server.address).then((_connection) {
       try {
         if (_connection.isConnected) {
+          if (isSearching == false) {
+            getAllPOBloc..getallPOrx();
+          } else {
+            // var myInt = int.parse(searchController.text);
+            // assert(myInt is int);
+            getSearchBloc..search(searchController.text);
+          }
+
           print('Connected to the device');
           connection = _connection;
           setState(() {
@@ -96,6 +109,18 @@ class AssignRFIDState extends State<AssignRFID> {
     });
   }
 
+  void _onChangeInputText() {
+    setState(() {
+      searchPO = searchController.text;
+    });
+
+    print('value = ${searchController.text}');
+  }
+
+  _getAllPOorGetSearchPO(String query) {
+    // getSearchBloc..search(query);
+  }
+
   @override
   void dispose() {
     // Avoid memory leak (`setState` after dispose) and disconnect
@@ -104,421 +129,262 @@ class AssignRFIDState extends State<AssignRFID> {
       connection.dispose();
       connection = null;
     }
-
+    searchController.dispose();
+    EasyLoading.dismiss();
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
-    // final List<Row> list = messages.map((_message) {
-    //   return Row(
-    //     children: <Widget>[
-    //       Container(
-    //         alignment: Alignment.center,
-    //         child: Text(
-    //             (text) {
-    //               return text == '/shrug' ? '¯\\_(ツ)_/¯' : text;
-    //             }(_message.text.trim()),
-    //             style: TextStyle(color: Colors.white, fontSize: 16)),
-    //         padding: EdgeInsets.all(9.0),
-    //         margin: EdgeInsets.only(right: 8.0),
-    //         width: 222.0,
-    //         decoration: BoxDecoration(
-    //             color:
-    //                 _message.whom == clientID ? Colors.blueAccent : Colors.grey,
-    //             borderRadius: BorderRadius.circular(7.0)),
-    //       ),
-    //     ],
-    //     mainAxisAlignment: MainAxisAlignment.center,
-    //   );
-    // }).toList();
-    return isConnecting == true
-        ? Scaffold(
-            backgroundColor: Colors.white,
-            body: isError == true
-                ? Center(
-                    child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Icon(
-                        Icons.error_outline_rounded,
-                        color: Colors.red[800],
-                        size: 40,
-                      ),
-                      SizedBox(height: 20),
-                      Text(
-                        'Oops Something Went Wrong',
-                        style: textInputDecoration.labelStyle.copyWith(
-                            fontWeight: FontWeight.w800,
-                            fontSize: 22,
-                            color: Colors.black),
-                      ),
-                      SizedBox(height: 20),
-                      Text(
-                        "Please make sure Bluetooth RFID Reader\ndevice is installed properly",
-                        textAlign: TextAlign.center,
-                        style: textInputDecoration.labelStyle.copyWith(
-                            fontWeight: FontWeight.w800,
-                            fontSize: 18,
-                            color: Colors.black),
-                      ),
-                      SizedBox(height: 20),
-                      GestureDetector(
-                          onTap: () {
-                            Navigator.of(context).pop();
-                          },
-                          child: Row(
+    return StreamBuilder<fb.BluetoothState>(
+        stream: fb.FlutterBlue.instance.state,
+        initialData: fb.BluetoothState.unknown,
+        builder: (c, snapshot) {
+          final state = snapshot.data;
+          if (state != fb.BluetoothState.on) {
+            return BleOff();
+          }
+          return isConnecting == true
+              ? Scaffold(
+                  backgroundColor: Colors.white,
+                  body: isError == true
+                      ? Container(
+                          child: Center(
+                              child: Column(
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: [
                               Icon(
-                                Icons.arrow_back_ios_new_rounded,
-                                color: kMaincolor,
+                                Icons.error_outline_rounded,
+                                color: Colors.red[800],
+                                size: 40,
                               ),
-                              Text('Back',
-                                  style: textInputDecoration.labelStyle
-                                      .copyWith(
-                                          fontWeight: FontWeight.w800,
-                                          fontSize: 18,
-                                          color: kMaincolor))
+                              SizedBox(height: 20),
+                              Text(
+                                'Oops Something Went Wrong',
+                                style: textInputDecoration.labelStyle.copyWith(
+                                    fontWeight: FontWeight.w800,
+                                    fontSize: 22,
+                                    color: Colors.black),
+                              ),
+                              SizedBox(height: 20),
+                              Text(
+                                "Please make sure Bluetooth RFID Reader\ndevice is installed properly",
+                                textAlign: TextAlign.center,
+                                style: textInputDecoration.labelStyle.copyWith(
+                                    fontWeight: FontWeight.w800,
+                                    fontSize: 18,
+                                    color: Colors.black),
+                              ),
+                              SizedBox(height: 20),
+                              GestureDetector(
+                                  onTap: () {
+                                    Navigator.of(context).pop();
+                                  },
+                                  child: Row(
+                                    mainAxisAlignment: MainAxisAlignment.center,
+                                    children: [
+                                      Icon(
+                                        Icons.arrow_back_ios_new_rounded,
+                                        color: kMaincolor,
+                                      ),
+                                      Text('Back',
+                                          style: textInputDecoration.labelStyle
+                                              .copyWith(
+                                                  fontWeight: FontWeight.w800,
+                                                  fontSize: 18,
+                                                  color: kMaincolor))
+                                    ],
+                                  ))
                             ],
-                          ))
-                    ],
-                  ))
-                : Center(
-                    // heightFactor: MediaQuery.of(context).size.height,s
-                    child: SpinKitRipple(
-                    color: kMaincolor,
-                    size: 80,
-                  )),
-          )
-        : Scaffold(
-            backgroundColor: Colors.white,
-            body:
-                // isConnecting
-                //     ? Center(child: CircularProgressIndicator())
-                //     :
-                Center(
-                    child: Column(children: [
-              Stack(
-                  alignment: AlignmentDirectional.topCenter,
-                  children: <Widget>[
-                    Container(
-                      height: 110,
-                      width: MediaQuery.of(context).size.width,
-                      decoration: BoxDecoration(
-                          color: kFillColor,
-                          borderRadius: BorderRadius.vertical(
-                              bottom: Radius.circular(18))),
-                    ),
-                    Positioned(
-                      top: 55,
-                      left: 5,
-                      child: Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: <Widget>[
-                            ElevatedButton(
-                                style: ElevatedButton.styleFrom(
-                                    elevation: 0, primary: kFillColor),
-                                onPressed: () {
-                                  Navigator.of(context).pop();
-                                },
-                                child: Icon(
-                                  Icons.arrow_back_ios_rounded,
-                                  color: Colors.white,
-                                )),
-                            Text(
-                              '  PO Registration (RFID Tag)',
-                              style: textInputDecoration.labelStyle.copyWith(
-                                  fontWeight: FontWeight.w800,
-                                  fontSize: 18,
-                                  color: Colors.white),
-                            ),
-                          ]),
-                    ),
-                  ]),
-              Padding(
-                padding: const EdgeInsets.all(8.0),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: <Widget>[
-                    Text(
-                      "   LIST PRODUCT",
-                      style: TextStyle(
-                          fontWeight: FontWeight.w900,
-                          color: Colors.black54,
-                          fontSize: 20),
-                    ),
-                    Text(
-                      "    Please slide an item to assign tag",
-                      style: TextStyle(
-                        color: kFillColor,
+                          )),
+                        )
+                      : Center(
+                          // heightFactor: MediaQuery.of(context).size.height,s
+                          child: SpinKitRipple(
+                          color: kMaincolor,
+                          size: 80,
+                        )),
+                )
+              : Scaffold(
+                  backgroundColor: Colors.white,
+                  appBar: PreferredSize(
+                    preferredSize: Size.fromHeight(60),
+                    child: AppBar(
+                      title: Text(
+                        'PO List To Assign Tag',
+                        style: textInputDecoration.labelStyle.copyWith(
+                            fontWeight: FontWeight.w800,
+                            fontSize: 18,
+                            color: Colors.white),
                       ),
-                    ),
-                    SizedBox(
-                      height: 10,
-                    ),
-                    Divider(
-                      height: 10,
-                      thickness: 1,
-                    ),
-                    Slidable(
-                      // key: const ValueKey(3),
-                      endActionPane: ActionPane(
-                          motion: BehindMotion(),
-                          extentRatio: 0.55,
-                          children: [
-                            SlidableAction(
-                                label: 'Assign Tag',
-                                backgroundColor: kFillColor,
-                                icon: CustomIcon.tag_1,
-                                flex: 99,
-                                onPressed: (context) {
-                                  // widget.characteristic.value.listen((value) {
-                                  //   readValues[bluetoothCharacteristic.uuid] = value;
-                                  //   print(
-                                  //       '${readValues[bluetoothCharacteristic.uuid]}');
-                                  return showBarModalBottomSheet(
-                                      context: context,
-                                      builder: (context) => Container(
-                                            height: 390,
-                                            child: Column(
-                                              children: [
-                                                SizedBox(
-                                                  height: 15,
-                                                ),
-
-                                                Text(
-                                                  "Ready To Assign",
-                                                  style: TextStyle(
-                                                      color: kFillColor,
-                                                      fontWeight:
-                                                          FontWeight.bold,
-                                                      fontSize: 20),
-                                                ),
-                                                SizedBox(
-                                                  height: 15,
-                                                ),
-                                                Container(
-                                                  child: Image.asset(
-                                                    "assets/images/Pairing-Illustration.png",
-                                                    height: 200,
-                                                    width: 200,
-                                                  ),
-                                                ),
-                                                SizedBox(
-                                                  height: 15,
-                                                ),
-                                                Text(
-                                                  'Stick RFID Tag to RFID Reader',
-                                                  style: TextStyle(
-                                                      color: kFillColor,
-                                                      fontWeight:
-                                                          FontWeight.bold,
-                                                      fontSize: 16),
-                                                ),
-                                                SizedBox(
-                                                  height: 15,
-                                                ),
-                                                // Container(
-                                                //   width: MediaQuery.of(context)
-                                                //           .size
-                                                //           .width /
-                                                //       1.2,
-                                                //   height: 40,
-                                                //   child: ElevatedButton(
-                                                //       style: ElevatedButton.styleFrom(
-                                                //           elevation: 0,
-                                                //           primary: Colors.black38),
-                                                //       onPressed: () {
-                                                //         Navigator.of(context).pop();
-                                                //       },
-                                                //       child: Text("CANCEL",
-                                                //           style: TextStyle(
-                                                //               fontSize: 16))),
-                                                // ),
-                                                Column(
-                                                    mainAxisSize:
-                                                        MainAxisSize.max,
-                                                    mainAxisAlignment:
-                                                        MainAxisAlignment
-                                                            .center,
-                                                    children: [
-                                                      // list.isEmpty
-                                                      //     ? Text('')
-                                                      //     : list[0],
-                                                      ElevatedButton(
-                                                          style: ElevatedButton
-                                                              .styleFrom(
-                                                                  fixedSize:
-                                                                      Size(120,
-                                                                          40),
-                                                                  elevation: 0,
-                                                                  primary:
-                                                                      kFillColor),
-                                                          onPressed: () {
-                                                            Navigator.of(
-                                                                    context)
-                                                                .pop();
-                                                          },
-                                                          child: Text("Process",
-                                                              style: TextStyle(
-                                                                  fontSize:
-                                                                      16))),
-                                                    ]),
-                                                // InputWithKeyboardControl(
-                                                //   startShowKeyboard: false,
-                                                //   controller: _textController,
-                                                //   focusNode:
-                                                //       InputWithKeyboardControlFocusNode(),
-                                                //   width: 200,
-                                                //   autofocus: true,
-                                                //   showButton: false,
-                                                //   showUnderline: true,
-                                                //   cursorColor: Colors.black,
-                                                // )
-                                                // Form(
-                                                //   child: Container(
-                                                //     height: 40,
-                                                //     child: TextFormField(
-                                                //       controller: _textController,
-                                                //       showCursor: true,
-                                                //       enabled: true,
-                                                //       enableInteractiveSelection:
-                                                //           true,
-                                                //       enableSuggestions: true,
-                                                //       focusNode:
-                                                //           FirstDisabledFocusNode(),
-                                                //       decoration: textInputDecoration.copyWith(
-                                                //           focusedBorder:
-                                                //               OutlineInputBorder(
-                                                //                   borderSide: BorderSide(
-                                                //                       color: Colors
-                                                //                           .black
-                                                //                           .withOpacity(
-                                                //                               1))),
-                                                //           enabledBorder:
-                                                //               OutlineInputBorder(
-                                                //                   borderSide: BorderSide(
-                                                //                       color: Colors
-                                                //                           .black
-                                                //                           .withOpacity(
-                                                //                               1)))),
-                                                //       onTap: () {
-                                                //         // Navigator.of(context).pop();
-                                                //       },
-                                                //     ),
-                                                //   ),
-                                                // ),
-                                              ],
-                                            ),
-                                          ));
-                                  // });
-                                }),
-                            SlidableAction(
-                                label: 'Cancel',
-                                backgroundColor: Colors.white,
-                                icon: Icons.arrow_forward_ios_outlined,
-                                flex: 99,
-                                onPressed: (context) {})
-                          ]),
-                      child: ListTile(
-                        title: Text("POA12345"),
-                        subtitle: Text("Paku"),
-                        trailing: Column(
-                          children: [Text("Qty"), Text("60")],
+                      centerTitle: false,
+                      backgroundColor: kMaincolor,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.vertical(
+                          bottom: Radius.circular(20),
                         ),
                       ),
+                      leading: IconButton(
+                          onPressed: () {
+                            Navigator.of(context).push(MaterialPageRoute(
+                                builder: (_) => HomeScreen()));
+                          },
+                          icon: Icon(Icons.arrow_back_ios_new_rounded)),
                     ),
-                    Divider(
-                      height: 10,
-                      thickness: 1,
-                    ),
-                    Slidable(
-                      // key: const ValueKey(2),
-                      endActionPane: ActionPane(
-                          motion: BehindMotion(),
-                          extentRatio: 0.55,
-                          children: [
-                            SlidableAction(
-                                label: 'Assign Tag',
-                                backgroundColor: kTextColor,
-                                icon: CustomIcon.tag_1,
-                                flex: 99,
-                                onPressed: (context) {}),
-                            SlidableAction(
-                                label: 'Cancel',
-                                backgroundColor: Colors.white,
-                                icon: Icons.arrow_forward_ios_outlined,
-                                flex: 99,
-                                onPressed: (context) {})
-                          ]),
-                      child: ListTile(
-                        title: Text("POA987654"),
-                        subtitle: Text("Palu"),
-                        trailing: Column(
-                          children: [Text("Qty"), Text("60")],
+                  ),
+                  body:
+                      // isConnecting
+                      //     ? Center(child: CircularProgressIndicator())
+                      //     :
+                      Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      children: <Widget>[
+                        Text(
+                          "PO List",
+                          style: TextStyle(
+                              fontWeight: FontWeight.w900,
+                              color: Colors.black54,
+                              fontSize: 20),
                         ),
-                      ),
-                    ),
-                    Divider(
-                      height: 10,
-                      thickness: 1,
-                    ),
-                    Slidable(
-                      // key: const ValueKey(2),
-                      endActionPane: ActionPane(
-                          motion: BehindMotion(),
-                          extentRatio: 0.55,
-                          children: [
-                            SlidableAction(
-                                label: 'Assign Tag',
-                                backgroundColor: kTextColor,
-                                icon: CustomIcon.tag_1,
-                                flex: 99,
-                                onPressed: (context) {}),
-                            SlidableAction(
-                                label: 'Cancel',
-                                backgroundColor: Colors.white,
-                                icon: Icons.arrow_forward_ios_outlined,
-                                flex: 99,
-                                onPressed: (context) {})
-                          ]),
-                      child: ListTile(
-                        title: Text("POA456123"),
-                        subtitle: Text("Scanner"),
-                        trailing: Column(
-                          children: [Text("Qty"), Text("60")],
+                        Padding(
+                          padding: const EdgeInsets.only(
+                              left: 10.0, right: 10.0, top: 10.0, bottom: 10.0),
+                          child: TextFormField(
+                              style: TextStyle(
+                                  fontSize: 14.0, color: Colors.black),
+                              controller: searchController,
+                              onChanged: (change) {
+                                setState(() {
+                                  isSearching = true;
+                                });
+                                // var myInt = int.parse(searchController.text);
+                                // assert(myInt is int);
+                                getSearchBloc..search(searchController.text);
+                              },
+                              decoration: InputDecoration(
+                                floatingLabelBehavior:
+                                    FloatingLabelBehavior.never,
+                                filled: true,
+                                fillColor: Colors.grey[100],
+                                suffixIcon: searchController.text.length > 0
+                                    ? IconButton(
+                                        icon: Icon(
+                                          Icons.cancel_rounded,
+                                          color: Colors.grey[500],
+                                          size: 16.0,
+                                        ),
+                                        onPressed: () {
+                                          setState(() {
+                                            isSearching = false;
+                                            searchController.clear();
+                                          });
+                                        })
+                                    : IconButton(
+                                        icon: Icon(
+                                          Icons.search_outlined,
+                                          color: Colors.grey[500],
+                                          size: 16.0,
+                                        ),
+                                        onPressed: () {},
+                                      ),
+                                enabledBorder: OutlineInputBorder(
+                                    borderSide: new BorderSide(
+                                        color:
+                                            Colors.grey[100].withOpacity(0.3)),
+                                    borderRadius: BorderRadius.circular(30.0)),
+                                focusedBorder: OutlineInputBorder(
+                                    borderSide: new BorderSide(
+                                        color:
+                                            Colors.grey[100].withOpacity(0.3)),
+                                    borderRadius: BorderRadius.circular(30.0)),
+                                contentPadding:
+                                    EdgeInsets.only(left: 15.0, right: 10.0),
+                                labelText: "Search...",
+                                hintStyle: TextStyle(
+                                    fontSize: 14.0,
+                                    color: kFillColor,
+                                    fontWeight: FontWeight.w500),
+                                labelStyle: TextStyle(
+                                    fontSize: 14.0,
+                                    color: Colors.grey,
+                                    fontWeight: FontWeight.w500),
+                              ),
+                              autocorrect: false,
+                              autovalidateMode: AutovalidateMode.disabled),
                         ),
-                      ),
+                        SizedBox(
+                          height: 10,
+                        ),
+                        Divider(
+                          height: 10,
+                          thickness: 1,
+                        ),
+                        Flexible(
+                          fit: FlexFit.loose,
+                          child: isSearching == true
+                              ? StreamBuilder<POList>(
+                                  stream: getSearchBloc.result,
+                                  builder: (context,
+                                      AsyncSnapshot<POList> snapshot) {
+                                    print('searching query params');
+                                    if (snapshot.hasData) {
+                                      EasyLoading.dismiss();
+                                      EasyLoading.show(
+                                          status: 'Searching data');
+                                      Future.delayed(Duration(seconds: 1));
+                                      EasyLoading.dismiss();
+                                      print(
+                                          'print snapshot${snapshot.data.data.length}');
+                                      return _buildSearchPO(snapshot.data);
+                                    } else if (snapshot.hasError) {
+                                      EasyLoading.showError(
+                                          'Error occured\nPlease check your internet connection');
+                                      return Container();
+                                    } else {
+                                      EasyLoading.show(
+                                          status: 'Loading',
+                                          indicator: Center(
+                                              child: SpinKitRipple(
+                                            color: kMaincolor,
+                                          )));
+                                      return Container();
+                                    }
+                                  },
+                                )
+                              : StreamBuilder<POList>(
+                                  stream: getAllPOBloc.subject.stream,
+                                  builder: (context,
+                                      AsyncSnapshot<POList> snapshot) {
+                                    print('get all po list');
+                                    if (snapshot.hasData) {
+                                      EasyLoading.dismiss();
+                                      print(
+                                          'print snapshot${snapshot.data.data.length}');
+                                      return _buildPOList(snapshot.data);
+                                    } else if (snapshot.hasError) {
+                                      EasyLoading.showError(
+                                          'Error occured\nPlease check your internet connection');
+                                      return Container();
+                                    } else {
+                                      EasyLoading.show(
+                                          status: 'Loading',
+                                          indicator: Center(
+                                              child: SpinKitRipple(
+                                            color: kMaincolor,
+                                          )));
+                                      return Container();
+                                    }
+                                  },
+                                ),
+                        ),
+                      ],
                     ),
-                    Divider(
-                      height: 10,
-                      thickness: 1,
-                    ),
-                    // RefreshIndicator(
-                    //     onRefresh: () async {},
-                    //     child: SingleChildScrollView(
-                    //       child: StreamBuilder<POResponse>(
-                    //         stream: blocPO.subject.stream,
-                    //         builder: (context, AsyncSnapshot<POResponse> snapshot) {
-                    //           if (snapshot.hasData) {
-                    //             if (snapshot.error != null) {
-                    //               return Text("error happen");
-                    //             }
-                    //             return _buildPOList(snapshot.data!);
-                    //           } else if (snapshot.hasError) {
-                    //             return Text("Error");
-                    //           } else {
-                    //             return CircularProgressIndicator();
-                    //           }
-                    //         },
-                    //       ),
-                    //     )),
-                  ],
-                ),
-              ),
-            ])),
-          );
+                  ),
+                );
+        });
   }
 
   void _onDataReceived(Uint8List data) {
@@ -570,8 +436,41 @@ class AssignRFIDState extends State<AssignRFID> {
     }
   }
 
-  Widget _buildPOList(POResponse data) {
-    List<PO> po = data.po;
+  Widget _buildSearchPO(POList data) {
+    List<DataPO> po = data.data;
+
+    if (po.length == 0) {
+      return Container(
+        width: MediaQuery.of(context).size.width,
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: [
+            Text(
+              "Your search did not match with any data PO",
+              style: textInputDecoration.labelStyle,
+            )
+          ],
+        ),
+      );
+    } else
+      return ListView.separated(
+          separatorBuilder: (BuildContext context, int index) => Divider(),
+          itemCount: po.length,
+          itemBuilder: (context, index) {
+            print('this po no : ${po[index].poNo}');
+            return ListTile(
+              title: Text(po[index].poNo),
+              subtitle: Text(po[index].poTgl.split('T').first),
+              trailing: Column(
+                children: [Text('Status')],
+              ),
+            );
+          });
+  }
+
+  Widget _buildPOList(POList data) {
+    List<DataPO> po = data.data;
 
     if (po.length == 0) {
       return Container(
@@ -592,10 +491,13 @@ class AssignRFIDState extends State<AssignRFID> {
           separatorBuilder: (BuildContext context, int index) => Divider(),
           itemCount: po.length,
           itemBuilder: (context, index) {
+            print('this po no : ${po[index].poNo}');
             return ListTile(
-              title: Text("POA12345"),
-              subtitle: Text("Palu"),
-              trailing: Text('30'),
+              title: Text(po[index].poNo),
+              subtitle: Text(po[index].poTgl.split('T').first),
+              trailing: Column(
+                children: [Text('Status')],
+              ),
             );
           });
   }

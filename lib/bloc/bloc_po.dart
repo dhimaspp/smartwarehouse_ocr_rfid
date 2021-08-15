@@ -1,13 +1,14 @@
-import 'package:smartwarehouse_ocr_rfid/api_repository/data_repository/trial_repository.dart';
+import 'package:smartwarehouse_ocr_rfid/api_repository/data_repository/po_repository.dart';
 import 'package:smartwarehouse_ocr_rfid/model/po_model.dart';
 import 'package:rxdart/rxdart.dart';
 
-class BlocPO {
-  final TrialRepository _trialRepository = TrialRepository();
-  final BehaviorSubject<POResponse> _subject = BehaviorSubject<POResponse>();
+class GetAllPOBloc {
+  final PoRepository _poRepository = PoRepository();
+  final BehaviorSubject<POList> _subject = BehaviorSubject<POList>();
 
-  getPOrx() async {
-    POResponse response = await _trialRepository.getJson();
+  getallPOrx() async {
+    print('getallPO');
+    POList response = await _poRepository.getAllPO();
     _subject.sink.add(response);
   }
 
@@ -15,7 +16,7 @@ class BlocPO {
     _subject.close();
   }
 
-  BehaviorSubject<POResponse> get subject => _subject;
+  BehaviorSubject<POList> get subject => _subject;
 }
 
-final blocPO = BlocPO();
+final getAllPOBloc = GetAllPOBloc();

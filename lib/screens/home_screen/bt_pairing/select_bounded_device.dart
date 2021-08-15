@@ -36,8 +36,11 @@ class _DeviceWithAvailability extends BluetoothDevice {
 
 class _SelectBondedDevicePage extends State<SelectBondedDevicePage> {
   List<_DeviceWithAvailability> devices = <_DeviceWithAvailability>[];
+  // ignore: unused_field
   BluetoothState _bluetoothState = BluetoothState.UNKNOWN;
+  // ignore: unused_field
   Timer _discoverableTimeoutTimer;
+  // ignore: unused_field
   int _discoverableTimeoutSecondsLeft = 0;
 
   // Availability

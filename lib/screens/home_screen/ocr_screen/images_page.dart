@@ -1,20 +1,15 @@
 import 'dart:convert';
 import 'dart:io';
-import 'dart:typed_data';
 
 import 'package:dio/dio.dart';
 import 'package:http_parser/http_parser.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:modal_bottom_sheet/modal_bottom_sheet.dart';
 import 'package:path/path.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:slider_button/slider_button.dart';
-import 'package:smartwarehouse_ocr_rfid/bloc/list_images_bloc.dart';
-import 'package:smartwarehouse_ocr_rfid/bloc/upload_bloc.dart';
 import 'package:smartwarehouse_ocr_rfid/model/upload_response.dart';
 import 'package:smartwarehouse_ocr_rfid/screens/home_screen/home_screen.dart';
 import 'package:smartwarehouse_ocr_rfid/screens/home_screen/ocr_screen/po_session.dart';
@@ -64,14 +59,14 @@ class _ImagesPagesState extends State<ImagesPages> {
     print('listPref = $listPref');
     print('listPrefFix = $listPrefFix');
 
-    if (listPrefFix.isEmpty && listPref != null) {
+    if (listPrefFix == null && listPref != null) {
       setState(() {
         assets = listPref;
         _isEmpty = false;
         sharedLocal.setStringList('ListImagePathFix', assets);
       });
       print('assets = listPref');
-    } else if (listPrefFix.isNotEmpty) {
+    } else if (listPrefFix != null) {
       setState(() {
         _isEmpty = false;
         assets = listPrefFix;

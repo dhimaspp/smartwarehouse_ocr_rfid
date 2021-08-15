@@ -1,26 +1,17 @@
 import 'dart:convert';
 import 'dart:io';
 
-import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bluetooth_serial/flutter_bluetooth_serial.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
-import 'package:flutter_redux/flutter_redux.dart';
-import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:jwt_decoder/jwt_decoder.dart';
-import 'package:redux/redux.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:smartwarehouse_ocr_rfid/api_repository/auth_repository/user_api.dart';
-import 'package:smartwarehouse_ocr_rfid/main.dart';
 import 'package:smartwarehouse_ocr_rfid/screens/home_screen/assign_rfid_screen/assign_rfid.dart';
 import 'package:smartwarehouse_ocr_rfid/screens/home_screen/bt_pairing/select_bounded_device.dart';
 import 'package:smartwarehouse_ocr_rfid/screens/home_screen/ocr_screen/images_page.dart';
-import 'package:smartwarehouse_ocr_rfid/screens/home_screen/ocr_screen/po_session.dart';
 import 'package:smartwarehouse_ocr_rfid/screens/login_screen/login.dart';
 import 'package:smartwarehouse_ocr_rfid/theme/theme.dart';
-
-import 'bt_pairing/bt_wrapper.dart';
 
 class HomeScreen extends StatefulWidget {
   @override
@@ -63,9 +54,11 @@ class _HomeScreenState extends State<HomeScreen> {
     }
   }
 
+  // ignore: unused_field
   File _image;
   bool anyImage;
 
+  // ignore: unused_element
   _imageFromCamera() async {
     PickedFile pick = await ImagePicker()
         .getImage(source: ImageSource.camera, imageQuality: 50);

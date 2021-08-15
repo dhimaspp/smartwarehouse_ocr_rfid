@@ -4,7 +4,6 @@ import 'dart:typed_data';
 import 'package:flutter/material.dart';
 import 'package:crop_your_image/crop_your_image.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
-import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:smartwarehouse_ocr_rfid/bloc/list_images_bloc.dart';
 import 'package:smartwarehouse_ocr_rfid/screens/home_screen/ocr_screen/images_page.dart';
 import 'package:smartwarehouse_ocr_rfid/theme/theme.dart';
@@ -23,7 +22,6 @@ class POScanSessionState extends State<POScanSession> {
   List<String> assets = <String>[];
   DateTime now = DateTime.now();
 
-  var _loadingImage = false;
   var _currentImage = 0;
   set currentImage(int value) {
     setState(() {
@@ -33,7 +31,7 @@ class POScanSessionState extends State<POScanSession> {
   }
 
   var _isSumbnail = false;
-  var _isCropping = false;
+
   var _isCircleUi = false;
   Uint8List _croppedData;
 
@@ -44,16 +42,9 @@ class POScanSessionState extends State<POScanSession> {
   }
 
   Future<void> _loadImages() async {
-    setState(() {
-      _loadingImage = true;
-    });
-
     _imageDataList.add(await _load(widget.image.path));
 
     // _cropController.image = _imageDataList[0];
-    setState(() {
-      _loadingImage = false;
-    });
   }
 
   Future<Uint8List> _load(String assetName) async {
@@ -100,7 +91,6 @@ class POScanSessionState extends State<POScanSession> {
                               _croppedData = croppedData;
                               print(
                                   'Print cropped image 1 ${_croppedData.toString()}');
-                              _isCropping = false;
                             });
                           },
                           withCircleUi: _isCircleUi,
@@ -213,9 +203,6 @@ class POScanSessionState extends State<POScanSession> {
                                               MaterialPageRoute(
                                                   builder: (context) =>
                                                       ImagesPages()));
-                                        });
-                                        setState(() {
-                                          _isCropping = false;
                                         });
                                       },
                                       child: Text(

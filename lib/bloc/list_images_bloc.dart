@@ -1,5 +1,3 @@
-import 'package:flutter/cupertino.dart';
-import 'package:rxdart/rxdart.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class ImagesPath {
