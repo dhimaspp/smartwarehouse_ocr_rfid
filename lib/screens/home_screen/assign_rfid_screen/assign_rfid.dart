@@ -8,13 +8,11 @@ import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:smartwarehouse_ocr_rfid/bloc/bloc_po.dart';
 import 'package:smartwarehouse_ocr_rfid/bloc/bloc_search_po.dart';
 import 'package:smartwarehouse_ocr_rfid/model/po_model.dart';
+import 'package:smartwarehouse_ocr_rfid/screens/home_screen/assign_rfid_screen/item_tagging.dart';
 import 'package:smartwarehouse_ocr_rfid/screens/home_screen/bt_pairing/bt_wrapper.dart';
 import 'package:smartwarehouse_ocr_rfid/screens/home_screen/home_screen.dart';
 import 'package:smartwarehouse_ocr_rfid/theme/theme.dart';
 import 'package:flutter_blue/flutter_blue.dart' as fb;
-import 'package:flutter_slidable/flutter_slidable.dart';
-import 'package:smartwarehouse_ocr_rfid/theme/my_flutter_app_icons.dart';
-import 'package:modal_bottom_sheet/modal_bottom_sheet.dart';
 
 class AssignRFID extends StatefulWidget {
   final BluetoothDevice server;
@@ -124,11 +122,11 @@ class AssignRFIDState extends State<AssignRFID> {
   @override
   void dispose() {
     // Avoid memory leak (`setState` after dispose) and disconnect
-    if (isConnected) {
-      isDisconnecting = true;
-      connection.dispose();
-      connection = null;
-    }
+    // if (isConnected) {
+    //   isDisconnecting = true;
+    //   connection.dispose();
+    //   connection = null;
+    // }
     searchController.dispose();
     EasyLoading.dismiss();
     super.dispose();
@@ -325,34 +323,35 @@ class AssignRFIDState extends State<AssignRFID> {
                         Flexible(
                           fit: FlexFit.loose,
                           child: isSearching == true
-                              ? StreamBuilder<POList>(
-                                  stream: getSearchBloc.result,
-                                  builder: (context,
-                                      AsyncSnapshot<POList> snapshot) {
-                                    print('searching query params');
-                                    if (snapshot.hasData) {
-                                      EasyLoading.dismiss();
-                                      EasyLoading.show(
-                                          status: 'Searching data');
-                                      Future.delayed(Duration(seconds: 1));
-                                      EasyLoading.dismiss();
-                                      print(
-                                          'print snapshot${snapshot.data.data.length}');
-                                      return _buildSearchPO(snapshot.data);
-                                    } else if (snapshot.hasError) {
-                                      EasyLoading.showError(
-                                          'Error occured\nPlease check your internet connection');
-                                      return Container();
-                                    } else {
-                                      EasyLoading.show(
-                                          status: 'Loading',
-                                          indicator: Center(
-                                              child: SpinKitRipple(
-                                            color: kMaincolor,
-                                          )));
-                                      return Container();
-                                    }
-                                  },
+                              ? AnimatedSwitcher(
+                                  duration: const Duration(milliseconds: 300),
+                                  child: StreamBuilder<POList>(
+                                    stream: getSearchBloc.result,
+                                    builder: (context,
+                                        AsyncSnapshot<POList> snapshot) {
+                                      print('searching query params');
+                                      if (snapshot.hasData) {
+                                        EasyLoading.dismiss();
+                                        Future.delayed(Duration(seconds: 1));
+
+                                        print(
+                                            'print snapshot${snapshot.data.data.length}');
+                                        return _buildSearchPO(snapshot.data);
+                                      } else if (snapshot.hasError) {
+                                        EasyLoading.showError(
+                                            'Error occured\nPlease check your internet connection');
+                                        return Container();
+                                      } else {
+                                        EasyLoading.show(
+                                            status: 'Loading',
+                                            indicator: Center(
+                                                child: SpinKitRipple(
+                                              color: kMaincolor,
+                                            )));
+                                        return Container();
+                                      }
+                                    },
+                                  ),
                                 )
                               : StreamBuilder<POList>(
                                   stream: getAllPOBloc.subject.stream,
@@ -463,7 +462,21 @@ class AssignRFIDState extends State<AssignRFID> {
               title: Text(po[index].poNo),
               subtitle: Text(po[index].poTgl.split('T').first),
               trailing: Column(
-                children: [Text('Status')],
+                children: [
+                  Text('Status'),
+                  po[index].status == 'closed'
+                      ? Icon(
+                          Icons.circle_rounded,
+                          color: kMaincolor,
+                          size: 16,
+                        )
+                      : Icon(
+                          Icons.circle_rounded,
+                          color: Colors.red.shade900,
+                          size: 16,
+                        ),
+                  Text('${po[index].status}')
+                ],
               ),
             );
           });
@@ -493,19 +506,38 @@ class AssignRFIDState extends State<AssignRFID> {
           itemBuilder: (context, index) {
             print('this po no : ${po[index].poNo}');
             return ListTile(
+              onTap: () {
+                Navigator.of(context).push(MaterialPageRoute(
+                    builder: (_) => ItemTagging(
+                        poNumber: po[index].poNo, server: widget.server)));
+              },
               title: Text(po[index].poNo),
               subtitle: Text(po[index].poTgl.split('T').first),
               trailing: Column(
-                children: [Text('Status')],
+                mainAxisAlignment: MainAxisAlignment.spaceAround,
+                children: [
+                  Text(
+                    'Status',
+                    // style: TextStyle(fontSize: 12),
+                  ),
+                  po[index].status == 'closed'
+                      ? Icon(
+                          Icons.circle_rounded,
+                          color: kMaincolor,
+                          size: 16,
+                        )
+                      : Icon(
+                          Icons.circle_rounded,
+                          color: Colors.red.shade900,
+                          size: 16,
+                        ),
+                  Text('${po[index].status}')
+                  // Row(
+                  //   children: [Icon(Icons.circle_rounded)],
+                  // )
+                ],
               ),
             );
           });
-  }
-}
-
-class FirstDisabledFocusNode extends FocusNode {
-  @override
-  bool consumeKeyboardToken() {
-    return false;
   }
 }

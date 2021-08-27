@@ -3,14 +3,19 @@ import 'dart:convert';
 import 'package:dio/dio.dart';
 import 'package:flutter/services.dart' show rootBundle;
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:smartwarehouse_ocr_rfid/model/items_model.dart';
 import 'package:smartwarehouse_ocr_rfid/model/po_model.dart';
+import 'package:smartwarehouse_ocr_rfid/model/tag_model.dart';
 
 class PoRepository {
-  static String mainUrl = 'http://100.68.1.2:7030';
+  static String mainUrl = 'http://100.68.1.2:7030'; //vpn
+  // static String mainUrl = 'http://192.168.18.32:7030'; //PCDev
   final Dio _dio = Dio();
 
   var getAllPOurl = '$mainUrl/v1/purchase-orders';
   var getSearchPOurl = '$mainUrl/v1/purchase-orders/search?search=';
+  var getPOItemsurl = '$mainUrl/v1/purchase-orders/';
+  var postAssignTagUrl = '$mainUrl/v1/rfids/';
 
   Future<POList> getAllPO() async {
     SharedPreferences localData = await SharedPreferences.getInstance();
@@ -47,6 +52,74 @@ class PoRepository {
           ));
       print(response.data);
       return POList.fromJson(response.data);
+    } catch (error, stacktrace) {
+      print("Exception occured: $error stackTrace: $stacktrace");
+      return error;
+    }
+  }
+
+  Future<ItemsPOModel> searchItems(String query) async {
+    SharedPreferences localData = await SharedPreferences.getInstance();
+    var token = jsonDecode(localData.getString('access_token'));
+    String poNumber = jsonDecode(localData.getString('poNumber')).toString();
+    // var params = {"search": value};
+    try {
+      Response response = await _dio.get(
+          getPOItemsurl + poNumber + '/search-item?search=$query',
+          // queryParameters: params,
+          options: Options(
+            headers: {
+              'Authorization': 'Bearer $token',
+              'Connection': 'keep-alive',
+            },
+          ));
+      print(response.data);
+      return ItemsPOModel.fromJson(response.data);
+    } catch (error, stacktrace) {
+      print("Exception occured: $error stackTrace: $stacktrace");
+      return error;
+    }
+  }
+
+  Future<ItemsPOModel> getPOItems(String value) async {
+    SharedPreferences localData = await SharedPreferences.getInstance();
+    var token = jsonDecode(localData.getString('access_token'));
+    // var params = {"search": value};
+    try {
+      print(' link to get item po : ${getPOItemsurl + "$value/items"}');
+      Response response = await _dio.get(getPOItemsurl + '$value/items',
+          // queryParameters: params,
+          options: Options(
+            headers: {
+              'Authorization': 'Bearer $token',
+              'Connection': 'keep-alive',
+            },
+          ));
+      print(response.data);
+      return ItemsPOModel.fromJson(response.data);
+    } catch (error, stacktrace) {
+      print("Exception occured: $error stackTrace: $stacktrace");
+      return error;
+    }
+  }
+
+  Future<TagModel> postAssignTag(String recId, String uid) async {
+    SharedPreferences localData = await SharedPreferences.getInstance();
+    var token = jsonDecode(localData.getString('access_token'));
+    // var params = {"search": value};
+    try {
+      print(' link to get item po : ${postAssignTagUrl + "$recId/add-tag"}');
+      Response response = await _dio.post(postAssignTagUrl + "$recId/add-tag",
+          data: {'uid': uid},
+          options: Options(
+            contentType: Headers.formUrlEncodedContentType,
+            headers: {
+              'Authorization': 'Bearer $token',
+              'Connection': 'keep-alive',
+            },
+          ));
+      print(response.data);
+      return TagModel.fromJson(response.data);
     } catch (error, stacktrace) {
       print("Exception occured: $error stackTrace: $stacktrace");
       return error;

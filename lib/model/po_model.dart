@@ -48,6 +48,7 @@ class DataPO {
   int jmlHarga;
   int modifiedBy;
   String lastModified;
+  String status;
 
   DataPO(
       {this.recId,
@@ -65,7 +66,8 @@ class DataPO {
       this.jmlQty,
       this.jmlHarga,
       this.modifiedBy,
-      this.lastModified});
+      this.lastModified,
+      this.status});
 
   DataPO.fromJson(Map<String, dynamic> json) {
     recId = json['rec_id'];
@@ -84,6 +86,7 @@ class DataPO {
     jmlHarga = json['jml_harga'];
     modifiedBy = json['modified_by'];
     lastModified = json['last_modified'];
+    status = json['status'];
   }
 
   Map<String, dynamic> toJson() {
@@ -104,6 +107,7 @@ class DataPO {
     data['jml_harga'] = this.jmlHarga;
     data['modified_by'] = this.modifiedBy;
     data['last_modified'] = this.lastModified;
+    data['status'] = this.status;
     return data;
   }
 }

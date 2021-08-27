@@ -21,6 +21,7 @@ class POScanSessionState extends State<POScanSession> {
   final _imageDataList = <Uint8List>[];
   List<String> assets = <String>[];
   DateTime now = DateTime.now();
+  File thisImage;
 
   var _currentImage = 0;
   set currentImage(int value) {
@@ -184,10 +185,13 @@ class POScanSessionState extends State<POScanSession> {
                                           Directory tempDir =
                                               await getApplicationDocumentsDirectory();
                                           final String tempPath = tempDir.path;
-                                          Future<File> image = File(
+                                          Future<File> image = await File(
                                                   '$tempPath/PO${now.millisecond}.jpg')
-                                              .writeAsBytes(_croppedData);
-                                          File thisImage = await image;
+                                              .writeAsBytes(_croppedData)
+                                              .then((value) {
+                                            thisImage = value;
+                                          });
+                                          // File thisImage = await image;
                                           imagePathBloc
                                             ..addImagePath(thisImage.path);
 

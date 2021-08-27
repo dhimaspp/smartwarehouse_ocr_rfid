@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:smartwarehouse_ocr_rfid/bloc/bloc_assign_tag.dart';
 import 'package:smartwarehouse_ocr_rfid/screens/home_screen/home_screen.dart';
 import 'package:smartwarehouse_ocr_rfid/screens/login_screen/login.dart';
 import 'package:smartwarehouse_ocr_rfid/theme/theme.dart';
@@ -13,11 +15,14 @@ class MyApp extends StatelessWidget {
   // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      builder: EasyLoading.init(),
-      title: 'Smart Warehouse',
-      theme: themePP,
-      home: AuthCheck(),
+    return BlocProvider(
+      create: (context) => AssignTagCubit(),
+      child: MaterialApp(
+        builder: EasyLoading.init(),
+        title: 'Smart Warehouse',
+        theme: themePP,
+        home: AuthCheck(),
+      ),
     );
   }
 }

@@ -52,21 +52,21 @@ class _ImagesPagesState extends State<ImagesPages> {
     });
     SharedPreferences sharedLocal = await SharedPreferences.getInstance();
 
-    var listPref = sharedLocal.getStringList('ListImagePath');
+    List<String> listPref = sharedLocal.getStringList('ListImagePath');
 
-    var listPrefFix = sharedLocal.getStringList('ListImagePathFix');
+    List<String> listPrefFix = sharedLocal.getStringList('ListImagePathFix');
     token = jsonDecode(sharedLocal.getString('access_token'));
     print('listPref = $listPref');
     print('listPrefFix = $listPrefFix');
 
-    if (listPrefFix == null && listPref != null) {
+    if (listPrefFix.isEmpty && listPref != null) {
       setState(() {
         assets = listPref;
         _isEmpty = false;
         sharedLocal.setStringList('ListImagePathFix', assets);
       });
       print('assets = listPref');
-    } else if (listPrefFix != null) {
+    } else if (listPrefFix.isNotEmpty) {
       setState(() {
         _isEmpty = false;
         assets = listPrefFix;
@@ -416,8 +416,7 @@ class _ImagesPagesState extends State<ImagesPages> {
                               'Authorization': 'Bearer $token',
                               'Connection': 'keep-alive',
                             },
-                            contentType:
-                                'multipart/form-data; boundary=<calculated when request is sent>',
+                            contentType: 'multipart/form-data;',
                             method: 'post',
                             responseType: ResponseType.json,
                           ),

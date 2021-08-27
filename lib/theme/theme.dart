@@ -22,11 +22,12 @@ final themePP = ThemeData(
       bodyText1: TextStyle(fontFamily: 'Anodina', fontWeight: FontWeight.w400),
       bodyText2: TextStyle(fontFamily: 'Anodina', fontWeight: FontWeight.w300),
       caption: TextStyle(fontFamily: 'Anodina', fontWeight: FontWeight.w200)),
-  primaryColorDark: const Color(0xFF0097A7),
+  primaryColorDark: const Color(0xFF0054a5),
   visualDensity: VisualDensity.adaptivePlatformDensity,
-  primaryColorLight: const Color(0xFF00c5b3),
+  primaryColorLight: const Color(0xFF1872c9),
   primaryColor: const Color(0xFF000000),
-  accentColor: const Color(0xFF009688),
+  accentColor: const Color(0xFF0165B3),
+  textSelectionTheme: TextSelectionThemeData(cursorColor: Colors.white),
   scaffoldBackgroundColor: Colors.white,
   inputDecorationTheme: InputDecorationTheme(
     border: OutlineInputBorder(

@@ -22,6 +22,7 @@ class _HomeScreenState extends State<HomeScreen> {
   String name = '';
   bool loading = false;
   String token;
+  BluetoothConnection connection;
 
   @override
   void initState() {
@@ -51,7 +52,12 @@ class _HomeScreenState extends State<HomeScreen> {
       setState(() {
         name = username;
       });
+    } else {
+      EasyLoading.showError('Your session login has Expired');
+      return Navigator.of(context)
+          .push(MaterialPageRoute(builder: (_) => LoginScreen()));
     }
+    connection.dispose();
   }
 
   // ignore: unused_field
@@ -60,8 +66,8 @@ class _HomeScreenState extends State<HomeScreen> {
 
   // ignore: unused_element
   _imageFromCamera() async {
-    PickedFile pick = await ImagePicker()
-        .getImage(source: ImageSource.camera, imageQuality: 50);
+    XFile pick = await ImagePicker()
+        .pickImage(source: ImageSource.camera, imageQuality: 50);
     File pickeds;
     if (pick == null) {
       return Container();
