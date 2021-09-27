@@ -87,6 +87,7 @@ flutter:
     - assets/images/sticker_tag.png
     - assets/images/Pairing-Illustration.png
     - assets/logos/ocr_icon.png
+    - assets/rfid-reader-icon-5.jpg
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/assets-and-images/#resolution-aware.
   # For details regarding adding assets from package dependencies, see

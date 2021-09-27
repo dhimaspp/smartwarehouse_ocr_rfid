@@ -14,9 +14,9 @@ class AssignTagCubit extends Cubit<AssignTagState> {
     if (result is TagModel) {
       print('-----> AssignTag success');
       emit(AssignTagLoaded(result));
-    } else if (result is String) {
+    } else if (result.errors.uid.message.isNotEmpty) {
       print('loading AssignTag failed');
-      emit(AssignTagLoadingFailed(result.message));
+      emit(AssignTagLoadingFailed(result.errors.uid.message));
     }
   }
 }

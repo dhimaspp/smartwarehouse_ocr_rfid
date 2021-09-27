@@ -57,7 +57,7 @@ class _HomeScreenState extends State<HomeScreen> {
       return Navigator.of(context)
           .push(MaterialPageRoute(builder: (_) => LoginScreen()));
     }
-    connection.dispose();
+    // connection.dispose();
   }
 
   // ignore: unused_field

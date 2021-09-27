@@ -313,8 +313,8 @@ class _ImagesPagesState extends State<ImagesPages> {
                         color: kMaincolor,
                         size: 80,
                       )));
-                  final PickedFile pick = await ImagePicker()
-                      .getImage(source: ImageSource.camera, imageQuality: 50);
+                  final XFile pick = await ImagePicker()
+                      .pickImage(source: ImageSource.camera, imageQuality: 50);
                   File pickeds;
                   if (pick == null) {
                     return Container();

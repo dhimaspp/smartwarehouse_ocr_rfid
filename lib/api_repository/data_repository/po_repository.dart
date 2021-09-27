@@ -8,7 +8,7 @@ import 'package:smartwarehouse_ocr_rfid/model/po_model.dart';
 import 'package:smartwarehouse_ocr_rfid/model/tag_model.dart';
 
 class PoRepository {
-  static String mainUrl = 'http://100.68.1.2:7030'; //vpn
+  static String mainUrl = 'http://100.68.1.32:7030'; //vpn
   // static String mainUrl = 'http://192.168.18.32:7030'; //PCDev
   final Dio _dio = Dio();
 
@@ -108,9 +108,10 @@ class PoRepository {
     var token = jsonDecode(localData.getString('access_token'));
     // var params = {"search": value};
     try {
-      print(' link to get item po : ${postAssignTagUrl + "$recId/add-tag"}');
+      print(
+          ' link to get item po : ${postAssignTagUrl + "$recId/add-tag"} WITH UID :${uid.trim()}');
       Response response = await _dio.post(postAssignTagUrl + "$recId/add-tag",
-          data: {'uid': uid},
+          data: {'uid': uid.trim()},
           options: Options(
             contentType: Headers.formUrlEncodedContentType,
             headers: {
@@ -120,9 +121,12 @@ class PoRepository {
           ));
       print(response.data);
       return TagModel.fromJson(response.data);
-    } catch (error, stacktrace) {
+    } on DioError catch (error, stacktrace) {
       print("Exception occured: $error stackTrace: $stacktrace");
-      return error;
+      if (error.type == DioErrorType.response) {
+        print(error.response.data);
+        return TagModel.withError(error.response.data);
+      }
     }
   }
 }
