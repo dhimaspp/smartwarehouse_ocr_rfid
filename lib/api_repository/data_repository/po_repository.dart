@@ -12,7 +12,7 @@ class PoRepository {
   // static String mainUrl = 'http://192.168.18.32:7030'; //PCDev
   final Dio _dio = Dio();
 
-  var getAllPOurl = '$mainUrl/v1/purchase-orders';
+  var getAllPOurl = '$mainUrl/v1/purchase-orders?cursor=';
   var getSearchPOurl = '$mainUrl/v1/purchase-orders/search?search=';
   var getPOItemsurl = '$mainUrl/v1/purchase-orders/';
   var postAssignTagUrl = '$mainUrl/v1/rfids/';
@@ -23,6 +23,27 @@ class PoRepository {
     try {
       // Response<ResponseBody> rs;
       Response response = await _dio.get(getAllPOurl,
+          options: Options(
+            headers: {
+              'Authorization': 'Bearer $token',
+              'Connection': 'keep-alive',
+            },
+          ));
+      print(response.data);
+      return POList.fromJson(response.data);
+    } catch (error, stacktrace) {
+      print("Exception occured:$error stacktrrace:$stacktrace");
+      return error;
+    }
+  }
+
+  Future<POList> getPOLoadMore(String loadToken) async {
+    SharedPreferences localData = await SharedPreferences.getInstance();
+    var token = jsonDecode(localData.getString('access_token'));
+    try {
+      print(getAllPOurl + loadToken);
+      // Response<ResponseBody> rs;
+      Response response = await _dio.get(getAllPOurl + loadToken,
           options: Options(
             headers: {
               'Authorization': 'Bearer $token',

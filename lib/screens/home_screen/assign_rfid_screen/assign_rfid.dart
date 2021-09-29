@@ -1,3 +1,4 @@
+import 'dart:collection';
 import 'dart:typed_data';
 
 import 'package:flutter/material.dart';
@@ -5,7 +6,9 @@ import 'package:flutter/services.dart';
 import 'package:flutter_bluetooth_serial/flutter_bluetooth_serial.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
+import 'package:loadmore/loadmore.dart';
 import 'package:smartwarehouse_ocr_rfid/bloc/bloc_po.dart';
+import 'package:smartwarehouse_ocr_rfid/bloc/bloc_po_loadmore.dart';
 import 'package:smartwarehouse_ocr_rfid/bloc/bloc_search_po.dart';
 import 'package:smartwarehouse_ocr_rfid/model/po_model.dart';
 import 'package:smartwarehouse_ocr_rfid/screens/home_screen/assign_rfid_screen/item_tagging.dart';
@@ -42,7 +45,10 @@ class AssignRFIDState extends State<AssignRFID> {
   bool isDisconnecting = false;
   bool isError = false;
   bool isSearching = false;
+  bool isDone = false;
   String searchPO;
+  List pagination = [];
+  List<DataPO> listPO = [];
 
   @override
   void initState() {
@@ -52,7 +58,8 @@ class AssignRFIDState extends State<AssignRFID> {
     // try {
     //   if (_connection.isConnected) {
     if (isSearching == false) {
-      getAllPOBloc..getallPOrx();
+      // getAllPOBloc..getallPOrx();
+      getPOLoadmoreBloc..getallPOrx('');
     } else {
       // var myInt = int.parse(searchController.text);
       // assert(myInt is int);
@@ -127,6 +134,9 @@ class AssignRFIDState extends State<AssignRFID> {
     //   connection.dispose();
     //   connection = null;
     // }
+    listPO.clear();
+    pagination.clear();
+    getPOLoadmoreBloc.dispose();
     searchController.dispose();
     EasyLoading.dismiss();
     super.dispose();
@@ -357,17 +367,31 @@ class AssignRFIDState extends State<AssignRFID> {
                             ),
                           )
                         : StreamBuilder<POList>(
-                            stream: getAllPOBloc.subject.stream,
+                            stream: getPOLoadmoreBloc.subject.stream,
                             builder: (context, AsyncSnapshot<POList> snapshot) {
+                              listPO.addAll(snapshot.data.data);
+                              snapshot.data.pagination.hasOlder == true
+                                  ? pagination
+                                      .add(snapshot.data.pagination.older)
+                                  : isDone = true;
                               print('get all po list');
+
                               if (snapshot.hasData) {
                                 EasyLoading.dismiss();
                                 print(
                                     'print snapshot${snapshot.data.data.length}');
-                                return _buildPOList(snapshot.data);
+                                return _buildPOList(listPO);
                               } else if (snapshot.hasError) {
                                 EasyLoading.showError(
                                     'Error occured\nPlease check your internet connection');
+                                return Container();
+                              } else if (listPO == null) {
+                                EasyLoading.show(
+                                    status: 'Loading',
+                                    indicator: Center(
+                                        child: SpinKitRipple(
+                                      color: kMaincolor,
+                                    )));
                                 return Container();
                               } else {
                                 EasyLoading.show(
@@ -386,55 +410,6 @@ class AssignRFIDState extends State<AssignRFID> {
             ),
           );
         });
-  }
-
-  void _onDataReceived(Uint8List data) {
-    // Allocate buffer for parsed data
-    int backspacesCounter = 0;
-    data.forEach((byte) {
-      if (byte == 8 || byte == 127) {
-        backspacesCounter++;
-      }
-    });
-    Uint8List buffer = Uint8List(data.length - backspacesCounter);
-    int bufferIndex = buffer.length;
-
-    // Apply backspace control character
-    backspacesCounter = 0;
-    for (int i = data.length - 1; i >= 0; i--) {
-      if (data[i] == 8 || data[i] == 127) {
-        backspacesCounter++;
-      } else {
-        if (backspacesCounter > 0) {
-          backspacesCounter--;
-        } else {
-          buffer[--bufferIndex] = data[i];
-        }
-      }
-    }
-
-    // Create message if there is new line character
-    String dataString = String.fromCharCodes(buffer);
-    int index = buffer.indexOf(13);
-    if (~index != 0) {
-      setState(() {
-        messages.add(
-          _Message(
-            // 1,
-            backspacesCounter > 0
-                ? _messageBuffer.substring(
-                    0, _messageBuffer.length - backspacesCounter)
-                : _messageBuffer + dataString.substring(0, index),
-          ),
-        );
-        _messageBuffer = dataString.substring(index);
-      });
-    } else {
-      _messageBuffer = (backspacesCounter > 0
-          ? _messageBuffer.substring(
-              0, _messageBuffer.length - backspacesCounter)
-          : _messageBuffer + dataString);
-    }
   }
 
   Widget _buildSearchPO(POList data) {
@@ -484,8 +459,23 @@ class AssignRFIDState extends State<AssignRFID> {
           });
   }
 
-  Widget _buildPOList(POList data) {
-    List<DataPO> po = data.data;
+  Widget _buildPOList(List<DataPO> data) {
+    final ids = Set<DataPO>();
+    data.retainWhere((element) => ids.add(element));
+
+    List<DataPO> po = ids.toList();
+
+    for (var i = 0; i < data.length; i++) {
+      po = data;
+      for (var j = i + 1; j < data.length; j++) {
+        if (data[j].poNo == data[i].poNo) {
+          po.removeAt(i);
+        } else {
+          // break inner loop dan masuk ke outer loop selanjutnya,
+          break;
+        }
+      }
+    }
 
     if (po.length == 0) {
       return Container(
@@ -495,54 +485,81 @@ class AssignRFIDState extends State<AssignRFID> {
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
             Text(
-              "No More List PO",
+              "There is no data List PO",
               style: textInputDecoration.labelStyle,
             )
           ],
         ),
       );
     } else
-      return ListView.separated(
-          separatorBuilder: (BuildContext context, int index) => Divider(),
-          itemCount: po.length,
-          itemBuilder: (context, index) {
-            print('this po no : ${po[index].poNo}');
-            return ListTile(
-              onTap: () {
-                Navigator.of(context).push(MaterialPageRoute(
-                    builder: (_) => ItemTagging(
-                          poNumber: po[index].poNo,
-                          // connection: uid,
-                          server: widget.server,
-                        )));
-              },
-              title: Text(po[index].poNo),
-              subtitle: Text(po[index].poTgl.split('T').first),
-              trailing: Column(
-                mainAxisAlignment: MainAxisAlignment.spaceAround,
-                children: [
-                  Text(
-                    'Status',
-                    // style: TextStyle(fontSize: 12),
-                  ),
-                  po[index].status == 'closed'
-                      ? Icon(
-                          Icons.circle_rounded,
-                          color: kMaincolor,
-                          size: 16,
-                        )
-                      : Icon(
-                          Icons.circle_rounded,
-                          color: Colors.red.shade900,
-                          size: 16,
-                        ),
-                  Text('${po[index].status}')
-                  // Row(
-                  //   children: [Icon(Icons.circle_rounded)],
-                  // )
-                ],
-              ),
-            );
-          });
+      return LoadMore(
+        isFinish: isDone,
+        whenEmptyLoad: false,
+        delegate: DefaultLoadMoreDelegate(),
+        textBuilder: DefaultLoadMoreTextBuilder.english,
+        onLoadMore: _loadMore,
+        child: ListView.separated(
+            separatorBuilder: (BuildContext context, int index) => Divider(),
+            itemCount: po.length,
+            itemBuilder: (context, index) {
+              print('this po no : ${po[index].poNo}');
+              return ListTile(
+                onTap: () {
+                  Navigator.of(context).push(MaterialPageRoute(
+                      builder: (_) => ItemTagging(
+                            poNumber: po[index].poNo,
+                            // connection: uid,
+                            server: widget.server,
+                          )));
+                },
+                title: Text(po[index].poNo),
+                subtitle: Text(po[index].poTgl.split('T').first),
+                trailing: Column(
+                  mainAxisAlignment: MainAxisAlignment.spaceAround,
+                  children: [
+                    Text(
+                      'Status',
+                      // style: TextStyle(fontSize: 12),
+                    ),
+                    po[index].status == 'closed'
+                        ? Icon(
+                            Icons.circle_rounded,
+                            color: kMaincolor,
+                            size: 16,
+                          )
+                        : Icon(
+                            Icons.circle_rounded,
+                            color: Colors.red.shade900,
+                            size: 16,
+                          ),
+                    Text('${po[index].status}')
+                    // Row(
+                    //   children: [Icon(Icons.circle_rounded)],
+                    // )
+                  ],
+                ),
+              );
+            }),
+      );
+  }
+
+  Future<bool> _loadMore() async {
+    print("onLoadMore");
+    await Future.delayed(Duration(seconds: 2, milliseconds: 2000));
+
+    load();
+    return true;
+  }
+
+  void load() async {
+    List<DataPO> tempList = [];
+    print('load page');
+    if (pagination != null) {
+      getPOLoadmoreBloc..getallPOrx(pagination.last);
+    } else {
+      setState(() {
+        isDone = true;
+      });
+    }
   }
 }

@@ -183,7 +183,7 @@ class _ItemTaggingState extends State<ItemTagging> {
     //   connection.dispose();
     //   connection = null;
     // }
-
+    connection.close();
     searchController.dispose();
     // EasyLoading.dismiss();
     super.dispose();
