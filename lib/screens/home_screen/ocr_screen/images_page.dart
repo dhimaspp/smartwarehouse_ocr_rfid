@@ -59,7 +59,7 @@ class _ImagesPagesState extends State<ImagesPages> {
     print('listPref = $listPref');
     print('listPrefFix = $listPrefFix');
 
-    if (listPrefFix.isEmpty && listPref != null) {
+    if (listPrefFix.isEmpty && listPref.isNotEmpty) {
       setState(() {
         assets = listPref;
         _isEmpty = false;
@@ -70,7 +70,7 @@ class _ImagesPagesState extends State<ImagesPages> {
       setState(() {
         _isEmpty = false;
         assets = listPrefFix;
-        if (listPref != null) {
+        if (listPref.isNotEmpty) {
           var listIndex = listPref[0];
           for (var i = 0; i < assets.length; i++) {
             if (listIndex == assets[i]) {
@@ -402,7 +402,7 @@ class _ImagesPagesState extends State<ImagesPages> {
                       var formdata =
                           FormData.fromMap({"image": listMultiPartFile});
                       var postRegister =
-                          "http://100.68.1.2:7030/v1/purchase-orders";
+                          "http://100.68.1.32:7030/v1/purchase-orders";
 
                       try {
                         // Response<ResponseBody> rs;

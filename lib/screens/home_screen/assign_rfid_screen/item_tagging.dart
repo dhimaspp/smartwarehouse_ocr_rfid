@@ -87,6 +87,7 @@ class _ItemTaggingState extends State<ItemTagging> {
   @override
   void initState() {
     super.initState();
+    print('popopo ${widget.poNumber}');
 
     _addPONumber(widget.poNumber);
     // searchController.addListener(_onChangeInputText);
@@ -98,7 +99,7 @@ class _ItemTaggingState extends State<ItemTagging> {
       // var myInt = int.parse(searchController.text);
       // assert(myInt is int);
       print('getsearchItemBloc');
-      getSearchItemBloc..searchItems(searchController.text);
+      getSearchItemBloc..searchItems(searchController.text.trim());
 
       // _subject.add(searchController.text);
 
@@ -156,18 +157,19 @@ class _ItemTaggingState extends State<ItemTagging> {
   }
 
   _addPONumber(String po) async {
-    if (widget.error.isNotEmpty) {
-      Future.delayed(const Duration(microseconds: 10), () {
-        EasyLoading.show(
-            status: widget.error,
-            dismissOnTap: true,
-            indicator: Icon(
-              Icons.inbox_outlined,
-              color: Colors.white,
-              size: 24,
-            ));
-      });
-    }
+    
+    // if (widget.error.isNotEmpty) {
+    //   Future.delayed(const Duration(microseconds: 10), () {
+    //     EasyLoading.show(
+    //         status: widget.error,
+    //         dismissOnTap: true,
+    //         indicator: Icon(
+    //           Icons.inbox_outlined,
+    //           color: Colors.white,
+    //           size: 24,
+    //         ));
+    //   });
+    // }
     SharedPreferences sharedLocal = await SharedPreferences.getInstance();
     print('removing local po');
     sharedLocal.remove('poNumber');
@@ -184,6 +186,7 @@ class _ItemTaggingState extends State<ItemTagging> {
     //   connection = null;
     // }
     connection.close();
+
     searchController.dispose();
     // EasyLoading.dismiss();
     super.dispose();
@@ -236,7 +239,11 @@ class _ItemTaggingState extends State<ItemTagging> {
                               ),
                               SizedBox(height: 20),
                               GestureDetector(
-                                  onTap: () {
+                                  onTap: () async {
+                                    SharedPreferences sharedLocal =
+                                        await SharedPreferences.getInstance();
+                                    print('removing local po');
+                                    sharedLocal.remove('poNumber');
                                     Navigator.of(context).pop();
                                   },
                                   child: Row(
@@ -324,7 +331,7 @@ class _ItemTaggingState extends State<ItemTagging> {
                                 // var myInt = int.parse(searchController.text);
                                 // assert(myInt is int);
                                 getSearchItemBloc
-                                  ..searchItems(searchController.text);
+                                  ..searchItems(searchController.text.trim());
                               },
                               decoration: InputDecoration(
                                 floatingLabelBehavior:

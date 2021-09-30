@@ -34,6 +34,7 @@ class _HomeScreenState extends State<HomeScreen> {
     SharedPreferences localData = await SharedPreferences.getInstance();
     var data = jsonDecode(localData.getString('data'));
     localData.remove('ListImagePath');
+    localData.remove('poNumber');
 
     localData.setString('username', json.encode(data['username']));
     token = jsonDecode(localData.getString('access_token'));

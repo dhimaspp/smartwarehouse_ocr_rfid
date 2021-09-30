@@ -63,7 +63,7 @@ class PoRepository {
     var token = jsonDecode(localData.getString('access_token'));
     // var params = {"search": value};
     try {
-      Response response = await _dio.get(getSearchPOurl + value,
+      Response response = await _dio.get(getSearchPOurl + value.trim(),
           // queryParameters: params,
           options: Options(
             headers: {
@@ -82,11 +82,12 @@ class PoRepository {
   Future<ItemsPOModel> searchItems(String query) async {
     SharedPreferences localData = await SharedPreferences.getInstance();
     var token = jsonDecode(localData.getString('access_token'));
-    String poNumber = jsonDecode(localData.getString('poNumber')).toString();
+    String poNumber = localData.getString('poNumber').toString();
     // var params = {"search": value};
     try {
+      print(getPOItemsurl + poNumber + '/search-item?search=${query.trim()}');
       Response response = await _dio.get(
-          getPOItemsurl + poNumber + '/search-item?search=$query',
+          getPOItemsurl + poNumber + '/search-item?search=${query.trim()}',
           // queryParameters: params,
           options: Options(
             headers: {
