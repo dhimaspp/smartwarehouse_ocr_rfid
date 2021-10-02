@@ -6,6 +6,7 @@ import 'package:http_parser/http_parser.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
+import 'package:image_cropper/image_cropper.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:modal_bottom_sheet/modal_bottom_sheet.dart';
 import 'package:path/path.dart';
@@ -32,6 +33,7 @@ class _ImagesPagesState extends State<ImagesPages> {
   int indexPressed = 0;
   final Dio _dio = Dio();
   String token;
+  File pickeds;
 
   @override
   void initState() {
@@ -52,46 +54,49 @@ class _ImagesPagesState extends State<ImagesPages> {
     });
     SharedPreferences sharedLocal = await SharedPreferences.getInstance();
 
-    List<String> listPref = sharedLocal.getStringList('ListImagePath');
+    List<String> tempList = [];
+    // List<String> listPref = sharedLocal.getStringList('ListImagePath');
 
     List<String> listPrefFix = sharedLocal.getStringList('ListImagePathFix');
+    tempList = listPrefFix;
     token = jsonDecode(sharedLocal.getString('access_token'));
-    print('listPref = $listPref');
+    // print('listPref = $listPref');
     print('listPrefFix = $listPrefFix');
 
-    if (listPrefFix.isEmpty && listPref.isNotEmpty) {
+    // if (listPrefFix != null) {
+    //   setState(() {
+    //     assets = tempList;
+    //     _isEmpty = false;
+    //     sharedLocal.setStringList('ListImagePathFix', assets);
+    //   });
+    //   print('assets = listPref');
+    // } else
+    if (tempList.isNotEmpty) {
       setState(() {
-        assets = listPref;
         _isEmpty = false;
-        sharedLocal.setStringList('ListImagePathFix', assets);
-      });
-      print('assets = listPref');
-    } else if (listPrefFix.isNotEmpty) {
-      setState(() {
-        _isEmpty = false;
-        assets = listPrefFix;
-        if (listPref.isNotEmpty) {
-          var listIndex = listPref[0];
-          for (var i = 0; i < assets.length; i++) {
-            if (listIndex == assets[i]) {
-              print('print image path $listIndex');
-            } else {
-              assets.add(listIndex);
-              print('print success adding image');
-              sharedLocal.remove('ListImagePath');
-              sharedLocal.setStringList('ListImagePathFix', assets);
-              break;
-            }
+        assets = tempList;
+        // if (listPref.isNotEmpty) {
+        //   var listIndex = listPref[0];
+        //   for (var i = 0; i < assets.length; i++) {
+        //     if (listIndex == assets[i]) {
+        //       print('print image path $listIndex');
+        //     } else {
+        //       assets.add(listIndex);
+        //       print('print success adding image');
+        //       // sharedLocal.remove('ListImagePath');
+        //       sharedLocal.setStringList('ListImagePathFix', assets);
+        //       break;
+        //     }
 
-            // ListTempImage().imagePath.add(widget.imagePath);
-            // return assets;
-            // ListTempImage().imagePath;
-          }
-        }
+        //     // ListTempImage().imagePath.add(widget.imagePath);
+        //     // return assets;
+        //     // ListTempImage().imagePath;
+        //   }
+        // }
       });
 
       print('assets = listPrefix');
-    } else if (listPrefFix == null && listPref == null) {
+    } else {
       setState(() {
         _isEmpty = true;
       });
@@ -189,17 +194,18 @@ class _ImagesPagesState extends State<ImagesPages> {
                       )));
                   final PickedFile pick = await ImagePicker()
                       .getImage(source: ImageSource.camera, imageQuality: 50);
-                  File pickeds;
+
                   if (pick == null) {
                     return Container();
                   } else {
                     pickeds = File(pick.path);
-                    Navigator.of(context)
-                        .push(MaterialPageRoute(builder: (context) {
-                      return POScanSession(
-                        image: pickeds,
-                      );
-                    }));
+                    _cropImage();
+                    // Navigator.of(context)
+                    //     .push(MaterialPageRoute(builder: (context) {
+                    //   return POScanSession(
+                    //     image: pickeds,
+                    //   );
+                    // }));
                   }
                   EasyLoading.dismiss();
 
@@ -315,19 +321,20 @@ class _ImagesPagesState extends State<ImagesPages> {
                       )));
                   final XFile pick = await ImagePicker()
                       .pickImage(source: ImageSource.camera, imageQuality: 50);
-                  File pickeds;
+                  // File pickeds;
                   if (pick == null) {
                     return Container();
                   } else {
                     pickeds = File(pick.path);
                   }
 
-                  Navigator.of(context)
-                      .push(MaterialPageRoute(builder: (context) {
-                    return POScanSession(
-                      image: pickeds,
-                    );
-                  }));
+                  _cropImage();
+                  // Navigator.of(context)
+                  //     .push(MaterialPageRoute(builder: (context) {
+                  //   return POScanSession(
+                  //     image: pickeds,
+                  //   );
+                  // }));
                   EasyLoading.dismiss();
                   // setState(() {
                   //   assets.add(pickeds.path);
@@ -602,5 +609,49 @@ class _ImagesPagesState extends State<ImagesPages> {
                 ],
               ),
             ));
+  }
+
+  Future _cropImage() async {
+    SharedPreferences sharedLocal = await SharedPreferences.getInstance();
+    File croppedFile = await ImageCropper.cropImage(
+        sourcePath: pickeds.path,
+        aspectRatioPresets: Platform.isAndroid
+            ? [
+                CropAspectRatioPreset.square,
+                CropAspectRatioPreset.ratio3x2,
+                CropAspectRatioPreset.original,
+                CropAspectRatioPreset.ratio4x3,
+                CropAspectRatioPreset.ratio16x9
+              ]
+            : [
+                CropAspectRatioPreset.original,
+                CropAspectRatioPreset.square,
+                CropAspectRatioPreset.ratio3x2,
+                CropAspectRatioPreset.ratio4x3,
+                CropAspectRatioPreset.ratio5x3,
+                CropAspectRatioPreset.ratio5x4,
+                CropAspectRatioPreset.ratio7x5,
+                CropAspectRatioPreset.ratio16x9
+              ],
+        androidUiSettings: AndroidUiSettings(
+            statusBarColor: kMaincolor,
+            toolbarTitle: 'Cropper',
+            toolbarColor: kMaincolor,
+            toolbarWidgetColor: Colors.white,
+            initAspectRatio: CropAspectRatioPreset.original,
+            lockAspectRatio: false),
+        iosUiSettings: IOSUiSettings(
+          title: 'Cropper',
+        ));
+    if (croppedFile != null) {
+      pickeds = croppedFile;
+      setState(() {
+        print('image cropper file : $pickeds');
+        assets.add(pickeds.path);
+
+        sharedLocal.setStringList('ListImagePathFix', assets);
+        _getAssetsImage();
+      });
+    }
   }
 }

@@ -157,7 +157,6 @@ class _ItemTaggingState extends State<ItemTagging> {
   }
 
   _addPONumber(String po) async {
-    
     // if (widget.error.isNotEmpty) {
     //   Future.delayed(const Duration(microseconds: 10), () {
     //     EasyLoading.show(
@@ -240,10 +239,6 @@ class _ItemTaggingState extends State<ItemTagging> {
                               SizedBox(height: 20),
                               GestureDetector(
                                   onTap: () async {
-                                    SharedPreferences sharedLocal =
-                                        await SharedPreferences.getInstance();
-                                    print('removing local po');
-                                    sharedLocal.remove('poNumber');
                                     Navigator.of(context).pop();
                                   },
                                   child: Row(
@@ -291,7 +286,11 @@ class _ItemTaggingState extends State<ItemTagging> {
                         ),
                       ),
                       leading: IconButton(
-                          onPressed: () {
+                          onPressed: () async {
+                            SharedPreferences sharedLocal =
+                                await SharedPreferences.getInstance();
+                            print('removing local po');
+                            sharedLocal.remove('poNumber');
                             // Navigator.of(context).pop();
                             connection.close();
                             Navigator.of(context).push(MaterialPageRoute(
