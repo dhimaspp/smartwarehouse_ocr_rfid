@@ -247,167 +247,178 @@ class AssignRFIDState extends State<AssignRFID> {
                     icon: Icon(Icons.arrow_back_ios_new_rounded)),
               ),
             ),
-            body:
-                // isConnecting
-                //     ? Center(child: CircularProgressIndicator())
-                //     :
-                Padding(
-              padding: const EdgeInsets.all(8.0),
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                crossAxisAlignment: CrossAxisAlignment.center,
-                children: <Widget>[
-                  Text(
-                    "PO List",
-                    style: TextStyle(
-                        fontWeight: FontWeight.w900,
-                        color: Colors.black54,
-                        fontSize: 20),
-                  ),
-                  Padding(
-                    padding: const EdgeInsets.only(
-                        left: 10.0, right: 10.0, top: 10.0, bottom: 10.0),
-                    child: TextFormField(
-                        style: TextStyle(fontSize: 14.0, color: Colors.black),
-                        controller: searchController,
-                        onChanged: (change) {
-                          setState(() {
-                            isSearching = true;
-                          });
-                          // var myInt = int.parse(searchController.text);
-                          // assert(myInt is int);
-                          getSearchBloc..search(searchController.text);
-                        },
-                        decoration: InputDecoration(
-                          floatingLabelBehavior: FloatingLabelBehavior.never,
-                          filled: true,
-                          fillColor: Colors.grey[100],
-                          suffixIcon: searchController.text.length > 0
-                              ? IconButton(
-                                  icon: Icon(
-                                    Icons.cancel_rounded,
-                                    color: Colors.grey[500],
-                                    size: 16.0,
-                                  ),
-                                  onPressed: () {
-                                    setState(() {
-                                      isSearching = false;
-                                      searchController.clear();
-                                    });
-                                  })
-                              : IconButton(
-                                  icon: Icon(
-                                    Icons.search_outlined,
-                                    color: Colors.grey[500],
-                                    size: 16.0,
-                                  ),
-                                  onPressed: () {},
-                                ),
-                          enabledBorder: OutlineInputBorder(
-                              borderSide: new BorderSide(
-                                  color: Colors.grey[100].withOpacity(0.3)),
-                              borderRadius: BorderRadius.circular(30.0)),
-                          focusedBorder: OutlineInputBorder(
-                              borderSide: new BorderSide(
-                                  color: Colors.grey[100].withOpacity(0.3)),
-                              borderRadius: BorderRadius.circular(30.0)),
-                          contentPadding:
-                              EdgeInsets.only(left: 15.0, right: 10.0),
-                          labelText: "Search...",
-                          hintStyle: TextStyle(
-                              fontSize: 14.0,
-                              color: kFillColor,
-                              fontWeight: FontWeight.w500),
-                          labelStyle: TextStyle(
-                              fontSize: 14.0,
-                              color: Colors.grey,
-                              fontWeight: FontWeight.w500),
+            body: listPO == null
+                ? Center(
+                    child: Text(
+                      "There is no PO on data OCR",
+                      style: TextStyle(
+                          fontWeight: FontWeight.w500,
+                          color: Colors.black87,
+                          fontSize: 18),
+                    ),
+                  )
+                : Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      children: <Widget>[
+                        Text(
+                          "PO List",
+                          style: TextStyle(
+                              fontWeight: FontWeight.w900,
+                              color: Colors.black54,
+                              fontSize: 20),
                         ),
-                        autocorrect: false,
-                        autovalidateMode: AutovalidateMode.disabled),
-                  ),
-                  SizedBox(
-                    height: 10,
-                  ),
-                  Divider(
-                    height: 10,
-                    thickness: 1,
-                  ),
-                  Flexible(
-                    fit: FlexFit.loose,
-                    child: isSearching == true
-                        ? AnimatedSwitcher(
-                            duration: const Duration(milliseconds: 300),
-                            child: StreamBuilder<POList>(
-                              stream: getSearchBloc.result,
-                              builder:
-                                  (context, AsyncSnapshot<POList> snapshot) {
-                                print('searching query params');
-                                if (snapshot.hasData) {
-                                  EasyLoading.dismiss();
-                                  Future.delayed(Duration(seconds: 1));
-
-                                  print(
-                                      'print snapshot${snapshot.data.data.length}');
-                                  return _buildSearchPO(snapshot.data);
-                                } else if (snapshot.hasError) {
-                                  EasyLoading.showError(
-                                      'Error occured\nPlease check your internet connection');
-                                  return Container();
-                                } else {
-                                  EasyLoading.show(
-                                      status: 'Loading',
-                                      indicator: Center(
-                                          child: SpinKitRipple(
-                                        color: kMaincolor,
-                                      )));
-                                  return Container();
-                                }
+                        Padding(
+                          padding: const EdgeInsets.only(
+                              left: 10.0, right: 10.0, top: 10.0, bottom: 10.0),
+                          child: TextFormField(
+                              style: TextStyle(
+                                  fontSize: 14.0, color: Colors.black),
+                              controller: searchController,
+                              onChanged: (change) {
+                                setState(() {
+                                  isSearching = true;
+                                });
+                                // var myInt = int.parse(searchController.text);
+                                // assert(myInt is int);
+                                getSearchBloc..search(searchController.text);
                               },
-                            ),
-                          )
-                        : StreamBuilder<POList>(
-                            stream: getPOLoadmoreBloc.subject.stream,
-                            builder: (context, AsyncSnapshot<POList> snapshot) {
-                              listPO.addAll(snapshot.data.data);
-                              snapshot.data.pagination.hasOlder == true
-                                  ? pagination
-                                      .add(snapshot.data.pagination.older)
-                                  : isDone = true;
-                              print('get all po list');
+                              decoration: InputDecoration(
+                                floatingLabelBehavior:
+                                    FloatingLabelBehavior.never,
+                                filled: true,
+                                fillColor: Colors.grey[100],
+                                suffixIcon: searchController.text.length > 0
+                                    ? IconButton(
+                                        icon: Icon(
+                                          Icons.cancel_rounded,
+                                          color: Colors.grey[500],
+                                          size: 16.0,
+                                        ),
+                                        onPressed: () {
+                                          setState(() {
+                                            isSearching = false;
+                                            searchController.clear();
+                                          });
+                                        })
+                                    : IconButton(
+                                        icon: Icon(
+                                          Icons.search_outlined,
+                                          color: Colors.grey[500],
+                                          size: 16.0,
+                                        ),
+                                        onPressed: () {},
+                                      ),
+                                enabledBorder: OutlineInputBorder(
+                                    borderSide: new BorderSide(
+                                        color:
+                                            Colors.grey[100].withOpacity(0.3)),
+                                    borderRadius: BorderRadius.circular(30.0)),
+                                focusedBorder: OutlineInputBorder(
+                                    borderSide: new BorderSide(
+                                        color:
+                                            Colors.grey[100].withOpacity(0.3)),
+                                    borderRadius: BorderRadius.circular(30.0)),
+                                contentPadding:
+                                    EdgeInsets.only(left: 15.0, right: 10.0),
+                                labelText: "Search...",
+                                hintStyle: TextStyle(
+                                    fontSize: 14.0,
+                                    color: kFillColor,
+                                    fontWeight: FontWeight.w500),
+                                labelStyle: TextStyle(
+                                    fontSize: 14.0,
+                                    color: Colors.grey,
+                                    fontWeight: FontWeight.w500),
+                              ),
+                              autocorrect: false,
+                              autovalidateMode: AutovalidateMode.disabled),
+                        ),
+                        SizedBox(
+                          height: 10,
+                        ),
+                        Divider(
+                          height: 10,
+                          thickness: 1,
+                        ),
+                        Flexible(
+                          fit: FlexFit.loose,
+                          child: isSearching == true
+                              ? AnimatedSwitcher(
+                                  duration: const Duration(milliseconds: 300),
+                                  child: StreamBuilder<POList>(
+                                    stream: getSearchBloc.result,
+                                    builder: (context,
+                                        AsyncSnapshot<POList> snapshot) {
+                                      print('searching query params');
+                                      if (snapshot.hasData) {
+                                        EasyLoading.dismiss();
+                                        Future.delayed(Duration(seconds: 1));
 
-                              if (snapshot.hasData) {
-                                EasyLoading.dismiss();
-                                print(
-                                    'print snapshot${snapshot.data.data.length}');
-                                return _buildPOList(listPO);
-                              } else if (snapshot.hasError) {
-                                EasyLoading.showError(
-                                    'Error occured\nPlease check your internet connection');
-                                return Container();
-                              } else if (listPO == null) {
-                                EasyLoading.show(
-                                    status: 'Loading',
-                                    indicator: Center(
-                                        child: SpinKitRipple(
-                                      color: kMaincolor,
-                                    )));
-                                return Container();
-                              } else {
-                                EasyLoading.show(
-                                    status: 'Loading',
-                                    indicator: Center(
-                                        child: SpinKitRipple(
-                                      color: kMaincolor,
-                                    )));
-                                return Container();
-                              }
-                            },
-                          ),
+                                        print(
+                                            'print snapshot${snapshot.data.data.length}');
+                                        return _buildSearchPO(snapshot.data);
+                                      } else if (snapshot.hasError) {
+                                        EasyLoading.showError(
+                                            'Error occured\nPlease check your internet connection');
+                                        return Container();
+                                      } else {
+                                        EasyLoading.show(
+                                            status: 'Loading',
+                                            indicator: Center(
+                                                child: SpinKitRipple(
+                                              color: kMaincolor,
+                                            )));
+                                        return Container();
+                                      }
+                                    },
+                                  ),
+                                )
+                              : StreamBuilder<POList>(
+                                  stream: getPOLoadmoreBloc.subject.stream,
+                                  builder: (context,
+                                      AsyncSnapshot<POList> snapshot) {
+                                    listPO.addAll(snapshot.data.data);
+                                    snapshot.data.pagination.hasOlder == true
+                                        ? pagination
+                                            .add(snapshot.data.pagination.older)
+                                        : isDone = true;
+                                    print('get all po list');
+
+                                    if (snapshot.hasData) {
+                                      EasyLoading.dismiss();
+                                      print(
+                                          'print snapshot${snapshot.data.data.length}');
+                                      return _buildPOList(listPO);
+                                    } else if (snapshot.hasError) {
+                                      EasyLoading.showError(
+                                          'Error occured\nPlease check your internet connection');
+                                      return Container();
+                                    } else if (listPO == null) {
+                                      EasyLoading.show(
+                                          status: 'Loading',
+                                          indicator: Center(
+                                              child: SpinKitRipple(
+                                            color: kMaincolor,
+                                          )));
+                                      return Container();
+                                    } else {
+                                      EasyLoading.show(
+                                          status: 'Loading',
+                                          indicator: Center(
+                                              child: SpinKitRipple(
+                                            color: kMaincolor,
+                                          )));
+                                      return Container();
+                                    }
+                                  },
+                                ),
+                        ),
+                      ],
+                    ),
                   ),
-                ],
-              ),
-            ),
           );
         });
   }
