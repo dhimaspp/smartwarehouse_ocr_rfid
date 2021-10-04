@@ -71,7 +71,7 @@ class _ImagesPagesState extends State<ImagesPages> {
     //   });
     //   print('assets = listPref');
     // } else
-    if (tempList.isNotEmpty) {
+    if (tempList.length != 0) {
       setState(() {
         _isEmpty = false;
         assets = tempList;
@@ -639,6 +639,7 @@ class _ImagesPagesState extends State<ImagesPages> {
             toolbarColor: kMaincolor,
             toolbarWidgetColor: Colors.white,
             initAspectRatio: CropAspectRatioPreset.original,
+            activeControlsWidgetColor: kMaincolor,
             lockAspectRatio: false),
         iosUiSettings: IOSUiSettings(
           title: 'Cropper',
