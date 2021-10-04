@@ -85,9 +85,9 @@ class PoRepository {
     String poNumber = localData.getString('poNumber').toString();
     // var params = {"search": value};
     try {
-      print(getPOItemsurl + poNumber + '/search-item?search=${query.trim()}');
+      print(getPOItemsurl + poNumber + '/search-item?search=$query');
       Response response = await _dio.get(
-          getPOItemsurl + poNumber + '/search-item?search=${query.trim()}',
+          getPOItemsurl + poNumber + '/search-item?search=$query}',
           // queryParameters: params,
           options: Options(
             headers: {
@@ -125,6 +125,7 @@ class PoRepository {
     }
   }
 
+  // ignore: missing_return
   Future<TagModel> postAssignTag(String recId, String uid) async {
     SharedPreferences localData = await SharedPreferences.getInstance();
     var token = jsonDecode(localData.getString('access_token'));

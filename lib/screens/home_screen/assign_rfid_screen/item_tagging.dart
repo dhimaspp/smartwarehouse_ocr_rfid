@@ -99,7 +99,7 @@ class _ItemTaggingState extends State<ItemTagging> {
       // var myInt = int.parse(searchController.text);
       // assert(myInt is int);
       print('getsearchItemBloc');
-      getSearchItemBloc..searchItems(searchController.text.trim());
+      getSearchItemBloc..searchItems(searchController.text);
 
       // _subject.add(searchController.text);
 
@@ -330,7 +330,7 @@ class _ItemTaggingState extends State<ItemTagging> {
                                 // var myInt = int.parse(searchController.text);
                                 // assert(myInt is int);
                                 getSearchItemBloc
-                                  ..searchItems(searchController.text.trim());
+                                  ..searchItems(searchController.text);
                               },
                               decoration: InputDecoration(
                                 floatingLabelBehavior:
