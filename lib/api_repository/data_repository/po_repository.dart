@@ -19,7 +19,7 @@ class PoRepository {
 
   Future<POList> getAllPO() async {
     SharedPreferences localData = await SharedPreferences.getInstance();
-    var token = jsonDecode(localData.getString('access_token'));
+    var token = jsonDecode(localData.getString('access_token')!);
     try {
       // Response<ResponseBody> rs;
       Response response = await _dio.get(getAllPOurl,
@@ -33,13 +33,13 @@ class PoRepository {
       return POList.fromJson(response.data);
     } catch (error, stacktrace) {
       print("Exception occured:$error stacktrrace:$stacktrace");
-      return error;
+      return POList();
     }
   }
 
   Future<POList> getPOLoadMore(String loadToken) async {
     SharedPreferences localData = await SharedPreferences.getInstance();
-    var token = jsonDecode(localData.getString('access_token'));
+    var token = jsonDecode(localData.getString('access_token')!);
     try {
       print(getAllPOurl + loadToken);
       // Response<ResponseBody> rs;
@@ -54,13 +54,13 @@ class PoRepository {
       return POList.fromJson(response.data);
     } catch (error, stacktrace) {
       print("Exception occured:$error stacktrrace:$stacktrace");
-      return error;
+      return POList();
     }
   }
 
   Future<POList> search(String value) async {
     SharedPreferences localData = await SharedPreferences.getInstance();
-    var token = jsonDecode(localData.getString('access_token'));
+    var token = jsonDecode(localData.getString('access_token')!);
     // var params = {"search": value};
     try {
       Response response = await _dio.get(getSearchPOurl + value.trim(),
@@ -75,13 +75,13 @@ class PoRepository {
       return POList.fromJson(response.data);
     } catch (error, stacktrace) {
       print("Exception occured: $error stackTrace: $stacktrace");
-      return error;
+      return POList();
     }
   }
 
   Future<ItemsPOModel> searchItems(String query) async {
     SharedPreferences localData = await SharedPreferences.getInstance();
-    var token = jsonDecode(localData.getString('access_token'));
+    var token = jsonDecode(localData.getString('access_token')!);
     String poNumber = localData.getString('poNumber').toString();
     // var params = {"search": value};
     try {
@@ -99,13 +99,13 @@ class PoRepository {
       return ItemsPOModel.fromJson(response.data);
     } catch (error, stacktrace) {
       print("Exception occured: $error stackTrace: $stacktrace");
-      return error;
+      return ItemsPOModel();
     }
   }
 
-  Future<ItemsPOModel> getPOItems(String value) async {
+  Future<ItemsPOModel> getPOItems(String? value) async {
     SharedPreferences localData = await SharedPreferences.getInstance();
-    var token = jsonDecode(localData.getString('access_token'));
+    var token = jsonDecode(localData.getString('access_token')!);
     // var params = {"search": value};
     try {
       print(' link to get item po : ${getPOItemsurl + "$value/items"}');
@@ -121,14 +121,14 @@ class PoRepository {
       return ItemsPOModel.fromJson(response.data);
     } catch (error, stacktrace) {
       print("Exception occured: $error stackTrace: $stacktrace");
-      return error;
+      return ItemsPOModel();
     }
   }
 
   // ignore: missing_return
   Future<TagModel> postAssignTag(String recId, String uid) async {
     SharedPreferences localData = await SharedPreferences.getInstance();
-    var token = jsonDecode(localData.getString('access_token'));
+    var token = jsonDecode(localData.getString('access_token')!);
     // var params = {"search": value};
     try {
       print(
@@ -147,9 +147,10 @@ class PoRepository {
     } on DioError catch (error, stacktrace) {
       print("Exception occured: $error stackTrace: $stacktrace");
       if (error.type == DioErrorType.response) {
-        print(error.response.data);
-        return TagModel.withError(error.response.data);
+        print(error.response!.data);
+        return TagModel.withError(error.response!.data);
       }
+      return TagModel();
     }
   }
 }

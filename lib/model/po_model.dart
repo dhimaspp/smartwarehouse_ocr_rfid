@@ -1,7 +1,7 @@
 class POList {
-  String message;
-  List<DataPO> data;
-  Pagination pagination;
+  String? message;
+  List<DataPO>? data;
+  Pagination? pagination;
 
   POList({this.message, this.data, this.pagination});
 
@@ -10,7 +10,7 @@ class POList {
     if (json['data'] != null) {
       data = <DataPO>[];
       json['data'].forEach((v) {
-        data.add(new DataPO.fromJson(v));
+        data!.add(new DataPO.fromJson(v));
       });
     }
     pagination = json['pagination'] != null
@@ -22,33 +22,33 @@ class POList {
     final Map<String, dynamic> data = new Map<String, dynamic>();
     data['message'] = this.message;
     if (this.data != null) {
-      data['data'] = this.data.map((v) => v.toJson()).toList();
+      data['data'] = this.data!.map((v) => v.toJson()).toList();
     }
     if (this.pagination != null) {
-      data['pagination'] = this.pagination.toJson();
+      data['pagination'] = this.pagination!.toJson();
     }
     return data;
   }
 }
 
 class DataPO {
-  int recId;
-  String poNo;
-  String poTgl;
-  String poFc;
-  String vendorNama;
-  String vendorAlamat;
-  String deliverTo;
-  String deliverAlamat;
-  String prNo;
-  String prTgl;
-  String oaNo;
-  String oaTgl;
-  int jmlQty;
-  int jmlHarga;
-  int modifiedBy;
-  String lastModified;
-  String status;
+  int? recId;
+  String? poNo;
+  String? poTgl;
+  String? poFc;
+  String? vendorNama;
+  String? vendorAlamat;
+  String? deliverTo;
+  String? deliverAlamat;
+  String? prNo;
+  String? prTgl;
+  String? oaNo;
+  String? oaTgl;
+  int? jmlQty;
+  int? jmlHarga;
+  int? modifiedBy;
+  String? lastModified;
+  String? status;
 
   DataPO(
       {this.recId,
@@ -113,10 +113,10 @@ class DataPO {
 }
 
 class Pagination {
-  String newer;
-  String older;
-  bool hasOlder;
-  bool hasNewer;
+  String? newer;
+  String? older;
+  bool? hasOlder;
+  bool? hasNewer;
 
   Pagination({this.newer, this.older, this.hasOlder, this.hasNewer});
 

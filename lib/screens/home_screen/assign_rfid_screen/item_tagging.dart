@@ -27,14 +27,14 @@ import 'package:smartwarehouse_ocr_rfid/theme/theme.dart';
 
 class ItemTagging extends StatefulWidget {
   const ItemTagging(
-      {@required this.poNumber,
-      @required this.server,
+      {required this.poNumber,
+      required this.server,
       this.error,
       // @required this.connection,
-      Key key})
+      Key? key})
       : super(key: key);
-  final String error;
-  final String poNumber;
+  final String? error;
+  final String? poNumber;
   final BluetoothDevice server;
   // final BluetoothConnection connection;
 
@@ -52,7 +52,7 @@ class _ItemTaggingState extends State<ItemTagging> {
   // ignore: close_sinks
   final BehaviorSubject<_Message> _subject = BehaviorSubject<_Message>();
   // String uid = "";
-  PersistentBottomSheetController _controller; // <------ Instance variable
+  PersistentBottomSheetController? _controller; // <------ Instance variable
   final _scaffoldKey =
       GlobalKey<ScaffoldState>(); // <---- Another instance variable
   final ScrollController listScrollController = new ScrollController();
@@ -62,19 +62,19 @@ class _ItemTaggingState extends State<ItemTagging> {
   // List<String> messages;
   List<_Message> messages = <_Message>[];
   String uid = '';
-  bool _isLoading;
+  bool? _isLoading;
   static final clientID = 0;
   String _messageBuffer = '';
-  BluetoothConnection connection;
+  BluetoothConnection? connection;
   bool isConnecting = true;
-  bool get isConnected => connection != null && connection.isConnected;
+  bool get isConnected => connection != null && connection!.isConnected;
 
   bool isDisconnecting = false;
-  bool isReading;
+  bool? isReading;
   bool isError = false;
   bool isSearching = false;
-  String searchPO;
-  int itemIndex;
+  String? searchPO;
+  int? itemIndex;
   // Stream<ItemsPOModel> _result;
   // Stream<ItemsPOModel> get result => _result;
   final PoRepository apiWrapper = PoRepository();
@@ -89,7 +89,7 @@ class _ItemTaggingState extends State<ItemTagging> {
     super.initState();
     print('popopo ${widget.poNumber}');
 
-    _addPONumber(widget.poNumber);
+    _addPONumber(widget.poNumber!);
     // searchController.addListener(_onChangeInputText);
 
     if (isSearching == false) {
@@ -116,7 +116,7 @@ class _ItemTaggingState extends State<ItemTagging> {
             isDisconnecting = false;
           });
 
-          connection.input.listen(_onDataReceived).onDone(() {
+          connection!.input!.listen(_onDataReceived).onDone(() {
             // Example: Detect which side closed the connection
             // There should be `isDisconnecting` flag to show are we are (locally)
             // in middle of disconnecting process, should be set before calling
@@ -184,7 +184,7 @@ class _ItemTaggingState extends State<ItemTagging> {
     //   connection.dispose();
     //   connection = null;
     // }
-    connection.close();
+    connection!.close();
 
     searchController.dispose();
     // EasyLoading.dismiss();
@@ -222,7 +222,7 @@ class _ItemTaggingState extends State<ItemTagging> {
                               SizedBox(height: 20),
                               Text(
                                 'Oops Something Went Wrong',
-                                style: textInputDecoration.labelStyle.copyWith(
+                                style: textInputDecoration.labelStyle!.copyWith(
                                     fontWeight: FontWeight.w800,
                                     fontSize: 22,
                                     color: Colors.black),
@@ -231,7 +231,7 @@ class _ItemTaggingState extends State<ItemTagging> {
                               Text(
                                 "Please make sure Bluetooth RFID Reader\ndevice is installed properly",
                                 textAlign: TextAlign.center,
-                                style: textInputDecoration.labelStyle.copyWith(
+                                style: textInputDecoration.labelStyle!.copyWith(
                                     fontWeight: FontWeight.w800,
                                     fontSize: 18,
                                     color: Colors.black),
@@ -249,7 +249,7 @@ class _ItemTaggingState extends State<ItemTagging> {
                                         color: kMaincolor,
                                       ),
                                       Text('Back',
-                                          style: textInputDecoration.labelStyle
+                                          style: textInputDecoration.labelStyle!
                                               .copyWith(
                                                   fontWeight: FontWeight.w800,
                                                   fontSize: 18,
@@ -273,7 +273,7 @@ class _ItemTaggingState extends State<ItemTagging> {
                     child: AppBar(
                       title: Text(
                         'Items List To Assign Tag',
-                        style: textInputDecoration.labelStyle.copyWith(
+                        style: textInputDecoration.labelStyle!.copyWith(
                             fontWeight: FontWeight.w800,
                             fontSize: 18,
                             color: Colors.white),
@@ -292,7 +292,7 @@ class _ItemTaggingState extends State<ItemTagging> {
                             print('removing local po');
                             sharedLocal.remove('poNumber');
                             // Navigator.of(context).pop();
-                            connection.close();
+                            connection!.close();
                             Navigator.of(context).push(MaterialPageRoute(
                                 builder: (_) => AssignRFID(widget.server)));
                           },
@@ -361,12 +361,12 @@ class _ItemTaggingState extends State<ItemTagging> {
                                 enabledBorder: OutlineInputBorder(
                                     borderSide: new BorderSide(
                                         color:
-                                            Colors.grey[100].withOpacity(0.3)),
+                                            Colors.grey[100]!.withOpacity(0.3)),
                                     borderRadius: BorderRadius.circular(30.0)),
                                 focusedBorder: OutlineInputBorder(
                                     borderSide: new BorderSide(
                                         color:
-                                            Colors.grey[100].withOpacity(0.3)),
+                                            Colors.grey[100]!.withOpacity(0.3)),
                                     borderRadius: BorderRadius.circular(30.0)),
                                 contentPadding:
                                     EdgeInsets.only(left: 15.0, right: 10.0),
@@ -405,9 +405,9 @@ class _ItemTaggingState extends State<ItemTagging> {
                                         Future.delayed(Duration(seconds: 1));
 
                                         print(
-                                            'print snapshot${snapshot.data.data.length}');
+                                            'print snapshot${snapshot.data!.data!.length}');
                                         return _buildSearchPO(
-                                            snapshot.data, list);
+                                            snapshot.data!, list);
                                       } else if (snapshot.hasError) {
                                         EasyLoading.showError(
                                             'Error occured\nPlease check your internet connection');
@@ -432,8 +432,8 @@ class _ItemTaggingState extends State<ItemTagging> {
                                     if (snapshot.hasData) {
                                       EasyLoading.dismiss();
                                       print(
-                                          'print snapshot${snapshot.data.data.length}');
-                                      return _buildPOList(snapshot.data, list);
+                                          'print snapshot${snapshot.data!.data!.length}');
+                                      return _buildPOList(snapshot.data!, list);
                                     } else if (snapshot.hasError) {
                                       EasyLoading.showError(
                                           'Error occured\nPlease check your internet connection');
@@ -520,7 +520,7 @@ class _ItemTaggingState extends State<ItemTagging> {
   }
 
   Widget _buildSearchPO(ItemsPOModel data, List<String> list) {
-    List<DataItem> items = data.data;
+    List<DataItem> items = data.data!;
 
     if (items.length == 0) {
       return Container(
@@ -548,8 +548,8 @@ class _ItemTaggingState extends State<ItemTagging> {
               leading: Column(
                 children: [Text('Qty'), Text('${items[index].qty}')],
               ),
-              title: Text(items[index].deskripsi),
-              subtitle: Text("Material code: " + items[index].kodeMaterial),
+              title: Text(items[index].deskripsi!),
+              subtitle: Text("Material code: " + items[index].kodeMaterial!),
               trailing: Column(
                 children: [Text('0 of ${items[index].qty}')],
               ),
@@ -560,17 +560,17 @@ class _ItemTaggingState extends State<ItemTagging> {
                   scrollDirection: Axis.vertical,
                   separatorBuilder: (BuildContext context, int index) =>
                       Divider(),
-                  itemCount: items[itemIndex].qty,
+                  itemCount: items[itemIndex].qty!,
                   itemBuilder: (context, indexseparated) {
                     return ListTile(
-                      title: Text(items[itemIndex].deskripsi),
+                      title: Text(items[itemIndex].deskripsi!),
                       subtitle: Text((items[itemIndex].rfids != null &&
-                              items[itemIndex].rfids.length > indexseparated
+                              items[itemIndex].rfids!.length > indexseparated
                           ? "UID No: " +
-                              items[itemIndex].rfids[indexseparated].uid
+                              items[itemIndex].rfids![indexseparated].uid!
                           : "UID No: -not assign tag yet-")),
                       trailing: items[itemIndex].rfids != null &&
-                              items[itemIndex].rfids.length > indexseparated
+                              items[itemIndex].rfids!.length > indexseparated
                           ? Text('Already assign')
                           : GestureDetector(
                               onTap: () {
@@ -593,9 +593,9 @@ class _ItemTaggingState extends State<ItemTagging> {
                                               return Column(
                                                 children: [
                                                   Text(
-                                                    snapShot.data.text,
+                                                    snapShot.data!.text,
                                                     style: textInputDecoration
-                                                        .labelStyle
+                                                        .labelStyle!
                                                         .copyWith(fontSize: 18),
                                                   ),
                                                   ElevatedButton(
@@ -618,7 +618,7 @@ class _ItemTaggingState extends State<ItemTagging> {
                                                                     .recId
                                                                     .toString(),
                                                                 snapShot
-                                                                    .data.text
+                                                                    .data!.text
                                                                     .toString());
                                                         AssignTagState state =
                                                             context
@@ -629,7 +629,7 @@ class _ItemTaggingState extends State<ItemTagging> {
                                                             is AssignTagLoaded) {
                                                           // print(
                                                           //     'print message api :${state.tagModel.errors.uid.message}');
-                                                          connection.close();
+                                                          connection!.close();
                                                           EasyLoading.show(
                                                             status: state
                                                                 .tagModel
@@ -641,8 +641,8 @@ class _ItemTaggingState extends State<ItemTagging> {
                                                                           null
                                                                       ? state
                                                                           .tagModel
-                                                                          .errors
-                                                                          .uid
+                                                                          .errors!
+                                                                          .uid!
                                                                           .message
                                                                       : state
                                                                           .tagModel
@@ -654,7 +654,7 @@ class _ItemTaggingState extends State<ItemTagging> {
                                                         } else if (state
                                                             is AssignTagLoadingFailed) {
                                                           EasyLoading.showError(
-                                                              state.message);
+                                                              state.message!);
                                                         }
                                                       },
                                                       child: Text("Process",
@@ -666,7 +666,7 @@ class _ItemTaggingState extends State<ItemTagging> {
                                               return Text(
                                                 'not assign yet',
                                                 style: textInputDecoration
-                                                    .labelStyle
+                                                    .labelStyle!
                                                     .copyWith(fontSize: 18),
                                               );
                                             }
@@ -687,7 +687,7 @@ class _ItemTaggingState extends State<ItemTagging> {
                                           color: Colors.white),
                                       Text(
                                         'AssignTag',
-                                        style: textInputDecoration.labelStyle
+                                        style: textInputDecoration.labelStyle!
                                             .copyWith(
                                                 color: Colors.white,
                                                 fontSize: 12),
@@ -704,7 +704,7 @@ class _ItemTaggingState extends State<ItemTagging> {
   }
 
   Widget _buildPOList(ItemsPOModel data, List<String> list) {
-    List<DataItem> items = data.data;
+    List<DataItem> items = data.data!;
 
     if (items.length == 0) {
       return Container(
@@ -734,8 +734,8 @@ class _ItemTaggingState extends State<ItemTagging> {
               leading: Column(
                 children: [Text('Qty'), Text('${items[index].qty}')],
               ),
-              title: Text(items[index].deskripsi),
-              subtitle: Text("Material code: " + items[index].kodeMaterial),
+              title: Text(items[index].deskripsi!),
+              subtitle: Text("Material code: " + items[index].kodeMaterial!),
               trailing: Column(
                 children: [Text('0 of ${items[index].qty}')],
               ),
@@ -746,21 +746,21 @@ class _ItemTaggingState extends State<ItemTagging> {
                   scrollDirection: Axis.vertical,
                   separatorBuilder: (BuildContext context, int index) =>
                       Divider(),
-                  itemCount: items[itemIndex].qty,
+                  itemCount: items[itemIndex].qty!,
                   itemBuilder: (context, indexseparated) {
                     return ListTile(
-                      title: Text(items[itemIndex].deskripsi),
+                      title: Text(items[itemIndex].deskripsi!),
                       subtitle: Text((items[itemIndex].rfids != null &&
-                              items[itemIndex].rfids.length > indexseparated
+                              items[itemIndex].rfids!.length > indexseparated
                           ? "UID No: " +
-                              items[itemIndex].rfids[indexseparated].uid
+                              items[itemIndex].rfids![indexseparated].uid!
                           : "UID No: -not assign tag yet-")),
                       // items[itemIndex].rfids[index].uid.
                       //     ? Text("UID no: " + items[itemIndex].rfids[index].uid)
                       //     :
                       //  Text("UID no: not yet assign tag"),
                       trailing: items[itemIndex].rfids != null &&
-                              items[itemIndex].rfids.length > indexseparated
+                              items[itemIndex].rfids!.length > indexseparated
                           ? Text('Already assign')
                           : GestureDetector(
                               onTap: () {
@@ -783,9 +783,9 @@ class _ItemTaggingState extends State<ItemTagging> {
                                               return Column(
                                                 children: [
                                                   Text(
-                                                    snapShot.data.text,
+                                                    snapShot.data!.text,
                                                     style: textInputDecoration
-                                                        .labelStyle
+                                                        .labelStyle!
                                                         .copyWith(fontSize: 18),
                                                   ),
                                                   ElevatedButton(
@@ -808,7 +808,7 @@ class _ItemTaggingState extends State<ItemTagging> {
                                                                     .recId
                                                                     .toString(),
                                                                 snapShot
-                                                                    .data.text
+                                                                    .data!.text
                                                                     .toString());
                                                         AssignTagState state =
                                                             context
@@ -819,7 +819,7 @@ class _ItemTaggingState extends State<ItemTagging> {
                                                             is AssignTagLoaded) {
                                                           // print(
                                                           //     'print message api :${state.tagModel.errors.uid.message}');
-                                                          connection.close();
+                                                          connection!.close();
                                                           EasyLoading.show(
                                                             status: state
                                                                 .tagModel
@@ -831,8 +831,8 @@ class _ItemTaggingState extends State<ItemTagging> {
                                                                           null
                                                                       ? state
                                                                           .tagModel
-                                                                          .errors
-                                                                          .uid
+                                                                          .errors!
+                                                                          .uid!
                                                                           .message
                                                                       : state
                                                                           .tagModel
@@ -844,7 +844,7 @@ class _ItemTaggingState extends State<ItemTagging> {
                                                         } else if (state
                                                             is AssignTagLoadingFailed) {
                                                           EasyLoading.showError(
-                                                              state.message);
+                                                              state.message!);
                                                         }
                                                       },
                                                       child: Text("Process",
@@ -856,7 +856,7 @@ class _ItemTaggingState extends State<ItemTagging> {
                                               return Text(
                                                 'not assign yet',
                                                 style: textInputDecoration
-                                                    .labelStyle
+                                                    .labelStyle!
                                                     .copyWith(fontSize: 18),
                                               );
                                             }
@@ -877,7 +877,7 @@ class _ItemTaggingState extends State<ItemTagging> {
                                           color: Colors.white),
                                       Text(
                                         'Assign Tag',
-                                        style: textInputDecoration.labelStyle
+                                        style: textInputDecoration.labelStyle!
                                             .copyWith(
                                                 color: Colors.white,
                                                 fontSize: 12),
@@ -901,9 +901,9 @@ class _ItemTaggingState extends State<ItemTagging> {
       bool error = false,
       bool willPop = true,
       bool success = false,
-      List<Widget> action,
-      Widget elevatedButton,
-      double value}) {
+      List<Widget>? action,
+      Widget? elevatedButton,
+      double? value}) {
     showDialog(
         barrierDismissible: barrierDismissible,
         context: context,
@@ -936,7 +936,7 @@ class _ItemTaggingState extends State<ItemTagging> {
                       text1,
                       style: TextStyle(fontSize: 18.0),
                     ),
-                    elevatedButton
+                    elevatedButton!
                   ],
                 ),
               ),

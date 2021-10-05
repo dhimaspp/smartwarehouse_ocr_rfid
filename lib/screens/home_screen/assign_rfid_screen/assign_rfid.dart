@@ -38,15 +38,15 @@ class AssignRFIDState extends State<AssignRFID> {
   List<_Message> messages = <_Message>[];
   static final clientID = 0;
   String _messageBuffer = '';
-  BluetoothConnection connection;
+  BluetoothConnection? connection;
   bool isConnecting = true;
-  bool get isConnected => connection != null && connection.isConnected;
+  bool get isConnected => connection != null && connection!.isConnected;
 
   bool isDisconnecting = false;
   bool isError = false;
   bool isSearching = false;
   bool isDone = false;
-  String searchPO;
+  String? searchPO;
   List pagination = [];
   List<DataPO> listPO = [];
 
@@ -170,7 +170,7 @@ class AssignRFIDState extends State<AssignRFID> {
               child: AppBar(
                 title: Text(
                   'PO List To Assign Tag',
-                  style: textInputDecoration.labelStyle.copyWith(
+                  style: textInputDecoration.labelStyle!.copyWith(
                       fontWeight: FontWeight.w800,
                       fontSize: 18,
                       color: Colors.white),
@@ -267,11 +267,11 @@ class AssignRFIDState extends State<AssignRFID> {
                                 ),
                           enabledBorder: OutlineInputBorder(
                               borderSide: new BorderSide(
-                                  color: Colors.grey[100].withOpacity(0.3)),
+                                  color: Colors.grey[100]!.withOpacity(0.3)),
                               borderRadius: BorderRadius.circular(30.0)),
                           focusedBorder: OutlineInputBorder(
                               borderSide: new BorderSide(
-                                  color: Colors.grey[100].withOpacity(0.3)),
+                                  color: Colors.grey[100]!.withOpacity(0.3)),
                               borderRadius: BorderRadius.circular(30.0)),
                           contentPadding:
                               EdgeInsets.only(left: 15.0, right: 10.0),
@@ -310,8 +310,8 @@ class AssignRFIDState extends State<AssignRFID> {
                                   Future.delayed(Duration(seconds: 1));
 
                                   print(
-                                      'print snapshot${snapshot.data.data.length}');
-                                  return _buildSearchPO(snapshot.data);
+                                      'print snapshot${snapshot.data!.data!.length}');
+                                  return _buildSearchPO(snapshot.data!);
                                 } else if (snapshot.hasError) {
                                   EasyLoading.showError(
                                       'Error occured\nPlease check your internet connection');
@@ -331,38 +331,39 @@ class AssignRFIDState extends State<AssignRFID> {
                         : StreamBuilder<POList>(
                             stream: getPOLoadmoreBloc.subject.stream,
                             builder: (context, AsyncSnapshot<POList> snapshot) {
-                              listPO.addAll(snapshot.data.data);
-                              snapshot.data.pagination.hasOlder == true
-                                  ? pagination
-                                      .add(snapshot.data.pagination.older)
-                                  : isDone = true;
-                              print('get all po list');
-
                               if (snapshot.hasData) {
+                                listPO.addAll(snapshot.data!.data!);
+                                snapshot.data!.pagination!.hasOlder == true
+                                    ? pagination
+                                        .add(snapshot.data!.pagination!.older)
+                                    : isDone = true;
+                                print('get all po list');
                                 EasyLoading.dismiss();
                                 print(
-                                    'print snapshot${snapshot.data.data.length}');
+                                    'print snapshot${snapshot.data!.data!.length}');
                                 return _buildPOList(listPO);
                               } else if (snapshot.hasError) {
                                 EasyLoading.showError(
                                     'Error occured\nPlease check your internet connection');
                                 return Container();
-                              } else if (snapshot.data.data.length == 0) {
-                                return Container(
-                                  width: MediaQuery.of(context).size.width,
-                                  child: Column(
-                                    mainAxisAlignment: MainAxisAlignment.center,
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.center,
-                                    children: [
-                                      Text(
-                                        "There is no Data PO OCR",
-                                        style: textInputDecoration.labelStyle,
-                                      )
-                                    ],
-                                  ),
-                                );
-                              } else {
+                              }
+                              //  else if (snapshot.data.data.length == 0) {
+                              //   return Container(
+                              //     width: MediaQuery.of(context).size.width,
+                              //     child: Column(
+                              //       mainAxisAlignment: MainAxisAlignment.center,
+                              //       crossAxisAlignment:
+                              //           CrossAxisAlignment.center,
+                              //       children: [
+                              //         Text(
+                              //           "There is no Data PO OCR",
+                              //           style: textInputDecoration.labelStyle,
+                              //         )
+                              //       ],
+                              //     ),
+                              //   );
+                              // }
+                              else {
                                 EasyLoading.show(
                                     status: 'Loading',
                                     indicator: Center(
@@ -382,7 +383,7 @@ class AssignRFIDState extends State<AssignRFID> {
   }
 
   Widget _buildSearchPO(POList data) {
-    List<DataPO> po = data.data;
+    List<DataPO> po = data.data!;
 
     if (po.length == 0) {
       return Container(
@@ -405,8 +406,8 @@ class AssignRFIDState extends State<AssignRFID> {
           itemBuilder: (context, index) {
             print('this po no : ${po[index].poNo}');
             return ListTile(
-              title: Text(po[index].poNo),
-              subtitle: Text(po[index].poTgl.split('T').first),
+              title: Text(po[index].poNo!),
+              subtitle: Text(po[index].poTgl!.split('T').first),
               trailing: Column(
                 children: [
                   Text('Status'),
@@ -455,7 +456,7 @@ class AssignRFIDState extends State<AssignRFID> {
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
             Text(
-              "There is no data in List PO\nPlease do OCR PO",
+              "There is no data in List PO\nPlease do OCR for related PO",
               style: textInputDecoration.labelStyle,
               textAlign: TextAlign.center,
             )
@@ -483,8 +484,8 @@ class AssignRFIDState extends State<AssignRFID> {
                             server: widget.server,
                           )));
                 },
-                title: Text(po[index].poNo),
-                subtitle: Text(po[index].poTgl.split('T').first),
+                title: Text(po[index].poNo!),
+                subtitle: Text(po[index].poTgl!.split('T').first),
                 trailing: Column(
                   mainAxisAlignment: MainAxisAlignment.spaceAround,
                   children: [

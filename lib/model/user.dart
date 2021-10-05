@@ -1,5 +1,5 @@
 class UserAuthentication {
-  String message;
+  String? message;
   dynamic token;
 
   UserAuthentication({this.message, this.token});

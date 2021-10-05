@@ -1,6 +1,6 @@
 class UploadPOResponse {
-  String message;
-  DataUpload data;
+  String? message;
+  DataUpload? data;
 
   UploadPOResponse({this.message, this.data});
 
@@ -13,23 +13,23 @@ class UploadPOResponse {
     final Map<String, dynamic> data = new Map<String, dynamic>();
     data['message'] = this.message;
     if (this.data != null) {
-      data['data'] = this.data.toJson();
+      data['data'] = this.data!.toJson();
     }
     return data;
   }
 }
 
 class DataUpload {
-  String poNo;
-  String poTgl;
-  String profitCenter;
-  String namaVendor;
-  String alamatVendor;
-  String dikirimKe;
-  String dikirimKeAlamat;
-  String purchaseRegulation;
-  String outlineAgreement;
-  List<Items> items;
+  String? poNo;
+  String? poTgl;
+  String? profitCenter;
+  String? namaVendor;
+  String? alamatVendor;
+  String? dikirimKe;
+  String? dikirimKeAlamat;
+  String? purchaseRegulation;
+  String? outlineAgreement;
+  List<Items>? items;
 
   DataUpload(
       {this.poNo,
@@ -56,7 +56,7 @@ class DataUpload {
     if (json['items'] != null) {
       items = <Items>[];
       json['items'].forEach((v) {
-        items.add(new Items.fromJson(v));
+        items!.add(new Items.fromJson(v));
       });
     }
   }
@@ -73,19 +73,19 @@ class DataUpload {
     data['purchase_regulation'] = this.purchaseRegulation;
     data['outline_agreement'] = this.outlineAgreement;
     if (this.items != null) {
-      data['items'] = this.items.map((v) => v.toJson()).toList();
+      data['items'] = this.items!.map((v) => v.toJson()).toList();
     }
     return data;
   }
 }
 
 class Items {
-  String noLine;
-  String kodeMaterial;
-  String deskripsi;
-  String unitOfMeasure;
-  String qty;
-  String harga;
+  String? noLine;
+  String? kodeMaterial;
+  String? deskripsi;
+  String? unitOfMeasure;
+  String? qty;
+  String? harga;
 
   Items(
       {this.noLine,

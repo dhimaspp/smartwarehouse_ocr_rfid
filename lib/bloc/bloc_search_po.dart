@@ -12,15 +12,15 @@ class GetSearchBloc {
         .debounce((_) => TimerStream(true, Duration(seconds: 1)))
         .switchMap((query) async* {
       print("Searching: $query");
-      yield await apiWrapper.search(query);
+      yield await apiWrapper!.search(query);
     });
   }
-  final PoRepository apiWrapper;
+  final PoRepository? apiWrapper;
   final _subject = BehaviorSubject<String>();
   void search(String query) => _subject.add(query);
 
-  Stream<POList> _result;
-  Stream<POList> get result => _result;
+  Stream<POList>? _result;
+  Stream<POList>? get result => _result;
 
   void dispose() {
     _subject.close();
@@ -34,15 +34,15 @@ class GetSearchItemsBloc {
         .debounce((_) => TimerStream(true, Duration(seconds: 1)))
         .switchMap((query) async* {
       print("Searching: $query");
-      yield await apiWrapper.searchItems(query);
+      yield await apiWrapper!.searchItems(query);
     });
   }
-  final PoRepository apiWrapper;
+  final PoRepository? apiWrapper;
   final _subject = BehaviorSubject<String>();
   void searchItems(String query) => _subject.add(query);
 
-  Stream<ItemsPOModel> _result;
-  Stream<ItemsPOModel> get result => _result;
+  Stream<ItemsPOModel>? _result;
+  Stream<ItemsPOModel>? get result => _result;
 
   void dispose() {
     _subject.close();

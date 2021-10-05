@@ -1,7 +1,7 @@
 class TagModel {
-  String message;
-  DataTag data;
-  Errors errors;
+  String? message;
+  DataTag? data;
+  Errors? errors;
 
   TagModel({this.message, this.data});
 
@@ -14,7 +14,7 @@ class TagModel {
     final Map<String, dynamic> data = new Map<String, dynamic>();
     data['message'] = this.message;
     if (this.data != null) {
-      data['data'] = this.data.toJson();
+      data['data'] = this.data!.toJson();
     }
     return data;
   }
@@ -26,7 +26,7 @@ class TagModel {
   Map<String, dynamic> errorToJson() {
     final Map<String, dynamic> data = new Map<String, dynamic>();
     if (this.errors != null) {
-      data['errors'] = this.errors.toJson();
+      data['errors'] = this.errors!.toJson();
     }
     return data;
   }
@@ -52,7 +52,7 @@ class TagModel {
 // }
 
 class Errors {
-  Uid uid;
+  Uid? uid;
 
   Errors({this.uid});
 
@@ -63,14 +63,14 @@ class Errors {
   Map<String, dynamic> toJson() {
     final Map<String, dynamic> data = new Map<String, dynamic>();
     if (this.uid != null) {
-      data['uid'] = this.uid.toJson();
+      data['uid'] = this.uid!.toJson();
     }
     return data;
   }
 }
 
 class Uid {
-  String message;
+  String? message;
 
   Uid({this.message});
 
@@ -86,8 +86,8 @@ class Uid {
 }
 
 class DataTag {
-  String uid;
-  int swhPoItemId;
+  String? uid;
+  int? swhPoItemId;
 
   DataTag({this.uid, this.swhPoItemId});
 

@@ -26,21 +26,21 @@ class ImagesPages extends StatefulWidget {
 
 class _ImagesPagesState extends State<ImagesPages> {
   List<Widget> imagesAsset = <Widget>[];
-  List<String> assets = <String>[];
+  List<String>? assets = <String>[];
   List<MultipartFile> listMultiPartFile = [];
-  bool finishAdding, _onLongPressed;
+  bool? finishAdding, _onLongPressed;
   bool _isEmpty = true;
   int indexPressed = 0;
   final Dio _dio = Dio();
-  String token;
-  File pickeds;
+  String? token;
+  late File pickeds;
 
   @override
   void initState() {
     super.initState();
     _getAssetsImage();
 
-    print('isi assets list ${assets.length}');
+    print('isi assets list ${assets!.length}');
   }
 
   // @override
@@ -54,12 +54,12 @@ class _ImagesPagesState extends State<ImagesPages> {
     });
     SharedPreferences sharedLocal = await SharedPreferences.getInstance();
 
-    List<String> tempList = [];
+    List<String>? tempList = [];
     // List<String> listPref = sharedLocal.getStringList('ListImagePath');
 
-    List<String> listPrefFix = sharedLocal.getStringList('ListImagePathFix');
+    List<String>? listPrefFix = sharedLocal.getStringList('ListImagePathFix');
     tempList = listPrefFix;
-    token = jsonDecode(sharedLocal.getString('access_token'));
+    token = jsonDecode(sharedLocal.getString('access_token')!);
     // print('listPref = $listPref');
     print('listPrefFix = $listPrefFix');
 
@@ -71,7 +71,7 @@ class _ImagesPagesState extends State<ImagesPages> {
     //   });
     //   print('assets = listPref');
     // } else
-    if (tempList.length != 0) {
+    if (tempList!.length != 0) {
       setState(() {
         _isEmpty = false;
         assets = tempList;
@@ -172,7 +172,7 @@ class _ImagesPagesState extends State<ImagesPages> {
                             )),
                         Text(
                           'PO Images Preview',
-                          style: textInputDecoration.labelStyle.copyWith(
+                          style: textInputDecoration.labelStyle!.copyWith(
                               fontWeight: FontWeight.w800,
                               fontSize: 18,
                               color: Colors.white),
@@ -192,11 +192,11 @@ class _ImagesPagesState extends State<ImagesPages> {
                         color: kMaincolor,
                         size: 80,
                       )));
-                  final PickedFile pick = await ImagePicker()
+                  final PickedFile? pick = await ImagePicker()
                       .getImage(source: ImageSource.camera, imageQuality: 50);
 
                   if (pick == null) {
-                    return Container();
+                    return null;
                   } else {
                     pickeds = File(pick.path);
                     _cropImage();
@@ -222,7 +222,7 @@ class _ImagesPagesState extends State<ImagesPages> {
                         Text(
                             'There is no image PO\nClick here to take picture PO',
                             textAlign: TextAlign.center,
-                            style: textInputDecoration.labelStyle.copyWith(
+                            style: textInputDecoration.labelStyle!.copyWith(
                                 fontWeight: FontWeight.w800,
                                 fontSize: 18,
                                 color: Colors.black)),
@@ -241,7 +241,7 @@ class _ImagesPagesState extends State<ImagesPages> {
                 child: GridView.builder(
                     gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
                         crossAxisCount: 2, childAspectRatio: 0.85),
-                    itemCount: assets.length,
+                    itemCount: assets!.length,
                     itemBuilder: (context, index) {
                       return Padding(
                         padding: EdgeInsets.only(left: 8, right: 8, bottom: 12),
@@ -258,7 +258,7 @@ class _ImagesPagesState extends State<ImagesPages> {
                                       BorderRadius.all(Radius.circular(5.0)),
                                   boxShadow: [
                                     BoxShadow(
-                                      color: Colors.grey[100],
+                                      color: Colors.grey[100]!,
                                       blurRadius: 10.0,
                                       spreadRadius: 5.0,
                                       offset: Offset(
@@ -268,7 +268,7 @@ class _ImagesPagesState extends State<ImagesPages> {
                                     )
                                   ],
                                 ),
-                                child: Image.file(File(assets[index]))),
+                                child: Image.file(File(assets![index]))),
                             Positioned(
                               right: -2,
                               top: -8,
@@ -319,11 +319,11 @@ class _ImagesPagesState extends State<ImagesPages> {
                         color: kMaincolor,
                         size: 80,
                       )));
-                  final XFile pick = await ImagePicker()
+                  final XFile? pick = await ImagePicker()
                       .pickImage(source: ImageSource.camera, imageQuality: 50);
                   // File pickeds;
                   if (pick == null) {
-                    return Container();
+                    return null;
                   } else {
                     pickeds = File(pick.path);
                   }
@@ -380,7 +380,7 @@ class _ImagesPagesState extends State<ImagesPages> {
                       SharedPreferences sharedLocal =
                           await SharedPreferences.getInstance();
                       var listData =
-                          sharedLocal.getStringList('ListImagePathFix');
+                          sharedLocal.getStringList('ListImagePathFix')!;
 
                       String baseName;
                       for (var i = 0; i < listData.length; i++) {
@@ -430,7 +430,7 @@ class _ImagesPagesState extends State<ImagesPages> {
                           onSendProgress: (received, total) {
                             if (total != -1) {
                               double progress = (received / total);
-                              String progressString;
+                              String? progressString;
                               setState(() {
                                 progressString = (received / total * 100)
                                         .toStringAsFixed(0) +
@@ -469,14 +469,23 @@ class _ImagesPagesState extends State<ImagesPages> {
                           _isEmpty = true;
                         });
 
-                        return Navigator.of(context).push(MaterialPageRoute(
+                        Navigator.of(context).push(MaterialPageRoute(
                             builder: (context) => HomeScreen()));
-                      } catch (error, stacktrace) {
-                        EasyLoading.showError('Error: $error',
-                            duration: Duration(seconds: 6), dismissOnTap: true);
-                        print(
-                            "Exception occured:$error stacktrrace:$stacktrace");
-                        return error.toString();
+                      } on DioError catch (error) {
+                        if (error.type == DioErrorType.response) {
+                          String errorMessage;
+                          // UploadPOResponse.fromJson(error.response!.data);
+                          var resError =
+                              UploadPOResponse.fromJson(error.response!.data);
+                          errorMessage = resError.message!;
+                          EasyLoading.showError(
+                              'Error: ${errorMessage.toString()}',
+                              duration: Duration(seconds: 15),
+                              dismissOnTap: true);
+                        }
+
+                        print("Exception occured:$error");
+                        return;
                       }
 
                       // UploadWidget(listMultiPartFile);
@@ -495,14 +504,14 @@ class _ImagesPagesState extends State<ImagesPages> {
                   child: _onLongPressed == true
                       ? Text(
                           'Procces to OCR',
-                          style: textInputDecoration.labelStyle.copyWith(
+                          style: textInputDecoration.labelStyle!.copyWith(
                               fontWeight: FontWeight.w800,
                               fontSize: 18,
                               color: Colors.white),
                         )
                       : Text(
                           'Long Press to Set Ready',
-                          style: textInputDecoration.labelStyle.copyWith(
+                          style: textInputDecoration.labelStyle!.copyWith(
                               fontWeight: FontWeight.w800,
                               fontSize: 18,
                               color: Colors.white),
@@ -539,7 +548,7 @@ class _ImagesPagesState extends State<ImagesPages> {
                         borderRadius: BorderRadius.all(Radius.circular(5.0)),
                         boxShadow: [
                           BoxShadow(
-                            color: Colors.grey[100],
+                            color: Colors.grey[100]!,
                             blurRadius: 10.0,
                             spreadRadius: 5.0,
                             offset: Offset(
@@ -550,7 +559,7 @@ class _ImagesPagesState extends State<ImagesPages> {
                         ],
                       ),
                       child: Image.file(
-                        File(assets[index]),
+                        File(assets![index]),
                         fit: BoxFit.fill,
                       )),
                   SizedBox(
@@ -575,14 +584,14 @@ class _ImagesPagesState extends State<ImagesPages> {
                               SharedPreferences sharedData =
                                   await SharedPreferences.getInstance();
                               setState(() {
-                                assets.removeAt(index);
+                                assets!.removeAt(index);
 
                                 sharedData
-                                    .setStringList('ListImagePathFix', assets)
+                                    .setStringList('ListImagePathFix', assets!)
                                     .whenComplete(
                                         () => Navigator.of(context).pop());
                                 var localDataFix = sharedData
-                                    .getStringList('ListImagePathFix');
+                                    .getStringList('ListImagePathFix')!;
                                 if (localDataFix.isEmpty) {
                                   setState(() {
                                     _isEmpty = true;
@@ -613,7 +622,7 @@ class _ImagesPagesState extends State<ImagesPages> {
 
   Future _cropImage() async {
     SharedPreferences sharedLocal = await SharedPreferences.getInstance();
-    File croppedFile = await ImageCropper.cropImage(
+    File? croppedFile = await ImageCropper.cropImage(
         sourcePath: pickeds.path,
         aspectRatioPresets: Platform.isAndroid
             ? [
@@ -648,9 +657,9 @@ class _ImagesPagesState extends State<ImagesPages> {
       pickeds = croppedFile;
       setState(() {
         print('image cropper file : $pickeds');
-        assets.add(pickeds.path);
+        assets!.add(pickeds.path);
 
-        sharedLocal.setStringList('ListImagePathFix', assets);
+        sharedLocal.setStringList('ListImagePathFix', assets!);
         _getAssetsImage();
       });
     }

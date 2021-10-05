@@ -13,7 +13,7 @@ class BleOff extends StatefulWidget {
 class _BleOffState extends State<BleOff> {
   turnOn() async {
     await FlutterBluetoothSerial.instance.requestEnable();
-    final BluetoothDevice selectedDevice =
+    final BluetoothDevice? selectedDevice =
         await Navigator.of(context).push(MaterialPageRoute(builder: (context) {
       return SelectBondedDevicePage(
         checkAvailability: false,
@@ -49,7 +49,7 @@ class _BleOffState extends State<BleOff> {
               turnOn();
             },
             child: Text('Tap here to enable Bluetooh',
-                style: textInputDecoration.labelStyle.copyWith(
+                style: textInputDecoration.labelStyle!.copyWith(
                     fontWeight: FontWeight.w800,
                     fontSize: 22,
                     color: Colors.black)),

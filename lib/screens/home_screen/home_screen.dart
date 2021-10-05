@@ -21,8 +21,8 @@ class HomeScreen extends StatefulWidget {
 class _HomeScreenState extends State<HomeScreen> {
   String name = '';
   bool loading = false;
-  String token;
-  BluetoothConnection connection;
+  String? token;
+  BluetoothConnection? connection;
 
   @override
   void initState() {
@@ -32,14 +32,14 @@ class _HomeScreenState extends State<HomeScreen> {
 
   _loadDataUser() async {
     SharedPreferences localData = await SharedPreferences.getInstance();
-    var data = jsonDecode(localData.getString('data'));
+    var data = jsonDecode(localData.getString('data')!);
     localData.remove('ListImagePath');
     localData.remove('poNumber');
 
     localData.setString('username', json.encode(data['username']));
-    token = jsonDecode(localData.getString('access_token'));
-    DateTime expirationDate = JwtDecoder.getExpirationDate(token);
-    bool hasExpired = JwtDecoder.isExpired(token);
+    token = jsonDecode(localData.getString('access_token')!);
+    DateTime expirationDate = JwtDecoder.getExpirationDate(token!);
+    bool hasExpired = JwtDecoder.isExpired(token!);
     if (hasExpired == true) {
       EasyLoading.showError('Your session login has Expired');
       return Navigator.of(context)
@@ -47,7 +47,7 @@ class _HomeScreenState extends State<HomeScreen> {
     }
     print('Token Expired Date: $expirationDate');
 
-    var username = jsonDecode(localData.getString('username'));
+    var username = jsonDecode(localData.getString('username')!);
 
     if (username != null) {
       setState(() {
@@ -62,12 +62,12 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   // ignore: unused_field
-  File _image;
-  bool anyImage;
+  File? _image;
+  bool? anyImage;
 
   // ignore: unused_element
   _imageFromCamera() async {
-    XFile pick = await ImagePicker()
+    XFile? pick = await ImagePicker()
         .pickImage(source: ImageSource.camera, imageQuality: 50);
     File pickeds;
     if (pick == null) {
@@ -113,14 +113,14 @@ class _HomeScreenState extends State<HomeScreen> {
                   Text(
                     'Hello!',
                     textAlign: TextAlign.left,
-                    style: textInputDecoration.labelStyle.copyWith(
+                    style: textInputDecoration.labelStyle!.copyWith(
                         fontWeight: FontWeight.w400,
                         fontSize: 16,
                         color: Colors.white),
                   ),
                   Text(
                     '$name',
-                    style: textInputDecoration.labelStyle.copyWith(
+                    style: textInputDecoration.labelStyle!.copyWith(
                         fontWeight: FontWeight.w800,
                         fontSize: 24,
                         color: Colors.white),
@@ -186,7 +186,7 @@ class _HomeScreenState extends State<HomeScreen> {
                           SizedBox(),
                           Text(
                             "Scanning PO With OCR",
-                            style: textInputDecoration.labelStyle
+                            style: textInputDecoration.labelStyle!
                                 .copyWith(color: Colors.white, fontSize: 16),
                           ),
                           Row(
@@ -234,7 +234,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                             TextSpan(
                                                 text: 'Start',
                                                 style: textInputDecoration
-                                                    .labelStyle
+                                                    .labelStyle!
                                                     .copyWith(
                                                         color: Colors.white,
                                                         fontWeight:
@@ -306,7 +306,7 @@ class _HomeScreenState extends State<HomeScreen> {
                           SizedBox(),
                           Text(
                             "PO Registration (RFID Tag)",
-                            style: textInputDecoration.labelStyle
+                            style: textInputDecoration.labelStyle!
                                 .copyWith(color: Colors.white, fontSize: 16),
                           ),
                           Row(
@@ -322,7 +322,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                     //     MaterialPageRoute(builder: (context) {
                                     //   return AssignRFID();
                                     // }));
-                                    final BluetoothDevice selectedDevice =
+                                    final BluetoothDevice? selectedDevice =
                                         await Navigator.of(context).push(
                                             MaterialPageRoute(
                                                 builder: (context) {
@@ -355,7 +355,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                             TextSpan(
                                                 text: 'Open   ',
                                                 style: textInputDecoration
-                                                    .labelStyle
+                                                    .labelStyle!
                                                     .copyWith(
                                                         color: Colors.white,
                                                         fontWeight:

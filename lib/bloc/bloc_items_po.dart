@@ -8,7 +8,7 @@ class GetItemsPO {
   final BehaviorSubject<ItemsPOModel> _subject =
       BehaviorSubject<ItemsPOModel>();
 
-  getItemsPOList(String noPO) async {
+  getItemsPOList(String? noPO) async {
     ItemsPOModel response = await _diginfoRepository.getPOItems(noPO);
     _subject.sink.add(response);
   }

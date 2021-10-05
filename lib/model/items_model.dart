@@ -1,6 +1,6 @@
 class ItemsPOModel {
-  String message;
-  List<DataItem> data;
+  String? message;
+  List<DataItem>? data;
 
   ItemsPOModel({this.message, this.data});
 
@@ -9,7 +9,7 @@ class ItemsPOModel {
     if (json['data'] != null) {
       data = <DataItem>[];
       json['data'].forEach((v) {
-        data.add(new DataItem.fromJson(v));
+        data!.add(new DataItem.fromJson(v));
       });
     }
   }
@@ -18,25 +18,25 @@ class ItemsPOModel {
     final Map<String, dynamic> data = new Map<String, dynamic>();
     data['message'] = this.message;
     if (this.data != null) {
-      data['data'] = this.data.map((v) => v.toJson()).toList();
+      data['data'] = this.data!.map((v) => v.toJson()).toList();
     }
     return data;
   }
 }
 
 class DataItem {
-  int recId;
-  String poNo;
-  int noLine;
-  String kodeMaterial;
-  String deskripsi;
-  String uom;
-  int qty;
-  int harga;
-  int modifiedBy;
-  String lastModified;
-  List<Rfids> rfids;
-  int countTagged;
+  int? recId;
+  String? poNo;
+  int? noLine;
+  String? kodeMaterial;
+  String? deskripsi;
+  String? uom;
+  int? qty;
+  int? harga;
+  int? modifiedBy;
+  String? lastModified;
+  List<Rfids>? rfids;
+  int? countTagged;
 
   DataItem(
       {this.recId,
@@ -64,7 +64,7 @@ class DataItem {
     if (json['rfids'] != null) {
       rfids = <Rfids>[];
       json['rfids'].forEach((v) {
-        rfids.add(new Rfids.fromJson(v));
+        rfids!.add(new Rfids.fromJson(v));
       });
     }
     countTagged = json['count_tagged'];
@@ -83,7 +83,7 @@ class DataItem {
     data['modified_by'] = this.modifiedBy;
     data['last_modified'] = this.lastModified;
     if (this.rfids != null) {
-      data['rfids'] = this.rfids.map((v) => v.toJson()).toList();
+      data['rfids'] = this.rfids!.map((v) => v.toJson()).toList();
     }
     data['count_tagged'] = this.countTagged;
     return data;
@@ -91,7 +91,7 @@ class DataItem {
 }
 
 class Rfids {
-  String uid;
+  String? uid;
 
   Rfids({this.uid});
 

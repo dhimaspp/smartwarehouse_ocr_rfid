@@ -14,9 +14,9 @@ class AssignTagCubit extends Cubit<AssignTagState> {
     if (result is TagModel) {
       print('-----> AssignTag success');
       emit(AssignTagLoaded(result));
-    } else if (result.errors.uid.message.isNotEmpty) {
+    } else if (result.errors!.uid!.message!.isNotEmpty) {
       print('loading AssignTag failed');
-      emit(AssignTagLoadingFailed(result.errors.uid.message));
+      emit(AssignTagLoadingFailed(result.errors!.uid!.message));
     }
   }
 }
@@ -25,7 +25,7 @@ abstract class AssignTagState extends Equatable {
   const AssignTagState();
 
   @override
-  List<Object> get props => [];
+  List<Object?> get props => [];
 }
 
 class AssignTagInitial extends AssignTagState {}
@@ -40,10 +40,10 @@ class AssignTagLoaded extends AssignTagState {
 }
 
 class AssignTagLoadingFailed extends AssignTagState {
-  final String message;
+  final String? message;
 
   AssignTagLoadingFailed(this.message);
 
   @override
-  List<Object> get props => [message];
+  List<Object?> get props => [message];
 }

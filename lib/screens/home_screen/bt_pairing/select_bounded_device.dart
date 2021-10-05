@@ -26,26 +26,27 @@ enum _DeviceAvailability {
   yes,
 }
 
-class _DeviceWithAvailability extends BluetoothDevice {
+class _DeviceWithAvailability {
   BluetoothDevice device;
   _DeviceAvailability availability;
-  int rssi;
+  int? rssi;
 
   _DeviceWithAvailability(this.device, this.availability, [this.rssi]);
 }
 
 class _SelectBondedDevicePage extends State<SelectBondedDevicePage> {
-  List<_DeviceWithAvailability> devices = <_DeviceWithAvailability>[];
+  List<_DeviceWithAvailability> devices =
+      List<_DeviceWithAvailability>.empty(growable: true);
   // ignore: unused_field
   BluetoothState _bluetoothState = BluetoothState.UNKNOWN;
   // ignore: unused_field
-  Timer _discoverableTimeoutTimer;
+  Timer? _discoverableTimeoutTimer;
   // ignore: unused_field
   int _discoverableTimeoutSecondsLeft = 0;
 
   // Availability
-  StreamSubscription<BluetoothDiscoveryResult> _discoveryStreamSubscription;
-  bool _isDiscovering;
+  StreamSubscription<BluetoothDiscoveryResult>? _discoveryStreamSubscription;
+  late bool _isDiscovering;
   bool bluetoothenable = false;
 
   _SelectBondedDevicePage();
@@ -77,29 +78,29 @@ class _SelectBondedDevicePage extends State<SelectBondedDevicePage> {
             .toList();
       });
     });
-    Future.doWhile(() async {
-      // Wait if adapter not enabled
-      if ((await FlutterBluetoothSerial.instance.isEnabled) ?? false) {
-        bluetoothenable = true;
-        return false;
-      }
-      await Future.delayed(Duration(milliseconds: 0xDD));
-      bluetoothenable = false;
-      return true;
-    });
+    // Future.doWhile(() async {
+    //   // Wait if adapter not enabled
+    //   if ((await FlutterBluetoothSerial.instance.isEnabled) ?? false) {
+    //     bluetoothenable = true;
+    //     return false;
+    //   }
+    //   await Future.delayed(Duration(milliseconds: 0xDD));
+    //   bluetoothenable = false;
+    //   return true;
+    // });
 
-    // Listen for futher state changes
-    FlutterBluetoothSerial.instance
-        .onStateChanged()
-        .listen((BluetoothState state) {
-      setState(() {
-        _bluetoothState = state;
+    // // Listen for futher state changes
+    // FlutterBluetoothSerial.instance
+    //     .onStateChanged()
+    //     .listen((BluetoothState state) {
+    //   setState(() {
+    //     _bluetoothState = state;
 
-        // Discoverable mode is disabled when Bluetooth gets disabled
-        _discoverableTimeoutTimer = null;
-        _discoverableTimeoutSecondsLeft = 0;
-      });
-    });
+    //     // Discoverable mode is disabled when Bluetooth gets disabled
+    //     _discoverableTimeoutTimer = null;
+    //     _discoverableTimeoutSecondsLeft = 0;
+    //   });
+    // });
   }
 
   void _restartDiscovery() {
@@ -125,7 +126,7 @@ class _SelectBondedDevicePage extends State<SelectBondedDevicePage> {
       });
     });
 
-    _discoveryStreamSubscription.onDone(() {
+    _discoveryStreamSubscription!.onDone(() {
       setState(() {
         _isDiscovering = false;
       });
@@ -197,7 +198,7 @@ class _SelectBondedDevicePage extends State<SelectBondedDevicePage> {
                                     )),
                                 Text(
                                   '  Select Device',
-                                  style: textInputDecoration.labelStyle
+                                  style: textInputDecoration.labelStyle!
                                       .copyWith(
                                           fontWeight: FontWeight.w800,
                                           fontSize: 18,

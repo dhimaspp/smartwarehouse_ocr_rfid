@@ -6,11 +6,11 @@ import 'package:shared_preferences/shared_preferences.dart';
 class UserAuth {
   final String endPoint = "http://100.68.1.32:7030/v1/auth/login";
   var token;
-  Dio dio;
+  late Dio dio;
 
   _getToken() async {
     SharedPreferences localData = await SharedPreferences.getInstance();
-    token = json.decode(localData.getString('access_token'));
+    token = json.decode(localData.getString('access_token')!);
   }
 
   authData(data) async {

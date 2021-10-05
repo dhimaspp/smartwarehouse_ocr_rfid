@@ -94,7 +94,7 @@ class _LoginScreenState extends State<LoginScreen> {
         padding: const EdgeInsets.symmetric(vertical: 12),
         child: Text(
           "OCR & RFID Login",
-          style: textInputDecoration.labelStyle.copyWith(
+          style: textInputDecoration.labelStyle!.copyWith(
             fontWeight: FontWeight.w800,
             fontSize: 16,
           ),
@@ -120,7 +120,7 @@ class _LoginScreenState extends State<LoginScreen> {
                     cursorColor: kFillColor,
                     decoration: textInputDecoration.copyWith(
                         labelText: "Username",
-                        labelStyle: textInputDecoration.labelStyle
+                        labelStyle: textInputDecoration.labelStyle!
                             .copyWith(color: Colors.black54, fontSize: 16),
                         suffixIcon: Icon(
                           Icons.person,
@@ -135,11 +135,11 @@ class _LoginScreenState extends State<LoginScreen> {
                         enabledBorder: OutlineInputBorder(
                             borderSide:
                                 BorderSide(color: Colors.black38, width: 1.3))),
-                    style: textInputDecoration.labelStyle
+                    style: textInputDecoration.labelStyle!
                         .copyWith(fontWeight: FontWeight.w500),
                     textAlignVertical: TextAlignVertical.center,
                     validator: (val) {
-                      if (val.isEmpty) {
+                      if (val!.isEmpty) {
                         return 'Masukan Username';
                       }
                       if (val.length < 5) {
@@ -158,7 +158,7 @@ class _LoginScreenState extends State<LoginScreen> {
                     // controller: _textController,
                     cursorColor: kFillColor,
                     decoration: textInputDecoration.copyWith(
-                        labelStyle: textInputDecoration.labelStyle
+                        labelStyle: textInputDecoration.labelStyle!
                             .copyWith(color: Colors.black54, fontSize: 16),
                         labelText: "Password",
                         suffixIcon: IconButton(
@@ -180,7 +180,7 @@ class _LoginScreenState extends State<LoginScreen> {
                         enabledBorder: OutlineInputBorder(
                             borderSide:
                                 BorderSide(color: Colors.black38, width: 1.3))),
-                    style: textInputDecoration.labelStyle
+                    style: textInputDecoration.labelStyle!
                         .copyWith(fontWeight: FontWeight.w500),
                     textAlignVertical: TextAlignVertical.center,
                     // validator: (val) {
@@ -213,7 +213,7 @@ class _LoginScreenState extends State<LoginScreen> {
                       ),
                       child: Text(
                         "LOGIN",
-                        style: textInputDecoration.labelStyle.copyWith(
+                        style: textInputDecoration.labelStyle!.copyWith(
                             color: Colors.white,
                             fontSize: 16,
                             fontWeight: FontWeight.w800),
@@ -235,7 +235,7 @@ class _LoginScreenState extends State<LoginScreen> {
                         //         child: child,
                         //       );
                         //     }));
-                        if (formKey.currentState.validate()) {
+                        if (formKey.currentState!.validate()) {
                           _login();
                         }
                       },
