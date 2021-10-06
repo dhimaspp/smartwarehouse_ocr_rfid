@@ -85,9 +85,9 @@ class PoRepository {
     String poNumber = localData.getString('poNumber').toString();
     // var params = {"search": value};
     try {
-      print(getPOItemsurl + poNumber + '/search-item?search=$query');
+      print(getPOItemsurl + poNumber + '/search-item?search=${query.trim()}');
       Response response = await _dio.get(
-          getPOItemsurl + poNumber + '/search-item?search=$query}',
+          getPOItemsurl + poNumber + '/search-item?search=${query.trim()}',
           // queryParameters: params,
           options: Options(
             headers: {

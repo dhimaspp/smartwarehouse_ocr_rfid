@@ -442,7 +442,8 @@ class _ImagesPagesState extends State<ImagesPages> {
                                       status:
                                           'Uploading images to OCR\n$progressString')
                                   .whenComplete(() => EasyLoading.show(
-                                      status: 'Processing OCR to Text',
+                                      status:
+                                          'Processing OCR to Text\nThis may take a while',
                                       dismissOnTap: true,
                                       indicator: Center(
                                           // heightFactor: MediaQuery.of(context).size.height,
