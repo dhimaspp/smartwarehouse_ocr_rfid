@@ -551,7 +551,10 @@ class _ItemTaggingState extends State<ItemTagging> {
               title: Text(items[index].deskripsi!),
               subtitle: Text("Material code: " + items[index].kodeMaterial!),
               trailing: Column(
-                children: [Text('0 of ${items[index].qty}')],
+                children: [
+                  Text(
+                      '${items[itemIndex].rfids!.length} of ${items[index].qty}')
+                ],
               ),
               children: [
                 ListView.separated(
@@ -737,7 +740,10 @@ class _ItemTaggingState extends State<ItemTagging> {
               title: Text(items[index].deskripsi!),
               subtitle: Text("Material code: " + items[index].kodeMaterial!),
               trailing: Column(
-                children: [Text('0 of ${items[index].qty}')],
+                children: [
+                  Text(
+                      '${items[itemIndex].rfids!.length} of ${items[index].qty}')
+                ],
               ),
               children: [
                 ListView.separated(

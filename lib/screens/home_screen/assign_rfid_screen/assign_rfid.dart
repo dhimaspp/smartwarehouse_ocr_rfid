@@ -53,6 +53,8 @@ class AssignRFIDState extends State<AssignRFID> {
   @override
   void initState() {
     super.initState();
+    listPO.clear();
+    pagination.clear();
     searchController.addListener(_onChangeInputText);
     // BluetoothConnection.toAddress(widget.server.address).then((_connection) {
     // try {
@@ -99,71 +101,7 @@ class AssignRFIDState extends State<AssignRFID> {
           if (state != fb.BluetoothState.on) {
             return BleOff();
           }
-          return
-              //  isConnecting == true
-              //     ?
-              //     Scaffold(
-              //         backgroundColor: Colors.white,
-              //         body: isError == true
-              //             ? Container(
-              //                 child: Center(
-              //                     child: Column(
-              //                   mainAxisAlignment: MainAxisAlignment.center,
-              //                   children: [
-              //                     Icon(
-              //                       Icons.error_outline_rounded,
-              //                       color: Colors.red[800],
-              //                       size: 40,
-              //                     ),
-              //                     SizedBox(height: 20),
-              //                     Text(
-              //                       'Oops Something Went Wrong',
-              //                       style: textInputDecoration.labelStyle.copyWith(
-              //                           fontWeight: FontWeight.w800,
-              //                           fontSize: 22,
-              //                           color: Colors.black),
-              //                     ),
-              //                     SizedBox(height: 20),
-              //                     Text(
-              //                       "Please make sure Bluetooth RFID Reader\ndevice is installed properly",
-              //                       textAlign: TextAlign.center,
-              //                       style: textInputDecoration.labelStyle.copyWith(
-              //                           fontWeight: FontWeight.w800,
-              //                           fontSize: 18,
-              //                           color: Colors.black),
-              //                     ),
-              //                     SizedBox(height: 20),
-              //                     GestureDetector(
-              //                         onTap: () {
-              //                           Navigator.of(context).pop();
-              //                         },
-              //                         child: Row(
-              //                           mainAxisAlignment: MainAxisAlignment.center,
-              //                           children: [
-              //                             Icon(
-              //                               Icons.arrow_back_ios_new_rounded,
-              //                               color: kMaincolor,
-              //                             ),
-              //                             Text('Back',
-              //                                 style: textInputDecoration.labelStyle
-              //                                     .copyWith(
-              //                                         fontWeight: FontWeight.w800,
-              //                                         fontSize: 18,
-              //                                         color: kMaincolor))
-              //                           ],
-              //                         ))
-              //                   ],
-              //                 )),
-              //               )
-              //             : Center(
-              //                 // heightFactor: MediaQuery.of(context).size.height,s
-              //                 child: SpinKitRipple(
-              //                 color: kMaincolor,
-              //                 size: 80,
-              //               )),
-              //       )
-              // :
-              Scaffold(
+          return Scaffold(
             backgroundColor: Colors.white,
             appBar: PreferredSize(
               preferredSize: Size.fromHeight(60),
@@ -185,35 +123,14 @@ class AssignRFIDState extends State<AssignRFID> {
                 leading: IconButton(
                     onPressed: () {
                       listPO.clear();
+                      pagination.clear();
                       Navigator.of(context).push(
                           MaterialPageRoute(builder: (_) => HomeScreen()));
                     },
                     icon: Icon(Icons.arrow_back_ios_new_rounded)),
               ),
             ),
-            body:
-                // listPO.isEmpty
-                //     ? Center(
-                //         child: Column(
-                //           children: [
-                //             Text(
-                //               "There is no PO on data OCR",
-                //               style: TextStyle(
-                //                   fontWeight: FontWeight.w500,
-                //                   color: Colors.black87,
-                //                   fontSize: 18),
-                //             ),
-                //             // TextButton(
-                //             //     onPressed: () {
-                //             //       Navigator.of(context).push(MaterialPageRoute(
-                //             //           builder: (_) => AssignRFID(widget.server)));
-                //             //     },
-                //             //     child: child)
-                //           ],
-                //         ),
-                //       )
-                //     :
-                Padding(
+            body: Padding(
               padding: const EdgeInsets.all(8.0),
               child: Column(
                 mainAxisSize: MainAxisSize.min,
@@ -332,7 +249,17 @@ class AssignRFIDState extends State<AssignRFID> {
                             stream: getPOLoadmoreBloc.subject.stream,
                             builder: (context, AsyncSnapshot<POList> snapshot) {
                               if (snapshot.hasData) {
-                                listPO.addAll(snapshot.data!.data!);
+                                if (listPO.length == 0) {
+                                  listPO = snapshot.data!.data!;
+                                }
+                                for (var i = 0; i < listPO.length; i++) {
+                                  snapshot.data!.data!.map((e) {
+                                    if (e.poNo != listPO[i].poNo) {
+                                      listPO.add(e);
+                                    }
+                                  });
+                                }
+                                // listPO.addAll(snapshot.data!.data!);
                                 snapshot.data!.pagination!.hasOlder == true
                                     ? pagination
                                         .add(snapshot.data!.pagination!.older)
@@ -430,22 +357,23 @@ class AssignRFIDState extends State<AssignRFID> {
   }
 
   Widget _buildPOList(List<DataPO> data) {
-    final ids = Set<DataPO>();
-    data.retainWhere((element) => ids.add(element));
+    final ids = Set<DataPO>().toList();
+    // data.retainWhere((element) => ids.add(element));
 
-    List<DataPO> po = ids.toList();
-
+    List<DataPO> po = ids;
     for (var i = 0; i < data.length; i++) {
       po = data;
       for (var j = i + 1; j < data.length; j++) {
         if (data[j].poNo == data[i].poNo) {
-          po.removeAt(i);
+          po.removeAt(j);
         } else {
           // break inner loop dan masuk ke outer loop selanjutnya,
           break;
         }
       }
     }
+
+    print(po);
 
     if (po.length == 0) {
       print('PO length: ${po.length}');
@@ -474,7 +402,7 @@ class AssignRFIDState extends State<AssignRFID> {
             separatorBuilder: (BuildContext context, int index) => Divider(),
             itemCount: po.length,
             itemBuilder: (context, index) {
-              print('this po no : ${po[index].poNo}');
+              print('this po no : ${po.length}');
               return ListTile(
                 onTap: () {
                   Navigator.of(context).push(MaterialPageRoute(

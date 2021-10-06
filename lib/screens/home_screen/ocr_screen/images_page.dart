@@ -319,8 +319,10 @@ class _ImagesPagesState extends State<ImagesPages> {
                         color: kMaincolor,
                         size: 80,
                       )));
-                  final XFile? pick = await ImagePicker()
-                      .pickImage(source: ImageSource.camera, imageQuality: 50);
+                  final XFile? pick = await ImagePicker().pickImage(
+                    source: ImageSource.camera,
+                    imageQuality: 50,
+                  );
                   // File pickeds;
                   if (pick == null) {
                     return null;
@@ -444,7 +446,7 @@ class _ImagesPagesState extends State<ImagesPages> {
                                   .whenComplete(() => EasyLoading.show(
                                       status:
                                           'Processing OCR to Text\nThis may take a while',
-                                      dismissOnTap: true,
+                                      dismissOnTap: false,
                                       indicator: Center(
                                           // heightFactor: MediaQuery.of(context).size.height,
                                           child: SpinKitRipple(
