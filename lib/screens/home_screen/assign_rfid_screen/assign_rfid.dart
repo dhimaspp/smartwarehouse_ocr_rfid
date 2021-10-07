@@ -346,7 +346,7 @@ class AssignRFIDState extends State<AssignRFID> {
                         )
                       : Icon(
                           Icons.circle_rounded,
-                          color: Colors.red.shade900,
+                          color: Colors.greenAccent.shade700,
                           size: 16,
                         ),
                   Text('${po[index].status}')
@@ -429,7 +429,7 @@ class AssignRFIDState extends State<AssignRFID> {
                           )
                         : Icon(
                             Icons.circle_rounded,
-                            color: Colors.red.shade900,
+                            color: Colors.greenAccent.shade700,
                             size: 16,
                           ),
                     Text('${po[index].status}')
