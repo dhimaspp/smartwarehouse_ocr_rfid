@@ -142,8 +142,8 @@ class _LoginScreenState extends State<LoginScreen> {
                       if (val!.isEmpty) {
                         return 'Masukan Username';
                       }
-                      if (val.length < 5) {
-                        return 'Username Harus lebih dari \n 5 karakter';
+                      if (val.length < 3) {
+                        return 'Username Harus lebih dari \n 3 karakter';
                       }
                       return null;
                     },

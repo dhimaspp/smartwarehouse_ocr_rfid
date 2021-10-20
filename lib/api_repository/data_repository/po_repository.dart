@@ -153,4 +153,33 @@ class PoRepository {
       return TagModel();
     }
   }
+
+  Future<TagModel> deletePO(
+    String poNo,
+  ) async {
+    SharedPreferences localData = await SharedPreferences.getInstance();
+    var token = jsonDecode(localData.getString('access_token')!);
+    // var params = {"search": value};
+    try {
+      print(
+          ' link to get item po : ${getPOItemsurl + "$poNo"} WITH UID :${poNo.trim()}');
+      Response response = await _dio.delete(getPOItemsurl + "${poNo.trim()}",
+          options: Options(
+            contentType: Headers.formUrlEncodedContentType,
+            headers: {
+              'Authorization': 'Bearer $token',
+              'Connection': 'keep-alive',
+            },
+          ));
+      print(response.data);
+      return TagModel.fromJson(response.data);
+    } on DioError catch (error, stacktrace) {
+      print("Exception occured: $error stackTrace: $stacktrace");
+      if (error.type == DioErrorType.response) {
+        print(error.response!.data);
+        return TagModel.withError(error.response!.data);
+      }
+      return TagModel();
+    }
+  }
 }

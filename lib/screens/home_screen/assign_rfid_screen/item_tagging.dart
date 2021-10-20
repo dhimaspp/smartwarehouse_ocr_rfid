@@ -239,7 +239,10 @@ class _ItemTaggingState extends State<ItemTagging> {
                               SizedBox(height: 20),
                               GestureDetector(
                                   onTap: () async {
-                                    Navigator.of(context).pop();
+                                    Navigator.of(context).push(
+                                        MaterialPageRoute(
+                                            builder: (_) =>
+                                                AssignRFID(widget.server)));
                                   },
                                   child: Row(
                                     mainAxisAlignment: MainAxisAlignment.center,

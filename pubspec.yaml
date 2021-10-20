@@ -18,7 +18,7 @@ publish_to: "none" # Remove this line if you wish to publish to pub.dev
 version: 1.0.0+1
 
 environment:
-  sdk: '>=2.12.0 <3.0.0'
+  sdk: ">=2.12.0 <3.0.0"
 
 dependencies:
   bloc: ^7.1.0
@@ -39,8 +39,8 @@ dependencies:
   flutter_spinkit: ^5.0.0
   flutter_svg: ^0.22.0
   http: ^0.13.1
-  image_cropper: ^1.4.1
   image: ^3.0.2
+  image_cropper: ^1.4.1
   image_picker: ^0.8.0
   input_with_keyboard_control: ^1.0.7
   jwt_decoder: ^2.0.1
@@ -53,6 +53,7 @@ dependencies:
   rxdart: ^0.26.0
   shared_preferences: ^2.0.5
   synchronized: ^3.0.0
+
 
 dev_dependencies:
   flutter_test:

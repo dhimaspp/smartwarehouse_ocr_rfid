@@ -7,6 +7,8 @@ import 'package:flutter_bluetooth_serial/flutter_bluetooth_serial.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:loadmore/loadmore.dart';
+import 'package:provider/src/provider.dart';
+import 'package:smartwarehouse_ocr_rfid/bloc/bloc_delete_PO.dart';
 import 'package:smartwarehouse_ocr_rfid/bloc/bloc_po.dart';
 import 'package:smartwarehouse_ocr_rfid/bloc/bloc_po_loadmore.dart';
 import 'package:smartwarehouse_ocr_rfid/bloc/bloc_search_po.dart';
@@ -330,9 +332,31 @@ class AssignRFIDState extends State<AssignRFID> {
       return ListView.separated(
           separatorBuilder: (BuildContext context, int index) => Divider(),
           itemCount: po.length,
-          itemBuilder: (context, index) {
+          itemBuilder: (contexti, index) {
             print('this po no : ${po[index].poNo}');
             return ListTile(
+              onLongPress: () {
+                presentLoader(context, text: 'Delete PO', onPressed: () async {
+                  EasyLoading.show(status: 'Loading');
+
+                  await contexti.read<DeletePOCubit>().deletePO(
+                        po[index].poNo!,
+                      );
+                  DeletePOState state = contexti.read<DeletePOCubit>().state;
+                  if (state is DeletePOLoaded) {
+                    print('delete success');
+                    EasyLoading.show(
+                      status: 'delete success',
+                    );
+                    listPO.removeAt(index);
+                    Navigator.of(contexti).push(MaterialPageRoute(
+                        builder: (_) => AssignRFID(widget.server)));
+                    EasyLoading.dismiss();
+                  } else if (state is DeletePOLoadingFailed) {
+                    EasyLoading.showError(state.message!);
+                  }
+                });
+              },
               title: Text(po[index].poNo!),
               subtitle: Text(po[index].poTgl!.split('T').first),
               trailing: Column(
@@ -401,11 +425,34 @@ class AssignRFIDState extends State<AssignRFID> {
         child: ListView.separated(
             separatorBuilder: (BuildContext context, int index) => Divider(),
             itemCount: po.length,
-            itemBuilder: (context, index) {
+            itemBuilder: (contexti, index) {
               print('this po no : ${po.length}');
               return ListTile(
+                onLongPress: () {
+                  presentLoader(context, text: 'Delete PO',
+                      onPressed: () async {
+                    EasyLoading.show(status: 'Loading');
+
+                    await contexti.read<DeletePOCubit>().deletePO(
+                          po[index].poNo!,
+                        );
+                    DeletePOState state = contexti.read<DeletePOCubit>().state;
+                    if (state is DeletePOLoaded) {
+                      print('delete success');
+                      EasyLoading.show(
+                        status: 'delete success',
+                      );
+                      listPO.removeAt(index);
+                      Navigator.of(contexti).push(MaterialPageRoute(
+                          builder: (_) => AssignRFID(widget.server)));
+                      EasyLoading.dismiss();
+                    } else if (state is DeletePOLoadingFailed) {
+                      EasyLoading.showError(state.message!);
+                    }
+                  });
+                },
                 onTap: () {
-                  Navigator.of(context).push(MaterialPageRoute(
+                  Navigator.of(contexti).push(MaterialPageRoute(
                       builder: (_) => ItemTagging(
                             poNumber: po[index].poNo,
                             // connection: uid,
@@ -461,5 +508,64 @@ class AssignRFIDState extends State<AssignRFID> {
         isDone = true;
       });
     }
+  }
+
+  void presentLoader(BuildContext context,
+      {String text1 = 'Aguarde...',
+      String text = 'Aguarde...',
+      String uid = '',
+      bool barrierDismissible = true,
+      bool error = false,
+      bool willPop = true,
+      bool success = false,
+      List<Widget>? action,
+      Widget? elevatedButton,
+      required VoidCallback onPressed,
+      double? value}) {
+    showDialog(
+        barrierDismissible: barrierDismissible,
+        context: context,
+        builder: (c) {
+          return WillPopScope(
+            onWillPop: () async {
+              return willPop;
+            },
+            child: AlertDialog(
+              content: Container(
+                height: 120,
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.start,
+                  children: <Widget>[
+                    Padding(
+                      padding: const EdgeInsets.all(16.0),
+                      child: Text(
+                        text,
+                        style: TextStyle(fontSize: 18.0),
+                        textAlign: TextAlign.center,
+                      ),
+                    ),
+                    Text('Are you sure want to delete PO?'),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.end,
+                      children: [
+                        TextButton(
+                            onPressed: onPressed,
+                            child:
+                                Text('Yes', style: TextStyle(fontSize: 16.0))),
+                        TextButton(
+                            onPressed: () {
+                              Navigator.of(context).pop();
+                            },
+                            child: Text('Cancel',
+                                style: TextStyle(fontSize: 16.0)))
+                      ],
+                    )
+                  ],
+                ),
+              ),
+              actions: action,
+            ),
+          );
+        });
   }
 }

@@ -192,10 +192,13 @@ class _ImagesPagesState extends State<ImagesPages> {
                         color: kMaincolor,
                         size: 80,
                       )));
-                  final PickedFile? pick = await ImagePicker()
-                      .getImage(source: ImageSource.camera, imageQuality: 50);
+                  final PickedFile? pick = await ImagePicker().getImage(
+                    source: ImageSource.camera,
+                    imageQuality: 100,
+                  );
 
                   if (pick == null) {
+                    EasyLoading.dismiss();
                     return null;
                   } else {
                     pickeds = File(pick.path);
@@ -319,12 +322,14 @@ class _ImagesPagesState extends State<ImagesPages> {
                         color: kMaincolor,
                         size: 80,
                       )));
+
                   final XFile? pick = await ImagePicker().pickImage(
                     source: ImageSource.camera,
-                    imageQuality: 50,
+                    imageQuality: 100,
                   );
                   // File pickeds;
                   if (pick == null) {
+                    EasyLoading.dismiss();
                     return null;
                   } else {
                     pickeds = File(pick.path);
@@ -486,6 +491,8 @@ class _ImagesPagesState extends State<ImagesPages> {
                               duration: Duration(seconds: 15),
                               dismissOnTap: true);
                         }
+                        Navigator.of(context).push(
+                            MaterialPageRoute(builder: (_) => ImagesPages()));
 
                         print("Exception occured:$error");
                         return;
