@@ -8,7 +8,7 @@ import 'package:smartwarehouse_ocr_rfid/model/po_model.dart';
 import 'package:smartwarehouse_ocr_rfid/model/tag_model.dart';
 
 class PoRepository {
-  static String mainUrl = 'http://100.68.1.32:7030'; //vpn
+  static String mainUrl = 'http://192.168.0.100:7030'; //vpn
   // static String mainUrl = 'http://192.168.18.32:7030'; //PCDev
   final Dio _dio = Dio();
 

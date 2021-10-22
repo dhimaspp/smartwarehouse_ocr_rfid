@@ -416,7 +416,7 @@ class _ImagesPagesState extends State<ImagesPages> {
                       var formdata =
                           FormData.fromMap({"image": listMultiPartFile});
                       var postRegister =
-                          "http://100.68.1.32:7030/v1/purchase-orders";
+                          "http://192.168.0.100:7030/v1/purchase-orders";
 
                       try {
                         // Response<ResponseBody> rs;

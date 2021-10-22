@@ -4,7 +4,7 @@ import 'package:dio/dio.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class UserAuth {
-  final String endPoint = "http://100.68.1.32:7030/v1/auth/login";
+  final String endPoint = "http://192.168.0.100:7030/v1/auth/login";
   var token;
   late Dio dio;
 

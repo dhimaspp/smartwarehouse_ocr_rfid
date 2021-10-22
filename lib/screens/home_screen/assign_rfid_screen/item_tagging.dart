@@ -75,12 +75,13 @@ class _ItemTaggingState extends State<ItemTagging> {
   bool isSearching = false;
   String? searchPO;
   int? itemIndex;
+  List poItem = [];
   // Stream<ItemsPOModel> _result;
   // Stream<ItemsPOModel> get result => _result;
   final PoRepository apiWrapper = PoRepository();
 
   final Dio _dio = Dio();
-  static String mainUrl = 'http://100.68.1.32:7030'; //vpn
+  static String mainUrl = 'http://192.168.0.100:7030'; //vpn
 
   var getPOItemsurl = '$mainUrl/v1/purchase-orders/';
 
@@ -615,7 +616,6 @@ class _ItemTaggingState extends State<ItemTagging> {
                                                       onPressed: () async {
                                                         EasyLoading.show(
                                                             status: 'Loading');
-
                                                         await context
                                                             .read<
                                                                 AssignTagCubit>()
@@ -633,30 +633,43 @@ class _ItemTaggingState extends State<ItemTagging> {
                                                                 .state;
                                                         if (state
                                                             is AssignTagLoaded) {
+                                                          getSearchItemBloc
+                                                            ..searchItems(
+                                                                searchController
+                                                                    .text);
                                                           // print(
                                                           //     'print message api :${state.tagModel.errors.uid.message}');
-                                                          connection!.close();
+                                                          // connection!.close();
                                                           EasyLoading.show(
+                                                            dismissOnTap: true,
                                                             status: state
                                                                 .tagModel
                                                                 .message,
-                                                          ).whenComplete(() => Navigator.of(context).push(MaterialPageRoute(
-                                                              builder: (_) => ItemTagging(
-                                                                  error: state.tagModel
-                                                                              .errors !=
-                                                                          null
-                                                                      ? state
-                                                                          .tagModel
-                                                                          .errors!
-                                                                          .uid!
-                                                                          .message
-                                                                      : state
-                                                                          .tagModel
-                                                                          .message,
-                                                                  poNumber: widget
-                                                                      .poNumber,
-                                                                  server: widget
-                                                                      .server))));
+                                                          ).whenComplete(() =>
+                                                              Navigator.of(
+                                                                      context)
+                                                                  .pop());
+                                                          // .whenComplete(() =>
+                                                          //     Navigator.of(
+                                                          //             context)
+                                                          //         .pop);
+                                                          // .whenComplete(() => Navigator.of(context).push(MaterialPageRoute(
+                                                          //     builder: (_) => ItemTagging(
+                                                          //         error: state.tagModel
+                                                          //                     .errors !=
+                                                          //                 null
+                                                          //             ? state
+                                                          //                 .tagModel
+                                                          //                 .errors!
+                                                          //                 .uid!
+                                                          //                 .message
+                                                          //             : state
+                                                          //                 .tagModel
+                                                          //                 .message,
+                                                          //         poNumber: widget
+                                                          //             .poNumber,
+                                                          //         server: widget
+                                                          //             .server))));
                                                         } else if (state
                                                             is AssignTagLoadingFailed) {
                                                           EasyLoading.showError(
@@ -826,30 +839,39 @@ class _ItemTaggingState extends State<ItemTagging> {
                                                                 .state;
                                                         if (state
                                                             is AssignTagLoaded) {
+                                                          getPOItems
+                                                            ..getItemsPOList(
+                                                                widget
+                                                                    .poNumber);
                                                           // print(
                                                           //     'print message api :${state.tagModel.errors.uid.message}');
-                                                          connection!.close();
+                                                          // connection!.close();
                                                           EasyLoading.show(
+                                                            dismissOnTap: true,
                                                             status: state
                                                                 .tagModel
                                                                 .message,
-                                                          ).whenComplete(() => Navigator.of(context).push(MaterialPageRoute(
-                                                              builder: (_) => ItemTagging(
-                                                                  error: state.tagModel
-                                                                              .errors !=
-                                                                          null
-                                                                      ? state
-                                                                          .tagModel
-                                                                          .errors!
-                                                                          .uid!
-                                                                          .message
-                                                                      : state
-                                                                          .tagModel
-                                                                          .message,
-                                                                  poNumber: widget
-                                                                      .poNumber,
-                                                                  server: widget
-                                                                      .server))));
+                                                          ).whenComplete(() =>
+                                                              Navigator.of(
+                                                                      context)
+                                                                  .pop());
+                                                          // .whenComplete(() => Navigator.of(context).push(MaterialPageRoute(
+                                                          //     builder: (_) => ItemTagging(
+                                                          //         error: state.tagModel
+                                                          //                     .errors !=
+                                                          //                 null
+                                                          //             ? state
+                                                          //                 .tagModel
+                                                          //                 .errors!
+                                                          //                 .uid!
+                                                          //                 .message
+                                                          //             : state
+                                                          //                 .tagModel
+                                                          //                 .message,
+                                                          //         poNumber: widget
+                                                          //             .poNumber,
+                                                          //         server: widget
+                                                          //             .server))));
                                                         } else if (state
                                                             is AssignTagLoadingFailed) {
                                                           EasyLoading.showError(
