@@ -81,9 +81,9 @@ class _ItemTaggingState extends State<ItemTagging> {
   final PoRepository apiWrapper = PoRepository();
 
   final Dio _dio = Dio();
-  static String mainUrl = 'http://192.168.0.100:7030'; //vpn
+  // static String mainUrl = 'http://192.168.0.100:7030';
 
-  var getPOItemsurl = '$mainUrl/v1/purchase-orders/';
+  // var getPOItemsurl = '$mainUrl/v1/purchase-orders/';
 
   @override
   void initState() {

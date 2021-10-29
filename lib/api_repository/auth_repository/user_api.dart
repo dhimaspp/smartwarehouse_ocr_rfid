@@ -4,8 +4,10 @@ import 'package:dio/dio.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class UserAuth {
-  final String endPoint = "http://192.168.0.100:7030/v1/auth/login";
+  var baseUrl;
+  String? endPoint;
   var token;
+
   late Dio dio;
 
   _getToken() async {
@@ -13,21 +15,31 @@ class UserAuth {
     token = json.decode(localData.getString('access_token')!);
   }
 
+  _getIP() async {
+    SharedPreferences localData = await SharedPreferences.getInstance();
+    baseUrl = localData.getString('ipAddress')!;
+    endPoint = "$baseUrl/v1/auth/login";
+    print('just get ip: $endPoint');
+  }
+
   authData(data) async {
+    await _getIP();
     var fullEndpoint = endPoint;
 
-    return await http.post(Uri.parse(fullEndpoint),
+    return await http.post(Uri.parse(fullEndpoint!),
         body: jsonEncode(data), headers: _setHeaders());
   }
 
   getData() async {
+    await _getIP();
     var fullEndpoint = endPoint;
     await _getToken();
-    return await http.get(Uri.parse(fullEndpoint), headers: _setHeaders());
+    return await http.get(Uri.parse(fullEndpoint!), headers: _setHeaders());
   }
 
   getData2(apiParameter) async {
-    var fullEndpoint = endPoint + apiParameter;
+    await _getIP();
+    var fullEndpoint = endPoint! + apiParameter;
     await _getToken();
     return await dio.get(fullEndpoint);
   }

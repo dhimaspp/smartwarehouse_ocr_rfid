@@ -8,18 +8,15 @@ import 'package:smartwarehouse_ocr_rfid/model/po_model.dart';
 import 'package:smartwarehouse_ocr_rfid/model/tag_model.dart';
 
 class PoRepository {
-  static String mainUrl = 'http://192.168.0.100:7030'; //vpn
+  // static String mainUrl = 'http://192.168.0.100:7030'; //vpn
   // static String mainUrl = 'http://192.168.18.32:7030'; //PCDev
   final Dio _dio = Dio();
-
-  var getAllPOurl = '$mainUrl/v1/purchase-orders?cursor=';
-  var getSearchPOurl = '$mainUrl/v1/purchase-orders/search?search=';
-  var getPOItemsurl = '$mainUrl/v1/purchase-orders/';
-  var postAssignTagUrl = '$mainUrl/v1/rfids/';
 
   Future<POList> getAllPO() async {
     SharedPreferences localData = await SharedPreferences.getInstance();
     var token = jsonDecode(localData.getString('access_token')!);
+    var mainUrl = localData.getString('access_token');
+    var getAllPOurl = '$mainUrl/v1/purchase-orders?cursor=';
     try {
       // Response<ResponseBody> rs;
       Response response = await _dio.get(getAllPOurl,
@@ -40,6 +37,8 @@ class PoRepository {
   Future<POList> getPOLoadMore(String loadToken) async {
     SharedPreferences localData = await SharedPreferences.getInstance();
     var token = jsonDecode(localData.getString('access_token')!);
+    var mainUrl = localData.getString('ipAddress');
+    var getAllPOurl = '$mainUrl/v1/purchase-orders?cursor=';
     try {
       print(getAllPOurl + loadToken);
       // Response<ResponseBody> rs;
@@ -61,6 +60,8 @@ class PoRepository {
   Future<POList> search(String value) async {
     SharedPreferences localData = await SharedPreferences.getInstance();
     var token = jsonDecode(localData.getString('access_token')!);
+    var mainUrl = localData.getString('ipAddress');
+    var getSearchPOurl = '$mainUrl/v1/purchase-orders/search?search=';
     // var params = {"search": value};
     try {
       Response response = await _dio.get(getSearchPOurl + value.trim(),
@@ -82,6 +83,8 @@ class PoRepository {
   Future<ItemsPOModel> searchItems(String query) async {
     SharedPreferences localData = await SharedPreferences.getInstance();
     var token = jsonDecode(localData.getString('access_token')!);
+    var mainUrl = localData.getString('ipAddress');
+    var getPOItemsurl = '$mainUrl/v1/purchase-orders/';
     String poNumber = localData.getString('poNumber').toString();
     // var params = {"search": value};
     try {
@@ -106,6 +109,8 @@ class PoRepository {
   Future<ItemsPOModel> getPOItems(String? value) async {
     SharedPreferences localData = await SharedPreferences.getInstance();
     var token = jsonDecode(localData.getString('access_token')!);
+    var mainUrl = localData.getString('ipAddress');
+    var getPOItemsurl = '$mainUrl/v1/purchase-orders/';
     // var params = {"search": value};
     try {
       print(' link to get item po : ${getPOItemsurl + "$value/items"}');
@@ -129,6 +134,8 @@ class PoRepository {
   Future<TagModel> postAssignTag(String recId, String uid) async {
     SharedPreferences localData = await SharedPreferences.getInstance();
     var token = jsonDecode(localData.getString('access_token')!);
+    var mainUrl = localData.getString('ipAddress');
+    var postAssignTagUrl = '$mainUrl/v1/rfids/';
     // var params = {"search": value};
     try {
       print(
@@ -159,6 +166,8 @@ class PoRepository {
   ) async {
     SharedPreferences localData = await SharedPreferences.getInstance();
     var token = jsonDecode(localData.getString('access_token')!);
+    var mainUrl = localData.getString('ipAddress');
+    var getPOItemsurl = '$mainUrl/v1/purchase-orders/';
     // var params = {"search": value};
     try {
       print(
