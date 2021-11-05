@@ -28,9 +28,15 @@ class PoRepository {
           ));
       print(response.data);
       return POList.fromJson(response.data);
-    } catch (error, stacktrace) {
-      print("Exception occured:$error stacktrrace:$stacktrace");
-      return POList();
+    } on DioError catch (error, stacktrace) {
+      print("Exception occured: $error stackTrace: $stacktrace");
+      if (error.type == DioErrorType.response) {
+        print(error.response!.data);
+        return POList.fromJson(error.response!.data);
+      } else if (error.type == DioErrorType.other) {
+        return POList.fromJson(error.response!.data);
+      }
+      return POList.fromJson(error.response!.data);
     }
   }
 
@@ -51,9 +57,15 @@ class PoRepository {
           ));
       print(response.data);
       return POList.fromJson(response.data);
-    } catch (error, stacktrace) {
-      print("Exception occured:$error stacktrrace:$stacktrace");
-      return POList();
+    } on DioError catch (error, stacktrace) {
+      print("Exception occured: $error stackTrace: $stacktrace");
+      if (error.type == DioErrorType.response) {
+        print(error.response!.data);
+        return POList.fromJson(error.response!.data);
+      } else if (error.type == DioErrorType.other) {
+        return POList.fromJson(error.response!.data);
+      }
+      return POList.fromJson(error.response!.data);
     }
   }
 
@@ -74,9 +86,15 @@ class PoRepository {
           ));
       print(response.data);
       return POList.fromJson(response.data);
-    } catch (error, stacktrace) {
+    } on DioError catch (error, stacktrace) {
       print("Exception occured: $error stackTrace: $stacktrace");
-      return POList();
+      if (error.type == DioErrorType.response) {
+        print(error.response!.data);
+        return POList.fromJson(error.response!.data);
+      } else if (error.type == DioErrorType.other) {
+        return POList.fromJson(error.response!.data);
+      }
+      return POList.fromJson(error.response!.data);
     }
   }
 
@@ -100,9 +118,15 @@ class PoRepository {
           ));
       print(response.data);
       return ItemsPOModel.fromJson(response.data);
-    } catch (error, stacktrace) {
+    } on DioError catch (error, stacktrace) {
       print("Exception occured: $error stackTrace: $stacktrace");
-      return ItemsPOModel();
+      if (error.type == DioErrorType.response) {
+        print(error.response!.data);
+        return ItemsPOModel.fromJson(error.response!.data);
+      } else if (error.type == DioErrorType.other) {
+        return ItemsPOModel.fromJson(error.response!.data);
+      }
+      return ItemsPOModel.fromJson(error.response!.data);
     }
   }
 
@@ -124,9 +148,15 @@ class PoRepository {
           ));
       print(response.data);
       return ItemsPOModel.fromJson(response.data);
-    } catch (error, stacktrace) {
+    } on DioError catch (error, stacktrace) {
       print("Exception occured: $error stackTrace: $stacktrace");
-      return ItemsPOModel();
+      if (error.type == DioErrorType.response) {
+        print(error.response!.data);
+        return ItemsPOModel.fromJson(error.response!.data);
+      } else if (error.type == DioErrorType.other) {
+        return ItemsPOModel.fromJson(error.response!.data);
+      }
+      return ItemsPOModel.fromJson(error.response!.data);
     }
   }
 
@@ -156,8 +186,10 @@ class PoRepository {
       if (error.type == DioErrorType.response) {
         print(error.response!.data);
         return TagModel.withError(error.response!.data);
+      } else if (error.type == DioErrorType.other) {
+        return TagModel.withError(error.response!.data);
       }
-      return TagModel();
+      return TagModel.withError(error.response!.data);
     }
   }
 
@@ -187,8 +219,10 @@ class PoRepository {
       if (error.type == DioErrorType.response) {
         print(error.response!.data);
         return TagModel.withError(error.response!.data);
+      } else if (error.type == DioErrorType.other) {
+        return TagModel.withError(error.response!.data);
       }
-      return TagModel();
+      return TagModel.withError(error.response!.data);
     }
   }
 }

@@ -8,6 +8,7 @@ import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:loadmore/loadmore.dart';
 import 'package:provider/src/provider.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:smartwarehouse_ocr_rfid/bloc/bloc_delete_PO.dart';
 import 'package:smartwarehouse_ocr_rfid/bloc/bloc_po.dart';
 import 'package:smartwarehouse_ocr_rfid/bloc/bloc_po_loadmore.dart';
@@ -16,6 +17,7 @@ import 'package:smartwarehouse_ocr_rfid/model/po_model.dart';
 import 'package:smartwarehouse_ocr_rfid/screens/home_screen/assign_rfid_screen/item_tagging.dart';
 import 'package:smartwarehouse_ocr_rfid/screens/home_screen/bt_pairing/bt_wrapper.dart';
 import 'package:smartwarehouse_ocr_rfid/screens/home_screen/home_screen.dart';
+import 'package:smartwarehouse_ocr_rfid/screens/login_screen/login.dart';
 import 'package:smartwarehouse_ocr_rfid/theme/theme.dart';
 import 'package:flutter_blue/flutter_blue.dart' as fb;
 
@@ -272,8 +274,8 @@ class AssignRFIDState extends State<AssignRFID> {
                                     'print snapshot${snapshot.data!.data!.length}');
                                 return _buildPOList(listPO);
                               } else if (snapshot.hasError) {
-                                EasyLoading.showError(
-                                    'Error occured\nPlease check your internet connection');
+                                EasyLoading.showError(snapshot.data!.message!);
+                                logout();
                                 return Container();
                               }
                               //  else if (snapshot.data.data.length == 0) {
@@ -309,6 +311,20 @@ class AssignRFIDState extends State<AssignRFID> {
             ),
           );
         });
+  }
+
+  void logout() async {
+    // var res = await UserAuth().getData();
+    // var body = json.decode(res.body);
+    // if (body['success']) {
+    SharedPreferences localStorage = await SharedPreferences.getInstance();
+    localStorage.remove('ListImagePath');
+    localStorage.remove('poNumber');
+    localStorage.remove('username');
+    localStorage.remove('access_token');
+    Navigator.push(
+        context, MaterialPageRoute(builder: (context) => LoginScreen()));
+    // }
   }
 
   Widget _buildSearchPO(POList data) {

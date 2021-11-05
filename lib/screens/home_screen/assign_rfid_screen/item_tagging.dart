@@ -733,7 +733,7 @@ class _ItemTaggingState extends State<ItemTagging> {
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
             Text(
-              "There is no items in data list PO",
+              "There is no item on PO to be Tag",
               style: textInputDecoration.labelStyle,
             )
           ],

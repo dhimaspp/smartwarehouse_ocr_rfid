@@ -421,8 +421,9 @@ class _ImagesPagesState extends State<ImagesPages> {
                         // Response<ResponseBody> rs;
                         print(
                             'list data form: ${formdata.files.map((e) => e.value.filename.toString())}');
+                        print('print ip post image ocr : $postRegister');
                         var response = await _dio.post(
-                          postRegister,
+                          postRegister + '/v1/purchase-orders',
                           data: formdata,
                           options: Options(
                             headers: {
