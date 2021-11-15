@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'dart:io';
 
 import 'package:dio/dio.dart';
+import 'package:file_picker/file_picker.dart';
 import 'package:http_parser/http_parser.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
@@ -13,6 +14,8 @@ import 'package:path/path.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:smartwarehouse_ocr_rfid/model/upload_response.dart';
 import 'package:smartwarehouse_ocr_rfid/screens/home_screen/home_screen.dart';
+import 'package:mime/mime.dart';
+import 'package:smartwarehouse_ocr_rfid/screens/home_screen/ocr_screen/pdf_picker.dart';
 import 'package:smartwarehouse_ocr_rfid/screens/home_screen/ocr_screen/po_session.dart';
 import 'package:smartwarehouse_ocr_rfid/theme/theme.dart';
 
@@ -27,13 +30,14 @@ class ImagesPages extends StatefulWidget {
 class _ImagesPagesState extends State<ImagesPages> {
   List<Widget> imagesAsset = <Widget>[];
   List<String>? assets = <String>[];
-  List<MultipartFile> listMultiPartFile = [];
+  List<Future<MultipartFile>> listMultiPartFile = [];
   bool? finishAdding, _onLongPressed;
   bool _isEmpty = true;
   int indexPressed = 0;
   final Dio _dio = Dio();
   String? token;
   late File pickeds;
+  late File pickedsPDF;
 
   @override
   void initState() {
@@ -42,11 +46,6 @@ class _ImagesPagesState extends State<ImagesPages> {
 
     print('isi assets list ${assets!.length}');
   }
-
-  // @override
-  // void dispose() {
-  //   super.dispose();
-  // }
 
   _getAssetsImage() async {
     setState(() {
@@ -63,36 +62,10 @@ class _ImagesPagesState extends State<ImagesPages> {
     // print('listPref = $listPref');
     print('listPrefFix = $listPrefFix');
 
-    // if (listPrefFix != null) {
-    //   setState(() {
-    //     assets = tempList;
-    //     _isEmpty = false;
-    //     sharedLocal.setStringList('ListImagePathFix', assets);
-    //   });
-    //   print('assets = listPref');
-    // } else
     if (tempList!.length != 0) {
       setState(() {
         _isEmpty = false;
         assets = tempList;
-        // if (listPref.isNotEmpty) {
-        //   var listIndex = listPref[0];
-        //   for (var i = 0; i < assets.length; i++) {
-        //     if (listIndex == assets[i]) {
-        //       print('print image path $listIndex');
-        //     } else {
-        //       assets.add(listIndex);
-        //       print('print success adding image');
-        //       // sharedLocal.remove('ListImagePath');
-        //       sharedLocal.setStringList('ListImagePathFix', assets);
-        //       break;
-        //     }
-
-        //     // ListTempImage().imagePath.add(widget.imagePath);
-        //     // return assets;
-        //     // ListTempImage().imagePath;
-        //   }
-        // }
       });
 
       print('assets = listPrefix');
@@ -101,27 +74,6 @@ class _ImagesPagesState extends State<ImagesPages> {
         _isEmpty = true;
       });
     }
-    // assets = listPrefFix;
-
-    // print('print image path $listPref');
-
-    // if (listPref.first != null) {
-    //   var listIndex = listPref[0];
-    //   for (var i = 0; i < assets.length; i++) {
-    //     if (listIndex == assets[i]) {
-    //       print('print image path $listIndex');
-    //     } else {
-    //       assets.add(listIndex);
-    //       break;
-    //     }
-
-    //     sharedLocal.remove('ListImagePath');
-    //     sharedLocal.setStringList('ListImagePathFix', assets);
-    //     // ListTempImage().imagePath.add(widget.imagePath);
-    //     // return assets;
-    //     // ListTempImage().imagePath;
-    //   }
-    // }
   }
 
   @override
@@ -154,7 +106,8 @@ class _ImagesPagesState extends State<ImagesPages> {
                   top: 55,
                   left: 5,
                   child: Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      // mainAxisSize: MainAxisSize.max,
+                      mainAxisAlignment: MainAxisAlignment.end,
                       children: <Widget>[
                         ElevatedButton(
                             style: ElevatedButton.styleFrom(
@@ -171,12 +124,40 @@ class _ImagesPagesState extends State<ImagesPages> {
                               color: Colors.white,
                             )),
                         Text(
-                          'PO Images Preview',
+                          'PO Images Preview                 ',
                           style: textInputDecoration.labelStyle!.copyWith(
                               fontWeight: FontWeight.w800,
                               fontSize: 18,
                               color: Colors.white),
                         ),
+                        IconButton(
+                            alignment: Alignment.centerRight,
+                            onPressed: () async {
+                              FilePickerResult? resultPDF =
+                                  await FilePicker.platform.pickFiles(
+                                      allowMultiple: false,
+                                      type: FileType.custom,
+                                      allowedExtensions: ['pdf', 'jpg']);
+                              if (resultPDF != null) {
+                                SharedPreferences sharedLocal =
+                                    await SharedPreferences.getInstance();
+                                pickeds = File(resultPDF.files.single.path!);
+                                setState(() {
+                                  print('image cropper file : $pickeds');
+                                  assets!.add(pickeds.path);
+
+                                  sharedLocal.setStringList(
+                                      'ListImagePathFix', assets!);
+                                  _getAssetsImage();
+                                });
+                                // return PDFUpload(context, pickedsPDF, token!);
+                              }
+                            },
+                            icon: Icon(
+                              Icons.attach_file,
+                              size: 25,
+                              color: Colors.white,
+                            ))
                       ]),
                 ),
               ]),
@@ -271,7 +252,33 @@ class _ImagesPagesState extends State<ImagesPages> {
                                     )
                                   ],
                                 ),
-                                child: Image.file(File(assets![index]))),
+                                child: Image.file(
+                                  File(assets![index]),
+                                  errorBuilder: (context, object, stacktrace) {
+                                    return Container(
+                                        width:
+                                            MediaQuery.of(context).size.width,
+                                        child: Column(
+                                          mainAxisAlignment:
+                                              MainAxisAlignment.center,
+                                          children: [
+                                            Icon(
+                                              Icons.picture_as_pdf,
+                                              size: 120,
+                                              color: Colors.red,
+                                            ),
+                                            SizedBox(
+                                              height: 15,
+                                            ),
+                                            Text(
+                                              basename(assets![index]),
+                                              style: TextStyle(
+                                                  fontWeight: FontWeight.bold),
+                                            )
+                                          ],
+                                        ));
+                                  },
+                                )),
                             Positioned(
                               right: -2,
                               top: -8,
@@ -389,6 +396,7 @@ class _ImagesPagesState extends State<ImagesPages> {
                       var listData =
                           sharedLocal.getStringList('ListImagePathFix')!;
 
+                      var formData = FormData();
                       String baseName;
                       for (var i = 0; i < listData.length; i++) {
                         print('adding image : $basename');
@@ -401,30 +409,47 @@ class _ImagesPagesState extends State<ImagesPages> {
                         // var buffer = bytes.buffer;
                         // var m = base64.encode(Uint8List.view(buffer));
 
-                        MultipartFile multipartFileBytes =
-                            MultipartFile.fromBytes(
-                          imageData,
-                          filename: basename(listData[i]),
-                          contentType: MediaType('image', 'jpg'),
-                        );
+                        // MultipartFile multipartFileBytes =
+                        //     await MultipartFile.fromFile(
+                        //   listData[i],
+                        //   filename: basename(listData[i]),
+                        //   // contentType: MediaType(
+                        //   //   'image',
+                        //   //   'pdf',
+                        //   // ),
+                        // );
+                        String? mimeOutput = lookupMimeType(listData[i]);
+                        print("mime output: ${mimeOutput!.split('/').last}");
+                        formData.files.addAll([
+                          MapEntry(
+                              'image',
+                              await MultipartFile.fromFile(
+                                listData[i],
+                                filename: basename(listData[i]),
+                                contentType: MediaType(
+                                  mimeOutput.split('/').first,
+                                  mimeOutput.split('/').last,
+                                ),
+                              ))
+                        ]);
                         // MultipartFile multipartFile =
                         //     await MultipartFile.fromFile(listData[i],
                         //         filename: basename(listData[i]));
-                        listMultiPartFile.add(multipartFileBytes);
+                        // listMultiPartFile.add(multipartFileBytes);
                       }
 
-                      var formdata =
-                          FormData.fromMap({"image": listMultiPartFile});
+                      // var formdata =
+                      //     FormData.fromMap({"image": listMultiPartFile});
                       var postRegister = sharedLocal.getString('ipAddress')!;
 
                       try {
                         // Response<ResponseBody> rs;
                         print(
-                            'list data form: ${formdata.files.map((e) => e.value.filename.toString())}');
+                            'list data form: ${formData.files.map((e) => e.value.filename.toString())}');
                         print('print ip post image ocr : $postRegister');
                         var response = await _dio.post(
                           postRegister + '/v1/purchase-orders',
-                          data: formdata,
+                          data: formData,
                           options: Options(
                             headers: {
                               'Authorization': 'Bearer $token',
@@ -446,18 +471,28 @@ class _ImagesPagesState extends State<ImagesPages> {
 
                               print('progress : $progress');
                               EasyLoading.showProgress(progress,
-                                      status:
-                                          'Uploading images to OCR\n$progressString')
-                                  .whenComplete(() => EasyLoading.show(
-                                      status:
-                                          'Processing OCR to Text\nThis may take a while',
-                                      dismissOnTap: false,
-                                      indicator: Center(
-                                          // heightFactor: MediaQuery.of(context).size.height,
-                                          child: SpinKitRipple(
-                                        color: Colors.white,
-                                        // size: 80,
-                                      ))));
+                                  status:
+                                      'Uploading images to OCR\n$progressString');
+                              // .then((e) => EasyLoading.show(
+                              //     status:
+                              //         'Processing OCR to Text\nThis may take a while',
+                              //     dismissOnTap: false,
+                              //     indicator: Center(
+                              //         // heightFactor: MediaQuery.of(context).size.height,
+                              //         child: SpinKitRipple(
+                              //       color: Colors.white,
+                              //       // size: 80,
+                              //     ))));
+                              EasyLoading.show(
+                                  status:
+                                      'Processing OCR to Text\nThis may take a while',
+                                  dismissOnTap: false,
+                                  indicator: Center(
+                                      // heightFactor: MediaQuery.of(context).size.height,
+                                      child: SpinKitRipple(
+                                    color: Colors.white,
+                                    // size: 80,
+                                  )));
                               print(
                                   (received / total * 100).toStringAsFixed(0) +
                                       '%');
@@ -481,6 +516,16 @@ class _ImagesPagesState extends State<ImagesPages> {
                             builder: (context) => HomeScreen()));
                       } on DioError catch (error) {
                         if (error.type == DioErrorType.response) {
+                          String errorMessage;
+                          // UploadPOResponse.fromJson(error.response!.data);
+                          var resError =
+                              UploadPOResponse.fromJson(error.response!.data);
+                          errorMessage = resError.message!;
+                          EasyLoading.showError(
+                              'Error: ${errorMessage.toString()}',
+                              duration: Duration(seconds: 15),
+                              dismissOnTap: true);
+                        } else if (error.type == DioErrorType.other) {
                           String errorMessage;
                           // UploadPOResponse.fromJson(error.response!.data);
                           var resError =
@@ -665,9 +710,12 @@ class _ImagesPagesState extends State<ImagesPages> {
         ));
     if (croppedFile != null) {
       pickeds = croppedFile;
-      setState(() {
+      setState(() async {
         print('image cropper file : $pickeds');
-        assets!.add(pickeds.path);
+        Uri myUri = Uri.parse(pickeds.path);
+        File imageFile = new File.fromUri(myUri);
+        var bytesUri = await imageFile.readAsBytes();
+        assets!.add(imageFile.path);
 
         sharedLocal.setStringList('ListImagePathFix', assets!);
         _getAssetsImage();

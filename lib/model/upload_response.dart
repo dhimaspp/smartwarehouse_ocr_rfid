@@ -84,7 +84,7 @@ class Items {
   String? kodeMaterial;
   String? deskripsi;
   String? unitOfMeasure;
-  int? qty;
+  dynamic qty;
   String? harga;
 
   Items(

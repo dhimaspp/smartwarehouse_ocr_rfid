@@ -27,6 +27,7 @@ dependencies:
   cupertino_icons: ^1.0.2
   dio: ^4.0.0
   equatable: ^2.0.3
+  file_picker: ^4.2.2+1
   flutter:
     sdk: flutter
   flutter_bloc: ^7.0.1
@@ -45,6 +46,7 @@ dependencies:
   input_with_keyboard_control: ^1.0.7
   jwt_decoder: ^2.0.1
   loadmore: ^2.0.1
+  mime: ^1.0.1
   modal_bottom_sheet: ^2.0.0
   path: ^1.8.0
   path_provider: ^2.0.2
@@ -53,7 +55,6 @@ dependencies:
   rxdart: ^0.26.0
   shared_preferences: ^2.0.5
   synchronized: ^3.0.0
-
 
 dev_dependencies:
   flutter_test:
