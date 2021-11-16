@@ -1,6 +1,6 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
-// import 'package:flutter_blue/flutter_blue.dart' as fb;
+import 'package:flutter_blue/flutter_blue.dart' as fb;
 import 'package:flutter_bluetooth_serial/flutter_bluetooth_serial.dart';
 import 'package:smartwarehouse_ocr_rfid/screens/home_screen/assign_rfid_screen/assign_rfid.dart';
 import 'package:smartwarehouse_ocr_rfid/screens/home_screen/bt_pairing/bt_wrapper.dart';
@@ -158,115 +158,223 @@ class _SelectBondedDevicePage extends State<SelectBondedDevicePage> {
         .toList();
     return Scaffold(
       backgroundColor: Colors.white,
-      body: list.length == 0
-          ? BleOff()
-          : Container(
-              height: MediaQuery.of(context).size.height,
-              child: Column(
-                mainAxisSize: MainAxisSize.max,
-                mainAxisAlignment: MainAxisAlignment.start,
-                children: [
-                  Stack(
-                      alignment: AlignmentDirectional.topCenter,
-                      children: <Widget>[
+      body: StreamBuilder<fb.BluetoothState>(
+          stream: fb.FlutterBlue.instance.state,
+          initialData: fb.BluetoothState.unknown,
+          builder: (context, snapshot) {
+            final state = snapshot.data;
+            if (state != fb.BluetoothState.on) {
+              return BleOff();
+            }
+            return list.length == 0
+                ? Container(
+                    height: MediaQuery.of(context).size.height,
+                    child: Column(
+                      mainAxisSize: MainAxisSize.max,
+                      mainAxisAlignment: MainAxisAlignment.start,
+                      children: [
+                        Stack(
+                            alignment: AlignmentDirectional.topCenter,
+                            children: <Widget>[
+                              Container(
+                                height: 110,
+                                width: MediaQuery.of(context).size.width,
+                                decoration: BoxDecoration(
+                                    color: kFillColor,
+                                    borderRadius: BorderRadius.vertical(
+                                        bottom: Radius.circular(18))),
+                              ),
+                              Positioned(
+                                top: 50,
+                                left: 5,
+                                child: Row(
+                                    mainAxisAlignment:
+                                        MainAxisAlignment.spaceBetween,
+                                    children: <Widget>[
+                                      ElevatedButton(
+                                          style: ElevatedButton.styleFrom(
+                                              elevation: 0,
+                                              primary: kFillColor),
+                                          onPressed: () {
+                                            Navigator.of(context).push(
+                                                MaterialPageRoute(
+                                                    builder: (context) {
+                                              return HomeScreen();
+                                            }));
+                                          },
+                                          child: Icon(
+                                            Icons.arrow_back_ios_rounded,
+                                            color: Colors.white,
+                                          )),
+                                      Text(
+                                        '  Select Device',
+                                        style: textInputDecoration.labelStyle!
+                                            .copyWith(
+                                                fontWeight: FontWeight.w800,
+                                                fontSize: 18,
+                                                color: Colors.white),
+                                      ),
+                                      SizedBox(
+                                        width: 140,
+                                      ),
+                                      _isDiscovering
+                                          ? FittedBox(
+                                              child: Container(
+                                                margin:
+                                                    new EdgeInsets.all(16.0),
+                                                child:
+                                                    CircularProgressIndicator(
+                                                  valueColor:
+                                                      AlwaysStoppedAnimation<
+                                                          Color>(
+                                                    Colors.white,
+                                                  ),
+                                                ),
+                                              ),
+                                            )
+                                          : IconButton(
+                                              icon: Icon(
+                                                Icons.replay,
+                                                color: Colors.white,
+                                              ),
+                                              onPressed: _restartDiscovery,
+                                            )
+                                    ]),
+                              ),
+                            ]),
                         Container(
-                          height: 110,
+                          height: MediaQuery.of(context).size.height / 4,
                           width: MediaQuery.of(context).size.width,
-                          decoration: BoxDecoration(
-                              color: kFillColor,
-                              borderRadius: BorderRadius.vertical(
-                                  bottom: Radius.circular(18))),
-                        ),
-                        Positioned(
-                          top: 50,
-                          left: 5,
-                          child: Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              children: <Widget>[
-                                ElevatedButton(
-                                    style: ElevatedButton.styleFrom(
-                                        elevation: 0, primary: kFillColor),
-                                    onPressed: () {
-                                      Navigator.of(context).push(
-                                          MaterialPageRoute(builder: (context) {
-                                        return HomeScreen();
-                                      }));
-                                    },
-                                    child: Icon(
-                                      Icons.arrow_back_ios_rounded,
-                                      color: Colors.white,
-                                    )),
-                                Text(
-                                  '  Select Device',
-                                  style: textInputDecoration.labelStyle!
-                                      .copyWith(
-                                          fontWeight: FontWeight.w800,
-                                          fontSize: 18,
-                                          color: Colors.white),
-                                ),
-                                SizedBox(
-                                  width: 140,
-                                ),
-                                _isDiscovering
-                                    ? FittedBox(
-                                        child: Container(
-                                          margin: new EdgeInsets.all(16.0),
-                                          child: CircularProgressIndicator(
-                                            valueColor:
-                                                AlwaysStoppedAnimation<Color>(
-                                              Colors.white,
-                                            ),
-                                          ),
-                                        ),
-                                      )
-                                    : IconButton(
-                                        icon: Icon(
-                                          Icons.replay,
-                                          color: Colors.white,
-                                        ),
-                                        onPressed: _restartDiscovery,
-                                      )
-                              ]),
-                        ),
-                        // Container(
-                        //   margin: EdgeInsets.only(top: 110),
-                        //   child: Container(
-                        //     decoration: BoxDecoration(
-                        //         border: Border(
-                        //             bottom: BorderSide(
-                        //                 color: Colors.black38,
-                        //                 style: BorderStyle.solid))),
-                        //     child: SwitchListTile(
-                        //       title: const Text('Enable Bluetooth'),
-                        //       value: _bluetoothState.isEnabled ? true : false,
-                        //       selected: _bluetoothState.isEnabled,
-                        //       onChanged: (bool value) {
-                        //         // Do the request and update with the true value then
-                        //         future() async {
-                        //           // async lambda seems to not working
-                        //           if (value)
-                        //             await FlutterBluetoothSerial.instance.requestEnable();
-                        //           else
-                        //             await FlutterBluetoothSerial.instance
-                        //                 .requestDisable();
-                        //         }
-
-                        //         future().then((_) {
-                        //           setState(() {});
-                        //         });
-                        //       },
-                        //     ),
-                        //   ),
-                        // ),
-                      ]),
-                  ListView(
-                    padding: EdgeInsets.all(5),
-                    shrinkWrap: true,
-                    children: list,
+                          child: Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            crossAxisAlignment: CrossAxisAlignment.center,
+                            children: [
+                              Text(
+                                "There is no device RFID Scanner have been paired\nPlease pair the related device",
+                                style: textInputDecoration.labelStyle!
+                                    .copyWith(fontSize: 16),
+                                textAlign: TextAlign.center,
+                              )
+                            ],
+                          ),
+                        )
+                      ],
+                    ),
                   )
-                ],
-              ),
-            ),
+                : Container(
+                    height: MediaQuery.of(context).size.height,
+                    child: Column(
+                      mainAxisSize: MainAxisSize.max,
+                      mainAxisAlignment: MainAxisAlignment.start,
+                      children: [
+                        Stack(
+                            alignment: AlignmentDirectional.topCenter,
+                            children: <Widget>[
+                              Container(
+                                height: 110,
+                                width: MediaQuery.of(context).size.width,
+                                decoration: BoxDecoration(
+                                    color: kFillColor,
+                                    borderRadius: BorderRadius.vertical(
+                                        bottom: Radius.circular(18))),
+                              ),
+                              Positioned(
+                                top: 50,
+                                left: 5,
+                                child: Row(
+                                    mainAxisAlignment:
+                                        MainAxisAlignment.spaceBetween,
+                                    children: <Widget>[
+                                      ElevatedButton(
+                                          style: ElevatedButton.styleFrom(
+                                              elevation: 0,
+                                              primary: kFillColor),
+                                          onPressed: () {
+                                            Navigator.of(context).push(
+                                                MaterialPageRoute(
+                                                    builder: (context) {
+                                              return HomeScreen();
+                                            }));
+                                          },
+                                          child: Icon(
+                                            Icons.arrow_back_ios_rounded,
+                                            color: Colors.white,
+                                          )),
+                                      Text(
+                                        '  Select Device',
+                                        style: textInputDecoration.labelStyle!
+                                            .copyWith(
+                                                fontWeight: FontWeight.w800,
+                                                fontSize: 18,
+                                                color: Colors.white),
+                                      ),
+                                      SizedBox(
+                                        width: 140,
+                                      ),
+                                      _isDiscovering
+                                          ? FittedBox(
+                                              child: Container(
+                                                margin:
+                                                    new EdgeInsets.all(16.0),
+                                                child:
+                                                    CircularProgressIndicator(
+                                                  valueColor:
+                                                      AlwaysStoppedAnimation<
+                                                          Color>(
+                                                    Colors.white,
+                                                  ),
+                                                ),
+                                              ),
+                                            )
+                                          : IconButton(
+                                              icon: Icon(
+                                                Icons.replay,
+                                                color: Colors.white,
+                                              ),
+                                              onPressed: _restartDiscovery,
+                                            )
+                                    ]),
+                              ),
+                              // Container(
+                              //   margin: EdgeInsets.only(top: 110),
+                              //   child: Container(
+                              //     decoration: BoxDecoration(
+                              //         border: Border(
+                              //             bottom: BorderSide(
+                              //                 color: Colors.black38,
+                              //                 style: BorderStyle.solid))),
+                              //     child: SwitchListTile(
+                              //       title: const Text('Enable Bluetooth'),
+                              //       value: _bluetoothState.isEnabled ? true : false,
+                              //       selected: _bluetoothState.isEnabled,
+                              //       onChanged: (bool value) {
+                              //         // Do the request and update with the true value then
+                              //         future() async {
+                              //           // async lambda seems to not working
+                              //           if (value)
+                              //             await FlutterBluetoothSerial.instance.requestEnable();
+                              //           else
+                              //             await FlutterBluetoothSerial.instance
+                              //                 .requestDisable();
+                              //         }
+
+                              //         future().then((_) {
+                              //           setState(() {});
+                              //         });
+                              //       },
+                              //     ),
+                              //   ),
+                              // ),
+                            ]),
+                        ListView(
+                          padding: EdgeInsets.all(5),
+                          shrinkWrap: true,
+                          children: list,
+                        )
+                      ],
+                    ),
+                  );
+          }),
     );
 
     // Scaffold(

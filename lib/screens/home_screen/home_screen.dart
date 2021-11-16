@@ -98,211 +98,223 @@ class _HomeScreenState extends State<HomeScreen> {
         backgroundColor: Colors.white,
         body: Container(
           height: MediaQuery.of(context).size.height,
-          child: Stack(alignment: AlignmentDirectional.topCenter, children: <
-              Widget>[
-            Container(
-              height: 120,
-              decoration: BoxDecoration(
-                  color: kFillColor,
-                  borderRadius:
-                      BorderRadius.vertical(bottom: Radius.circular(18))),
-            ),
-            Positioned(
-              top: 60,
-              left: 15,
-              child: Column(
-                  mainAxisAlignment: MainAxisAlignment.start,
+          child: Column(
+            children: [
+              Stack(
+                  alignment: AlignmentDirectional.topCenter,
                   children: <Widget>[
-                    Text(
-                      'Hello!',
-                      textAlign: TextAlign.left,
-                      style: textInputDecoration.labelStyle!.copyWith(
-                          fontWeight: FontWeight.w400,
-                          fontSize: 16,
-                          color: Colors.white),
+                    Container(
+                      height: 120,
+                      decoration: BoxDecoration(
+                          color: kFillColor,
+                          borderRadius: BorderRadius.vertical(
+                              bottom: Radius.circular(18))),
                     ),
-                    Text(
-                      '$name',
-                      style: textInputDecoration.labelStyle!.copyWith(
-                          fontWeight: FontWeight.w800,
-                          fontSize: 24,
-                          color: Colors.white),
+                    Positioned(
+                      top: 60,
+                      left: 15,
+                      child: Column(
+                          mainAxisAlignment: MainAxisAlignment.start,
+                          children: <Widget>[
+                            Text(
+                              'Hello!',
+                              textAlign: TextAlign.left,
+                              style: textInputDecoration.labelStyle!.copyWith(
+                                  fontWeight: FontWeight.w400,
+                                  fontSize: 16,
+                                  color: Colors.white),
+                            ),
+                            Text(
+                              '$name',
+                              style: textInputDecoration.labelStyle!.copyWith(
+                                  fontWeight: FontWeight.w800,
+                                  fontSize: 24,
+                                  color: Colors.white),
+                            ),
+                          ]),
+                    ),
+                    Positioned(
+                      top: 60,
+                      right: 15,
+                      child: IconButton(
+                          icon: Image.asset(
+                            "assets/logos/Logout-Button.png",
+                            height: 30,
+                          ),
+                          onPressed: () {
+                            // Navigator.of(context)
+                            //     .push(MaterialPageRoute(builder: (context) => MyApp()));
+                            logout();
+                          }),
                     ),
                   ]),
-            ),
-            Positioned(
-              top: 60,
-              right: 15,
-              child: IconButton(
-                  icon: Image.asset(
-                    "assets/logos/Logout-Button.png",
-                    height: 30,
-                  ),
-                  onPressed: () {
-                    // Navigator.of(context)
-                    //     .push(MaterialPageRoute(builder: (context) => MyApp()));
-                    logout();
-                  }),
-            ),
-            Positioned(
-              top: 50,
-              child: Container(
-                height: MediaQuery.of(context).size.height / 1.1,
+              Container(
+                // height: MediaQuery.of(context).size.height,
                 width: MediaQuery.of(context).size.width,
                 child: Column(
                     crossAxisAlignment: CrossAxisAlignment.center,
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: <Widget>[
                       loading ? _loading() : SizedBox(height: 50),
-                      Container(
-                        alignment: Alignment.center,
-                        height: 200,
-                        width: MediaQuery.of(context).size.width / 1.15,
-                        child: Padding(
-                          padding: const EdgeInsets.all(15.0),
-                          child: Column(children: <Widget>[
-                            Image.asset(
-                              'assets/images/OCR-Icon.png',
-                              height: 160,
-                              width: 230,
+                      Column(
+                        children: [
+                          Container(
+                            alignment: Alignment.center,
+                            height: MediaQuery.of(context).size.height / 3.5,
+                            width: MediaQuery.of(context).size.width / 1.15,
+                            child: Padding(
+                              padding: const EdgeInsets.all(15.0),
+                              child: Image.asset(
+                                'assets/images/OCR-Icon.png',
+                                // height: 160,
+                                // width: 230,
+                              ),
                             ),
-                          ]),
-                        ),
-                        decoration: BoxDecoration(
-                            color: Colors.white,
-                            borderRadius: BorderRadius.only(
-                                topLeft: Radius.circular(10.0),
-                                topRight: Radius.circular(10.0)),
-                            boxShadow: [
-                              new BoxShadow(
-                                color: Colors.black,
-                                blurRadius: 0.7,
-                              )
-                            ]),
-                      ),
-                      Container(
-                        height: 51,
-                        width: MediaQuery.of(context).size.width / 1.15,
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            SizedBox(),
-                            Text(
-                              "Scanning PO With OCR",
-                              style: textInputDecoration.labelStyle!
-                                  .copyWith(color: Colors.white, fontSize: 16),
-                            ),
-                            Row(
-                              crossAxisAlignment: CrossAxisAlignment.center,
-                              mainAxisAlignment: MainAxisAlignment.end,
+                            decoration: BoxDecoration(
+                                color: Colors.white,
+                                borderRadius: BorderRadius.only(
+                                    topLeft: Radius.circular(10.0),
+                                    topRight: Radius.circular(10.0)),
+                                boxShadow: [
+                                  new BoxShadow(
+                                    color: Colors.black,
+                                    blurRadius: 0.7,
+                                  )
+                                ]),
+                          ),
+                          Container(
+                            // height: 51,
+                            width: MediaQuery.of(context).size.width / 1.15,
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
                               children: [
-                                Container(
-                                  height: 51,
-                                  width: 125,
-                                  child: ElevatedButton(
-                                    onPressed: () async {
-                                      Navigator.of(context).push(
-                                          MaterialPageRoute(
-                                              builder: (context) =>
-                                                  ImagesPages()));
+                                SizedBox(),
+                                Text(
+                                  "Scanning PO With OCR",
+                                  style: textInputDecoration.labelStyle!
+                                      .copyWith(
+                                          color: Colors.white, fontSize: 16),
+                                ),
+                                Row(
+                                  crossAxisAlignment: CrossAxisAlignment.center,
+                                  mainAxisAlignment: MainAxisAlignment.end,
+                                  children: [
+                                    Container(
+                                      // height:
+                                      //     MediaQuery.of(context).size.height,
+                                      width: 125,
+                                      child: TextButton(
+                                        onPressed: () async {
+                                          Navigator.of(context).push(
+                                              MaterialPageRoute(
+                                                  builder: (context) =>
+                                                      ImagesPages()));
 
-                                      // setState(() {
-                                      //   loading = true;
-                                      // });
-                                      //   final PickedFile pick =
-                                      //       await ImagePicker().getImage(
-                                      //           source: ImageSource.camera,
-                                      //           imageQuality: 50);
-                                      //   File pickeds;
-                                      //   if (pick == null) {
-                                      //     return Container();
-                                      //   } else {
-                                      //     pickeds = File(pick.path);
-                                      //     _image = pickeds;
-                                      //   }
-                                      //   setState(() => loading = false);
-                                      //   return Navigator.of(context).push(
-                                      //       MaterialPageRoute(
-                                      //           builder: (context) =>
-                                      //               POScanSession(_image)));
-                                    },
-                                    style: ElevatedButton.styleFrom(
-                                        primary: kTextColor,
-                                        alignment: Alignment.centerRight),
-                                    child: RichText(
-                                        textAlign: TextAlign.start,
-                                        text: TextSpan(
-                                            style:
-                                                textInputDecoration.labelStyle,
-                                            children: <InlineSpan>[
-                                              TextSpan(
-                                                  text: 'Start',
-                                                  style: textInputDecoration
-                                                      .labelStyle!
-                                                      .copyWith(
-                                                          color: Colors.white,
-                                                          fontWeight:
-                                                              FontWeight.w400,
-                                                          fontSize: 16)),
-                                              WidgetSpan(
-                                                alignment:
-                                                    PlaceholderAlignment.middle,
-                                                child: Icon(
-                                                  Icons.arrow_right_outlined,
-                                                  color: Colors.white,
-                                                  size: 35,
-                                                ),
-                                              ),
-                                            ])),
-                                  ),
-                                )
+                                          // setState(() {
+                                          //   loading = true;
+                                          // });
+                                          //   final PickedFile pick =
+                                          //       await ImagePicker().getImage(
+                                          //           source: ImageSource.camera,
+                                          //           imageQuality: 50);
+                                          //   File pickeds;
+                                          //   if (pick == null) {
+                                          //     return Container();
+                                          //   } else {
+                                          //     pickeds = File(pick.path);
+                                          //     _image = pickeds;
+                                          //   }
+                                          //   setState(() => loading = false);
+                                          //   return Navigator.of(context).push(
+                                          //       MaterialPageRoute(
+                                          //           builder: (context) =>
+                                          //               POScanSession(_image)));
+                                        },
+                                        style: ElevatedButton.styleFrom(
+                                            primary: kTextColor,
+                                            alignment: Alignment.centerRight),
+                                        child: RichText(
+                                            textAlign: TextAlign.start,
+                                            text: TextSpan(
+                                                style: textInputDecoration
+                                                    .labelStyle,
+                                                children: <InlineSpan>[
+                                                  TextSpan(
+                                                      text: 'Start',
+                                                      style: textInputDecoration
+                                                          .labelStyle!
+                                                          .copyWith(
+                                                              color:
+                                                                  Colors.white,
+                                                              fontWeight:
+                                                                  FontWeight
+                                                                      .w400,
+                                                              fontSize: 16)),
+                                                  WidgetSpan(
+                                                    alignment:
+                                                        PlaceholderAlignment
+                                                            .middle,
+                                                    child: Icon(
+                                                      Icons
+                                                          .arrow_right_outlined,
+                                                      color: Colors.white,
+                                                      size: 35,
+                                                    ),
+                                                  ),
+                                                ])),
+                                      ),
+                                    )
+                                  ],
+                                ),
                               ],
                             ),
-                          ],
-                        ),
-                        decoration: BoxDecoration(
-                            color: kFillColor,
-                            borderRadius: BorderRadius.only(
-                                bottomLeft: Radius.circular(10.0),
-                                bottomRight: Radius.circular(10.0)),
-                            boxShadow: [
-                              new BoxShadow(
-                                color: Colors.black,
-                                blurRadius: 1.0,
-                              )
-                            ]),
+                            decoration: BoxDecoration(
+                                color: kFillColor,
+                                borderRadius: BorderRadius.only(
+                                    bottomLeft: Radius.circular(10.0),
+                                    bottomRight: Radius.circular(10.0)),
+                                boxShadow: [
+                                  new BoxShadow(
+                                    color: Colors.black,
+                                    blurRadius: 1.0,
+                                  )
+                                ]),
+                          ),
+                        ],
                       ),
                       SizedBox(
                         height: 25,
                       ),
-                      Container(
-                        alignment: Alignment.center,
-                        height: 200,
-                        width: MediaQuery.of(context).size.width / 1.15,
-                        child: Padding(
-                          padding: const EdgeInsets.all(15.0),
-                          child: Column(children: <Widget>[
-                            Image.asset(
-                              'assets/images/RFID-Icon.png',
-                              height: 150,
-                              width: 220,
+                      Column(
+                        children: [
+                          Container(
+                            alignment: Alignment.center,
+                            height: MediaQuery.of(context).size.height / 3.5,
+                            width: MediaQuery.of(context).size.width / 1.15,
+                            child: Padding(
+                              padding: const EdgeInsets.all(15.0),
+                              child: Image.asset(
+                                'assets/images/RFID-Icon.png',
+                                // height: 150,
+                                // width: 220,
+                              ),
                             ),
-                          ]),
-                        ),
-                        decoration: BoxDecoration(
-                            color: Colors.white,
-                            borderRadius: BorderRadius.only(
-                                topLeft: Radius.circular(10.0),
-                                topRight: Radius.circular(10.0)),
-                            boxShadow: [
-                              new BoxShadow(
-                                color: Colors.black,
-                                blurRadius: 0.7,
-                              )
-                            ]),
+                            decoration: BoxDecoration(
+                                color: Colors.white,
+                                borderRadius: BorderRadius.only(
+                                    topLeft: Radius.circular(10.0),
+                                    topRight: Radius.circular(10.0)),
+                                boxShadow: [
+                                  new BoxShadow(
+                                    color: Colors.black,
+                                    blurRadius: 0.7,
+                                  )
+                                ]),
+                          ),
+                        ],
                       ),
                       Container(
-                        height: 51,
+                        // height: 51,
                         width: MediaQuery.of(context).size.width / 1.15,
                         child: Row(
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -320,7 +332,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                 Container(
                                   height: 51,
                                   width: 125,
-                                  child: ElevatedButton(
+                                  child: TextButton(
                                     onPressed: () async {
                                       // Navigator.of(context).push(
                                       //     MaterialPageRoute(builder: (context) {
@@ -331,7 +343,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                               MaterialPageRoute(
                                                   builder: (context) {
                                         return SelectBondedDevicePage(
-                                          checkAvailability: false,
+                                          checkAvailability: true,
                                         );
                                       }));
                                       if (selectedDevice != null) {
@@ -351,7 +363,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                     },
                                     style: ElevatedButton.styleFrom(
                                         primary: kTextColor,
-                                        alignment: Alignment.centerRight),
+                                        alignment: Alignment.center),
                                     child: RichText(
                                         textAlign: TextAlign.start,
                                         text: TextSpan(
@@ -359,7 +371,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                                 textInputDecoration.labelStyle,
                                             children: <InlineSpan>[
                                               TextSpan(
-                                                  text: 'Open   ',
+                                                  text: 'Open  ',
                                                   style: textInputDecoration
                                                       .labelStyle!
                                                       .copyWith(
@@ -396,9 +408,9 @@ class _HomeScreenState extends State<HomeScreen> {
                             ]),
                       ),
                     ]),
-              ),
-            )
-          ]),
+              )
+            ],
+          ),
         ),
       ),
     );

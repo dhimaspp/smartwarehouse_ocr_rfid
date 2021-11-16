@@ -105,60 +105,73 @@ class _ImagesPagesState extends State<ImagesPages> {
                 Positioned(
                   top: 55,
                   left: 5,
-                  child: Row(
-                      // mainAxisSize: MainAxisSize.max,
-                      mainAxisAlignment: MainAxisAlignment.end,
-                      children: <Widget>[
-                        ElevatedButton(
-                            style: ElevatedButton.styleFrom(
-                                elevation: 0, primary: kFillColor),
-                            onPressed: () {
-                              // SharedPreferences sharedLocal =
-                              //     await SharedPreferences.getInstance();
-                              // sharedLocal.remove('ListImagePath');
-                              Navigator.of(context).push(MaterialPageRoute(
-                                  builder: (context) => HomeScreen()));
-                            },
-                            child: Icon(
-                              Icons.arrow_back_ios_rounded,
-                              color: Colors.white,
-                            )),
-                        Text(
-                          'PO Images Preview                 ',
-                          style: textInputDecoration.labelStyle!.copyWith(
-                              fontWeight: FontWeight.w800,
-                              fontSize: 18,
-                              color: Colors.white),
-                        ),
-                        IconButton(
-                            alignment: Alignment.centerRight,
-                            onPressed: () async {
-                              FilePickerResult? resultPDF =
-                                  await FilePicker.platform.pickFiles(
-                                      allowMultiple: false,
-                                      type: FileType.custom,
-                                      allowedExtensions: ['pdf', 'jpg']);
-                              if (resultPDF != null) {
-                                SharedPreferences sharedLocal =
-                                    await SharedPreferences.getInstance();
-                                pickeds = File(resultPDF.files.single.path!);
-                                setState(() {
-                                  print('image cropper file : $pickeds');
-                                  assets!.add(pickeds.path);
+                  child: SizedBox(
+                    width: MediaQuery.of(context).size.width,
+                    child: Row(
+                        // mainAxisSize: MainAxisSize.max,
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: <Widget>[
+                          Row(
+                            children: [
+                              ElevatedButton(
+                                  style: ElevatedButton.styleFrom(
+                                      elevation: 0, primary: kFillColor),
+                                  onPressed: () {
+                                    // SharedPreferences sharedLocal =
+                                    //     await SharedPreferences.getInstance();
+                                    // sharedLocal.remove('ListImagePath');
+                                    Navigator.of(context).push(
+                                        MaterialPageRoute(
+                                            builder: (context) =>
+                                                HomeScreen()));
+                                  },
+                                  child: Icon(
+                                    Icons.arrow_back_ios_rounded,
+                                    color: Colors.white,
+                                  )),
+                              Text(
+                                'PO Images Preview',
+                                style: textInputDecoration.labelStyle!.copyWith(
+                                    fontWeight: FontWeight.w800,
+                                    fontSize: 18,
+                                    color: Colors.white),
+                              ),
+                            ],
+                          ),
+                          Padding(
+                            padding: const EdgeInsets.only(right: 18),
+                            child: IconButton(
+                                alignment: Alignment.centerRight,
+                                onPressed: () async {
+                                  FilePickerResult? resultPDF =
+                                      await FilePicker.platform.pickFiles(
+                                          allowMultiple: false,
+                                          type: FileType.custom,
+                                          allowedExtensions: ['pdf', 'jpg']);
+                                  if (resultPDF != null) {
+                                    SharedPreferences sharedLocal =
+                                        await SharedPreferences.getInstance();
+                                    pickeds =
+                                        File(resultPDF.files.single.path!);
+                                    setState(() {
+                                      print('image cropper file : $pickeds');
+                                      assets!.add(pickeds.path);
 
-                                  sharedLocal.setStringList(
-                                      'ListImagePathFix', assets!);
-                                  _getAssetsImage();
-                                });
-                                // return PDFUpload(context, pickedsPDF, token!);
-                              }
-                            },
-                            icon: Icon(
-                              Icons.attach_file,
-                              size: 25,
-                              color: Colors.white,
-                            ))
-                      ]),
+                                      sharedLocal.setStringList(
+                                          'ListImagePathFix', assets!);
+                                      _getAssetsImage();
+                                    });
+                                    // return PDFUpload(context, pickedsPDF, token!);
+                                  }
+                                },
+                                icon: Icon(
+                                  Icons.attach_file,
+                                  size: 25,
+                                  color: Colors.white,
+                                )),
+                          )
+                        ]),
+                  ),
                 ),
               ]),
         ),

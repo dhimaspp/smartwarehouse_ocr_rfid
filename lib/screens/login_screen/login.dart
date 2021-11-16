@@ -51,14 +51,17 @@ class _LoginScreenState extends State<LoginScreen> {
           // fit: StackFit.expand,
           alignment: AlignmentDirectional.topCenter,
           children: <Widget>[
+            // Container(
+            //   height: 261,
+            //   color: kFillColor,
+            // ),
             Container(
-              height: 261,
-              color: kFillColor,
-            ),
-            Container(
-              height: 280,
+              // height: 280,
               width: MediaQuery.of(context).size.width,
-              child: Image.asset("assets/images/header-login.png"),
+              child: Image.asset(
+                "assets/images/header-login.png",
+                fit: BoxFit.fitWidth,
+              ),
             ),
             Positioned(
               top: 70,

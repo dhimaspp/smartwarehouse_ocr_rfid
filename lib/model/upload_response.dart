@@ -85,7 +85,7 @@ class Items {
   String? deskripsi;
   String? unitOfMeasure;
   dynamic qty;
-  String? harga;
+  dynamic harga;
 
   Items(
       {this.noLine,

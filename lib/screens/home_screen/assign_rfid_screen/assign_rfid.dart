@@ -365,6 +365,7 @@ class AssignRFIDState extends State<AssignRFID> {
                       status: 'delete success',
                     );
                     listPO.removeAt(index);
+                    getPOLoadmoreBloc..getallPOrx('');
                     Navigator.of(contexti).push(MaterialPageRoute(
                         builder: (_) => AssignRFID(widget.server)));
                     EasyLoading.dismiss();
