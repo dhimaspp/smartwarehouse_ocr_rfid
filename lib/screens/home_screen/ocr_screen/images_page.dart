@@ -474,6 +474,7 @@ class _ImagesPagesState extends State<ImagesPages> {
                           ),
                           onSendProgress: (received, total) {
                             if (total != -1) {
+                              bool uploading = false;
                               double progress = (received / total);
                               String? progressString;
                               setState(() {
@@ -483,29 +484,37 @@ class _ImagesPagesState extends State<ImagesPages> {
                               });
 
                               print('progress : $progress');
-                              EasyLoading.showProgress(progress,
-                                  status:
-                                      'Uploading images to OCR\n$progressString');
-                              // .then((e) => EasyLoading.show(
-                              //     status:
-                              //         'Processing OCR to Text\nThis may take a while',
-                              //     dismissOnTap: false,
-                              //     indicator: Center(
-                              //         // heightFactor: MediaQuery.of(context).size.height,
-                              //         child: SpinKitRipple(
-                              //       color: Colors.white,
-                              //       // size: 80,
-                              //     ))));
-                              EasyLoading.show(
-                                  status:
-                                      'Processing OCR to Text\nThis may take a while',
-                                  dismissOnTap: false,
-                                  indicator: Center(
-                                      // heightFactor: MediaQuery.of(context).size.height,
-                                      child: SpinKitRipple(
-                                    color: Colors.white,
-                                    // size: 80,
-                                  )));
+                              uploading == false
+                                  ? EasyLoading.show(
+                                      status:
+                                          'Processing OCR to Text\nThis may take a while',
+                                      dismissOnTap: false,
+                                      indicator: Center(
+                                          // heightFactor: MediaQuery.of(context).size.height,
+                                          child: SpinKitRipple(
+                                        color: Colors.white,
+                                        // size: 80,
+                                      )))
+                                  : EasyLoading.show(
+                                      status:
+                                          'Uploading images to OCR\n$progressString',
+                                      dismissOnTap: false,
+                                      indicator: Center(
+                                          // heightFactor: MediaQuery.of(context).size.height,
+                                          child: SpinKitRipple(
+                                        color: Colors.white,
+                                        // size: 80,
+                                      ))).whenComplete(() {
+                                      setState(() {
+                                        uploading = true;
+                                      });
+                                    });
+                              // EasyLoading.showProgress(progress,
+                              //         status:
+                              //             'Uploading images to OCR\n$progressString')
+                              //     .whenComplete(() => EasyLoading.dismiss());
+                              // EasyLoading.dismiss();
+
                               print(
                                   (received / total * 100).toStringAsFixed(0) +
                                       '%');

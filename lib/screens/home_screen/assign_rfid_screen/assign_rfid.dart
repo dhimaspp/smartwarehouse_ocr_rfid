@@ -366,8 +366,9 @@ class AssignRFIDState extends State<AssignRFID> {
                     );
                     listPO.removeAt(index);
                     getPOLoadmoreBloc..getallPOrx('');
-                    Navigator.of(contexti).push(MaterialPageRoute(
-                        builder: (_) => AssignRFID(widget.server)));
+                    Navigator.of(context).pop();
+                    // Navigator.of(contexti).push(MaterialPageRoute(
+                    //     builder: (_) => AssignRFID(widget.server)));
                     EasyLoading.dismiss();
                   } else if (state is DeletePOLoadingFailed) {
                     EasyLoading.showError(state.message!);
@@ -460,8 +461,10 @@ class AssignRFIDState extends State<AssignRFID> {
                         status: 'delete success',
                       );
                       listPO.removeAt(index);
-                      Navigator.of(contexti).push(MaterialPageRoute(
-                          builder: (_) => AssignRFID(widget.server)));
+                      getPOLoadmoreBloc..getallPOrx('');
+                      Navigator.of(context).pop();
+                      // Navigator.of(contexti).push(MaterialPageRoute(
+                      //     builder: (_) => AssignRFID(widget.server)));
                       EasyLoading.dismiss();
                     } else if (state is DeletePOLoadingFailed) {
                       EasyLoading.showError(state.message!);

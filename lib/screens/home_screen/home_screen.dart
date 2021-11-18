@@ -7,6 +7,7 @@ import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:jwt_decoder/jwt_decoder.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:smartwarehouse_ocr_rfid/bloc/bloc_po_loadmore.dart';
 import 'package:smartwarehouse_ocr_rfid/screens/home_screen/assign_rfid_screen/assign_rfid.dart';
 import 'package:smartwarehouse_ocr_rfid/screens/home_screen/bt_pairing/select_bounded_device.dart';
 import 'package:smartwarehouse_ocr_rfid/screens/home_screen/ocr_screen/images_page.dart';
@@ -28,6 +29,7 @@ class _HomeScreenState extends State<HomeScreen> {
   @override
   void initState() {
     super.initState();
+    getPOLoadmoreBloc..getallPOrx('');
     _loadDataUser();
   }
 
@@ -343,7 +345,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                               MaterialPageRoute(
                                                   builder: (context) {
                                         return SelectBondedDevicePage(
-                                          checkAvailability: true,
+                                          checkAvailability: false,
                                         );
                                       }));
                                       if (selectedDevice != null) {
