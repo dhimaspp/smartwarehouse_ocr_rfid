@@ -282,59 +282,71 @@ class _SelectBondedDevicePage extends State<SelectBondedDevicePage> {
                                 Positioned(
                                   top: 50,
                                   left: 5,
+                                  width: MediaQuery.of(context).size.width,
                                   child: Row(
                                       mainAxisAlignment:
                                           MainAxisAlignment.spaceBetween,
                                       children: <Widget>[
-                                        ElevatedButton(
-                                            style: ElevatedButton.styleFrom(
-                                                elevation: 0,
-                                                primary: kFillColor),
-                                            onPressed: () {
-                                              Navigator.of(context).push(
-                                                  MaterialPageRoute(
-                                                      builder: (context) {
-                                                return HomeScreen();
-                                              }));
-                                            },
-                                            child: Icon(
-                                              Icons.arrow_back_ios_rounded,
-                                              color: Colors.white,
-                                            )),
-                                        Text(
-                                          '  Select Device',
-                                          style: textInputDecoration.labelStyle!
-                                              .copyWith(
-                                                  fontWeight: FontWeight.w800,
-                                                  fontSize: 18,
-                                                  color: Colors.white),
-                                        ),
-                                        SizedBox(
-                                          width: 140,
+                                        Row(
+                                          children: [
+                                            ElevatedButton(
+                                                style: ElevatedButton.styleFrom(
+                                                    elevation: 0,
+                                                    primary: kFillColor),
+                                                onPressed: () {
+                                                  Navigator.of(context).push(
+                                                      MaterialPageRoute(
+                                                          builder: (context) {
+                                                    return HomeScreen();
+                                                  }));
+                                                },
+                                                child: Icon(
+                                                  Icons.arrow_back_ios_rounded,
+                                                  color: Colors.white,
+                                                )),
+                                            Text(
+                                              '  Select Device',
+                                              style: textInputDecoration
+                                                  .labelStyle!
+                                                  .copyWith(
+                                                      fontWeight:
+                                                          FontWeight.w800,
+                                                      fontSize: 18,
+                                                      color: Colors.white),
+                                            ),
+                                          ],
                                         ),
                                         _isDiscovering
-                                            ? FittedBox(
-                                                child: Container(
-                                                  height: 14,
-                                                  width: 14,
-                                                  margin:
-                                                      new EdgeInsets.all(16.0),
-                                                  child:
-                                                      CircularProgressIndicator(
-                                                    valueColor:
-                                                        AlwaysStoppedAnimation<
-                                                            Color>(
-                                                      Colors.white,
+                                            ? Container(
+                                                padding:
+                                                    EdgeInsets.only(right: 16),
+                                                child: FittedBox(
+                                                  child: Container(
+                                                    height: 14,
+                                                    width: 14,
+                                                    margin: new EdgeInsets.all(
+                                                        16.0),
+                                                    child:
+                                                        CircularProgressIndicator(
+                                                      valueColor:
+                                                          AlwaysStoppedAnimation<
+                                                              Color>(
+                                                        Colors.white,
+                                                      ),
                                                     ),
                                                   ),
                                                 ),
                                               )
-                                            : IconButton(
-                                                icon: Icon(
-                                                  Icons.replay,
-                                                  color: Colors.white,
+                                            : Container(
+                                                padding:
+                                                    EdgeInsets.only(right: 16),
+                                                child: IconButton(
+                                                  icon: Icon(
+                                                    Icons.replay,
+                                                    color: Colors.white,
+                                                  ),
+                                                  onPressed: _restartDiscovery,
                                                 ),
-                                                onPressed: _restartDiscovery,
                                               )
                                       ]),
                                 ),

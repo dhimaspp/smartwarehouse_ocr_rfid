@@ -22,6 +22,7 @@ import 'package:smartwarehouse_ocr_rfid/model/po_model.dart';
 import 'package:smartwarehouse_ocr_rfid/model/tag_model.dart';
 import 'package:smartwarehouse_ocr_rfid/screens/home_screen/assign_rfid_screen/assign_rfid.dart';
 import 'package:smartwarehouse_ocr_rfid/screens/home_screen/bt_pairing/bt_wrapper.dart';
+import 'package:smartwarehouse_ocr_rfid/screens/home_screen/home_screen.dart';
 import 'package:smartwarehouse_ocr_rfid/theme/my_flutter_app_icons.dart';
 import 'package:smartwarehouse_ocr_rfid/theme/theme.dart';
 
@@ -202,10 +203,10 @@ class _ItemTaggingState extends State<ItemTagging> {
         stream: fb.FlutterBlue.instance.state,
         initialData: fb.BluetoothState.unknown,
         builder: (c, snapshot) {
-          final state = snapshot.data;
-          if (state != fb.BluetoothState.on) {
-            return BleOff();
-          }
+          // final state = snapshot.data;
+          // if (state != fb.BluetoothState.on) {
+          //   return BleOff();
+          // }
           return isConnecting == true
               ? Scaffold(
                   backgroundColor: Colors.white,
@@ -414,7 +415,7 @@ class _ItemTaggingState extends State<ItemTagging> {
                                             snapshot.data!, list);
                                       } else if (snapshot.hasError) {
                                         EasyLoading.showError(
-                                            'Error occured\nPlease check your internet connection');
+                                            'Error occured\nPlease check your local connection');
                                         return Container();
                                       } else {
                                         EasyLoading.show(
@@ -434,6 +435,11 @@ class _ItemTaggingState extends State<ItemTagging> {
                                       AsyncSnapshot<ItemsPOModel> snapshot) {
                                     print('get all po list');
                                     if (snapshot.hasData) {
+                                      if (snapshot.data!.data == null) {
+                                        Navigator.of(context).push(
+                                            MaterialPageRoute(
+                                                builder: (_) => HomeScreen()));
+                                      }
                                       EasyLoading.dismiss();
                                       print(
                                           'print snapshot${snapshot.data!.data!.length}');

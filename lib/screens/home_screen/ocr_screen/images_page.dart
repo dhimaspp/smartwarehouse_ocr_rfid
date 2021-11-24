@@ -34,15 +34,22 @@ class _ImagesPagesState extends State<ImagesPages> {
   bool? finishAdding, _onLongPressed;
   bool _isEmpty = true;
   int indexPressed = 0;
-  final Dio _dio = Dio();
+  Dio? _dio;
   String? token;
   late File pickeds;
   late File pickedsPDF;
+  BaseOptions options = new BaseOptions(
+      baseUrl: "your base url",
+      receiveDataWhenStatusError: true,
+      connectTimeout: 45 * 1000, // 60 seconds
+      receiveTimeout: 45 * 1000 // 60 seconds
+      );
 
   @override
   void initState() {
     super.initState();
     _getAssetsImage();
+    _dio = Dio(options);
 
     print('isi assets list ${assets!.length}');
   }
@@ -196,7 +203,7 @@ class _ImagesPagesState extends State<ImagesPages> {
                     return null;
                   } else {
                     pickeds = File(pick.path);
-                    _cropImage();
+                    // _cropImage();
                     // Navigator.of(context)
                     //     .push(MaterialPageRoute(builder: (context) {
                     //   return POScanSession(
@@ -460,7 +467,7 @@ class _ImagesPagesState extends State<ImagesPages> {
                         print(
                             'list data form: ${formData.files.map((e) => e.value.filename.toString())}');
                         print('print ip post image ocr : $postRegister');
-                        var response = await _dio.post(
+                        var response = await _dio!.post(
                           postRegister + '/v1/purchase-orders',
                           data: formData,
                           options: Options(
@@ -555,6 +562,11 @@ class _ImagesPagesState extends State<ImagesPages> {
                           errorMessage = resError.message!;
                           EasyLoading.showError(
                               'Error: ${errorMessage.toString()}',
+                              duration: Duration(seconds: 15),
+                              dismissOnTap: true);
+                        } else if (error.type == DioErrorType.connectTimeout) {
+                          EasyLoading.showError(
+                              'Error: Connection Timeout Please check your local connection',
                               duration: Duration(seconds: 15),
                               dismissOnTap: true);
                         }

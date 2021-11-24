@@ -1,6 +1,7 @@
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
+import 'package:http/http.dart' as http;
 import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -292,22 +293,30 @@ class _LoginScreenState extends State<LoginScreen> {
     };
 
     var res = await UserAuth().authData(data);
-    var body = json.decode(res.body);
-
-    if (body['message'] == "Login success!") {
-      SharedPreferences localData = await SharedPreferences.getInstance();
-      // localData.setString('message', 'Login success!');
-      localData.setString('access_token', json.encode(body['access_token']));
-      localData.setString('data', json.encode(body['data']));
-      print('$body');
-
-      setState(() {
-        Navigator.push(
-            context, new MaterialPageRoute(builder: (context) => HomeScreen()));
-      });
+    if (res.statusCode == 500) {
+      EasyLoading.showError(
+          'Connectin timeout please check your local connection',
+          duration: Duration(seconds: 15),
+          dismissOnTap: true);
     } else {
-      EasyLoading.dismiss();
-      _showMsg(body['message']);
+      print(res);
+      var body = json.decode(res.body);
+
+      if (body['message'] == "Login success!") {
+        SharedPreferences localData = await SharedPreferences.getInstance();
+        // localData.setString('message', 'Login success!');
+        localData.setString('access_token', json.encode(body['access_token']));
+        localData.setString('data', json.encode(body['data']));
+        print('$body');
+
+        setState(() {
+          Navigator.push(context,
+              new MaterialPageRoute(builder: (context) => HomeScreen()));
+        });
+      } else {
+        EasyLoading.dismiss();
+        _showMsg(body['message']);
+      }
     }
     EasyLoading.dismiss();
   }

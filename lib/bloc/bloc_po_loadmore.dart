@@ -10,6 +10,7 @@ class GetPOLoadMoreBloc {
     print('getallPO');
     POList response = await _poRepository.getPOLoadMore(loadmore.trim());
     _subject.sink.add(response);
+    _result = _subject;
   }
 
   dispose() async {
@@ -17,6 +18,8 @@ class GetPOLoadMoreBloc {
   }
 
   BehaviorSubject<POList> get subject => _subject;
+  Stream<POList>? _result;
+  Stream<POList>? get result => _result;
 }
 
 final getPOLoadmoreBloc = GetPOLoadMoreBloc();

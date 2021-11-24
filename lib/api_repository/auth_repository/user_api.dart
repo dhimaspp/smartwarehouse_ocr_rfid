@@ -26,8 +26,12 @@ class UserAuth {
     await _getIP();
     var fullEndpoint = endPoint;
 
-    return await http.post(Uri.parse(fullEndpoint!),
-        body: jsonEncode(data), headers: _setHeaders());
+    return await http
+        .post(Uri.parse(fullEndpoint!),
+            body: jsonEncode(data), headers: _setHeaders())
+        .timeout(const Duration(seconds: 45), onTimeout: () {
+      return http.Response('Connection Time Out', 500);
+    });
   }
 
   getData() async {

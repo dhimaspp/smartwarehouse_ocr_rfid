@@ -17,6 +17,10 @@ class AssignTagCubit extends Cubit<AssignTagState> {
     } else if (result.errors!.uid!.message!.isNotEmpty) {
       print('loading AssignTag failed');
       emit(AssignTagLoadingFailed(result.errors!.uid!.message));
+    } else if (result.message ==
+        'Connection Timeout please check your local connection') {
+      print('loading timeout');
+      emit(AssignTagLoadingFailed(result.message));
     }
   }
 }

@@ -1,6 +1,7 @@
 import 'dart:collection';
 import 'dart:typed_data';
 
+import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bluetooth_serial/flutter_bluetooth_serial.dart';
@@ -102,9 +103,9 @@ class AssignRFIDState extends State<AssignRFID> {
         initialData: fb.BluetoothState.unknown,
         builder: (c, snapshot) {
           final state = snapshot.data;
-          if (state != fb.BluetoothState.on) {
-            return BleOff();
-          }
+          // if (state != fb.BluetoothState.on) {
+          //   return BleOff();
+          // }
           return Scaffold(
             backgroundColor: Colors.white,
             appBar: PreferredSize(
@@ -235,11 +236,13 @@ class AssignRFIDState extends State<AssignRFID> {
                                   return _buildSearchPO(snapshot.data!);
                                 } else if (snapshot.hasError) {
                                   EasyLoading.showError(
-                                      'Error occured\nPlease check your internet connection');
+                                      'Error occured\nPlease check your local connection',
+                                      duration: Duration(seconds: 15));
                                   return Container();
                                 } else {
                                   EasyLoading.show(
                                       status: 'Loading',
+                                      dismissOnTap: true,
                                       indicator: Center(
                                           child: SpinKitRipple(
                                         color: kMaincolor,
@@ -252,9 +255,23 @@ class AssignRFIDState extends State<AssignRFID> {
                         : StreamBuilder<POList>(
                             stream: getPOLoadmoreBloc.subject.stream,
                             builder: (context, AsyncSnapshot<POList> snapshot) {
-                              if (snapshot.hasData) {
+                              if (snapshot.hasError) {
+                                EasyLoading.showError(snapshot.data!.message!,
+                                    duration: Duration(seconds: 15));
+                                Navigator.of(context).push(MaterialPageRoute(
+                                    builder: (_) => HomeScreen()));
+
+                                // logout();
+                                return Container();
+                              } else if (snapshot.hasData) {
                                 if (listPO.length == 0) {
-                                  listPO = snapshot.data!.data!;
+                                  if (snapshot.data!.data == null) {
+                                    Navigator.of(context).push(
+                                        MaterialPageRoute(
+                                            builder: (_) => HomeScreen()));
+                                  } else {
+                                    listPO = snapshot.data!.data!;
+                                  }
                                 }
                                 for (var i = 0; i < listPO.length; i++) {
                                   snapshot.data!.data!.map((e) {
@@ -273,30 +290,17 @@ class AssignRFIDState extends State<AssignRFID> {
                                 print(
                                     'print snapshot${snapshot.data!.data!.length}');
                                 return _buildPOList(listPO);
-                              } else if (snapshot.hasError) {
-                                EasyLoading.showError(snapshot.data!.message!);
-                                logout();
-                                return Container();
                               }
-                              //  else if (snapshot.data.data.length == 0) {
-                              //   return Container(
-                              //     width: MediaQuery.of(context).size.width,
-                              //     child: Column(
-                              //       mainAxisAlignment: MainAxisAlignment.center,
-                              //       crossAxisAlignment:
-                              //           CrossAxisAlignment.center,
-                              //       children: [
-                              //         Text(
-                              //           "There is no Data PO OCR",
-                              //           style: textInputDecoration.labelStyle,
-                              //         )
-                              //       ],
-                              //     ),
-                              //   );
+                              // else if (snapshot.data!.data!.isEmpty) {
+                              //   EasyLoading.showError(snapshot.data!.message!,
+                              //       duration: Duration(seconds: 15));
+                              //   Navigator.of(context).pop();
+                              //   return Container();
                               // }
                               else {
                                 EasyLoading.show(
                                     status: 'Loading',
+                                    dismissOnTap: true,
                                     indicator: Center(
                                         child: SpinKitRipple(
                                       color: kMaincolor,
