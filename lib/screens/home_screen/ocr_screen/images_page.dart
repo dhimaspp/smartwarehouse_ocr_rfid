@@ -203,7 +203,7 @@ class _ImagesPagesState extends State<ImagesPages> {
                     return null;
                   } else {
                     pickeds = File(pick.path);
-                    // _cropImage();
+                    _cropImage();
                     // Navigator.of(context)
                     //     .push(MaterialPageRoute(builder: (context) {
                     //   return POScanSession(

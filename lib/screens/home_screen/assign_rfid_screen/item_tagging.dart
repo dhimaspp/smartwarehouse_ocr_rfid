@@ -849,6 +849,9 @@ class _ItemTaggingState extends State<ItemTagging> {
                                                             ..getItemsPOList(
                                                                 widget
                                                                     .poNumber);
+                                                          // items[itemIndex]
+                                                          //     .rfids!
+                                                          //     .clear();
                                                           // print(
                                                           //     'print message api :${state.tagModel.errors.uid.message}');
                                                           // connection!.close();

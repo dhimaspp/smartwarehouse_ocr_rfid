@@ -381,23 +381,23 @@ class AssignRFIDState extends State<AssignRFID> {
               },
               title: Text(po[index].poNo!),
               subtitle: Text(po[index].poTgl!.split('T').first),
-              trailing: Column(
-                children: [
-                  Text('Status'),
-                  po[index].status == 'closed'
-                      ? Icon(
-                          Icons.circle_rounded,
-                          color: kMaincolor,
-                          size: 16,
-                        )
-                      : Icon(
-                          Icons.circle_rounded,
-                          color: Colors.greenAccent.shade700,
-                          size: 16,
-                        ),
-                  Text('${po[index].status}')
-                ],
-              ),
+              // trailing: Column(
+              //   children: [
+              //     Text('Status'),
+              //     po[index].status == 'closed'
+              //         ? Icon(
+              //             Icons.circle_rounded,
+              //             color: kMaincolor,
+              //             size: 16,
+              //           )
+              //         : Icon(
+              //             Icons.circle_rounded,
+              //             color: Colors.greenAccent.shade700,
+              //             size: 16,
+              //           ),
+              //     Text('${po[index].status}')
+              //   ],
+              // ),
             );
           });
   }
@@ -485,30 +485,30 @@ class AssignRFIDState extends State<AssignRFID> {
                 },
                 title: Text(po[index].poNo!),
                 subtitle: Text(po[index].poTgl!.split('T').first),
-                trailing: Column(
-                  mainAxisAlignment: MainAxisAlignment.spaceAround,
-                  children: [
-                    Text(
-                      'Status',
-                      // style: TextStyle(fontSize: 12),
-                    ),
-                    po[index].status == 'closed'
-                        ? Icon(
-                            Icons.circle_rounded,
-                            color: kMaincolor,
-                            size: 16,
-                          )
-                        : Icon(
-                            Icons.circle_rounded,
-                            color: Colors.greenAccent.shade700,
-                            size: 16,
-                          ),
-                    Text('${po[index].status}')
-                    // Row(
-                    //   children: [Icon(Icons.circle_rounded)],
-                    // )
-                  ],
-                ),
+                // trailing: Column(
+                //   mainAxisAlignment: MainAxisAlignment.spaceAround,
+                //   children: [
+                //     Text(
+                //       'Status',
+                //       // style: TextStyle(fontSize: 12),
+                //     ),
+                //     po[index].status == 'closed'
+                //         ? Icon(
+                //             Icons.circle_rounded,
+                //             color: kMaincolor,
+                //             size: 16,
+                //           )
+                //         : Icon(
+                //             Icons.circle_rounded,
+                //             color: Colors.greenAccent.shade700,
+                //             size: 16,
+                //           ),
+                //     Text('${po[index].status}')
+                //     // Row(
+                //     //   children: [Icon(Icons.circle_rounded)],
+                //     // )
+                //   ],
+                // ),
               );
             }),
       );
